@@ -220,3 +220,60 @@ hr {
   background: rgba(255, 255, 255, 0.3);
   margin: 24px 0;
 }
+/* === ULTRA TRANSPARENT – 95 % durchsichtig ===================== */
+:root{
+  --bg-blur: 0px !important;
+  --bg-dim:  0 !important;
+}
+body::before{
+  filter: none !important;
+}
+
+.backdrop{
+  background: rgba(255,255,255,0.05) !important; /* 95 % transparent */
+  backdrop-filter: none !important;
+}
+
+.card{
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  box-shadow: none !important;
+}
+.card:hover{
+  background: rgba(255,255,255,0.08) !important;
+}
+
+input[type="search"], select{
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.20) !important;
+  color: #000 !important;
+}
+
+.table{
+  background: transparent !important;
+}
+th, td{
+  background: rgba(255,255,255,0.08) !important;
+}
+tbody tr:hover td{
+  background: rgba(255,255,255,0.12) !important;
+}
+
+/* Such-Button-Stil */
+button.search-btn{
+  padding: 10px 18px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.12);
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .3s ease;
+}
+button.search-btn:hover{
+  background: rgba(255,255,255,0.2);
+}
+
+/* Texte etwas kräftiger gegen Bild */
+h1{ text-shadow: 0 1px 0 rgba(255,255,255,.35) !important; }
+.sub{ color: rgba(0,0,0,.75) !important; }
