@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stoffe – Suche</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+<link rel="stylesheet" href="assets/css/styles.css" />
+<script src="assets/js/bg.js" defer></script>
+</head>
+<body>
+  <div class="backdrop">
+    <div class="container">
+      <h1>Stoffe – Suchtabelle</h1>
+      <p class="sub">Gewürze, Kräuter, Salze, Harze/Hölzer, Tees/Infusionen, Räucherstoffe.</p>
+
+      <div class="card">
+        <div class="controls">
+          <input type="search" id="q" placeholder="Suche nach Name …" />
+          <select id="kat"></select>
+          <select id="sensorik"><option value="">Sensorik</option><option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option></select>
+          <select id="form"><option value="">Form</option><option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option></select>
+        </div>
+        <table class="table" id="tbl">
+          <thead><tr><th>ID</th><th>Name</th><th>Kategorie</th><th>Sensorik</th><th>Form</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/data.js"></script>
+  <script>
+  (async ()=>{
+    const {index} = await _DataAPI.loadMasters();
+    const stoffe = index.filter(r => (r.Kategorie||"").toLowerCase()!=="mischungen");
+
+    // Populate category select
+    const cats = _DataAPI.uniq(stoffe.map(r=>r.Kategorie).filter(Boolean)).sort();
+    document.getElementById("kat").innerHTML = `<option value="">Kategorie</option>` + cats.map(c=>`<option>${c}</option>`).join("");
+
+    function render(rows){
+      const html = rows.map(r=>`
+        <tr>
+          <td><span class="badge">${r.ID_Neu||""}</span></td>
+          <td>${r.Name||""}</td>
+          <td>${r.Kategorie||""}</td>
+          <td>${r.SensorikProfil||""}</td>
+          <td>${r.PhysikalischeForm||""}</td>
+        </tr>`).join("");
+      document.querySelector("#tbl tbody").innerHTML = html || `<tr><td colspan="5">Keine Treffer.</td></tr>`;
+    }
+
+    function apply(){
+      const q = (document.getElementById("q").value||"").toLowerCase();
+      const kat = document.getElementById("kat").value;
+      const s = document.getElementById("sensorik").value;
+      const p = document.getElementById("form").value;
+      const rows = stoffe.filter(r=>{
+        const okQ = !q || (r.Name||"").toLowerCase().includes(q);
+        const okK = !kat || r.Kategorie===kat;
+        const okS = !s || (r.SensorikProfil||"")===s;
+        const okP = !p || (r.PhysikalischeForm||"")===p;
+        return okQ && okK && okS && okP;
+      }).slice(0, 1000);
+      render(rows);
+    }
+
+    ["q","kat","sensorik","form"].forEach(id=> document.getElementById(id).addEventListener("input", apply));
+    render(stoffe.slice(0,200)); // initial
+  })();
+  </script>
+</body>
+</html>

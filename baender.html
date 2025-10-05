@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lexika Bänder</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+<link rel="stylesheet" href="assets/css/styles.css" />
+<script src="assets/js/bg.js" defer></script>
+</head>
+<body>
+  <div class="backdrop">
+    <div class="container">
+      <h1>Lexika Bänder</h1>
+      <p class="sub">Band-Referenzen aus dem MasterIndex (Spalte z. B. „Band-Refs“, falls vorhanden).</p>
+
+      <div class="card">
+        <table class="table" id="tbl">
+          <thead><tr><th>Band</th><th>Einträge</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/data.js"></script>
+  <script>
+  (async ()=>{
+    const {index} = await _DataAPI.loadMasters();
+    // Falls es keine Band-Spalte gibt, fallback auf „Band 27“
+    const bandKey = index[0] && Object.keys(index[0]).find(k => /band/i.test(k)) || null;
+    const group = {};
+    index.forEach(r=>{
+      const b = bandKey ? (r[bandKey]||"Unbekannt") : "Band 27";
+      group[b] = (group[b]||0)+1;
+    });
+    const rows = Object.entries(group).sort().map(([band, n])=> `<tr><td>${band}</td><td>${_DataAPI.fmtInt(n)}</td></tr>`).join("");
+    document.querySelector("#tbl tbody").innerHTML = rows;
+  })();
+  </script>
+</body>
+</html>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/baender.js"></script>
+
