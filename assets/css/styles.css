@@ -1,19 +1,19 @@
 /* === Ein Lexikon der Aromen & Düfte der Welt ====================
-   Globale Styles – responsive Layout + dynamische Hintergründe
+   Globale Styles – responsive Layout + transparente Karten
    ===============================================================*/
 
 :root {
-  /* Statische Fallback-Bilder (werden durch --dynamic-bg überschrieben) */
+  /* Fallback-Bilder (werden durch --dynamic-bg überschrieben) */
   --bg-mobile: url("../img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_Mobile.jpg");
   --bg-tablet: url("../img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_iPad-Landscape.jpg");
   --bg-desktop: url("../img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_16x9.jpg");
 
-  /* Farben & UI-Grundwerte */
+  /* Farbvariablen */
   --text: #111;
-  --muted: #666;
+  --muted: #555;
   --accent: #0a7;
-  --line: #e8e8e8;
-  --chip: #f3f3f3;
+  --line: rgba(255, 255, 255, 0.4);
+  --chip: rgba(255, 255, 255, 0.55);
 }
 
 /* === Seitenhintergrund ========================================= */
@@ -23,7 +23,6 @@ body {
   color: var(--text);
   background: #fff;
 
-  /* Dynamisches Hintergrundbild (von bg.js), fallback auf statische */
   background-image: var(--dynamic-bg), var(--bg-mobile);
   background-size: cover;
   background-position: center;
@@ -31,14 +30,12 @@ body {
   transition: background-image 1s ease-in-out;
 }
 
-/* Ab mittleren Geräten (Tablets) */
 @media (min-width: 720px) {
   body {
     background-image: var(--dynamic-bg), var(--bg-tablet);
   }
 }
 
-/* Ab Desktop */
 @media (min-width: 1024px) {
   body {
     background-image: var(--dynamic-bg), var(--bg-desktop);
@@ -47,12 +44,13 @@ body {
 
 /* === Halbtransparenter Vordergrund ============================== */
 .backdrop {
-  backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.55); /* Transparenz */
   min-height: 100vh;
+  transition: background 0.5s ease;
 }
 
-/* === Grundlayout =============================================== */
+/* === Container & Grundlayout =================================== */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -62,22 +60,31 @@ body {
 /* === Typografie ================================================= */
 h1 {
   margin: 0 0 6px;
-  font-size: clamp(28px, 4vw, 40px);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.3px;
 }
 
 .sub {
   color: var(--muted);
   margin: 0 0 24px;
+  font-size: 17px;
 }
 
 /* === Karten, Tabellen, Raster ================================== */
 .card {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.65);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 16px;
   margin: 16px 0;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .grid {
@@ -105,9 +112,15 @@ select {
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.8);
   min-width: 180px;
   font-size: 14px;
+  color: #222;
+  backdrop-filter: blur(2px);
+}
+
+input::placeholder {
+  color: #777;
 }
 
 /* === Kennzahlen / KPIs ========================================= */
@@ -118,11 +131,12 @@ select {
 }
 
 .kpi .pill {
-  background: var(--chip);
+  background: rgba(255, 255, 255, 0.6);
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 8px 12px;
   font-size: 14px;
+  backdrop-filter: blur(4px);
 }
 
 /* === Tabellen =================================================== */
@@ -130,6 +144,7 @@ select {
   width: 100%;
   border-collapse: collapse;
   font-size: 15px;
+  backdrop-filter: blur(4px);
 }
 
 th,
@@ -137,18 +152,19 @@ td {
   text-align: left;
   padding: 10px 8px;
   border-bottom: 1px solid var(--line);
-  background: #fff;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 th {
   position: sticky;
   top: 0;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
   z-index: 1;
 }
 
 tbody tr:hover td {
-  background: #f9fffb;
+  background: rgba(255, 255, 255, 0.8);
 }
 
 /* === Badges & Chips ============================================ */
@@ -156,8 +172,8 @@ tbody tr:hover td {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.8);
   font-size: 12px;
   color: #222;
 }
@@ -177,6 +193,8 @@ img {
   max-width: 100%;
   height: auto;
   border-radius: 12px;
+  display: block;
+  margin: 0 auto;
 }
 
 /* === Animationen =============================================== */
@@ -193,4 +211,12 @@ img {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* === Sonstige Deko-Elemente ==================================== */
+hr {
+  border: none;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.3);
+  margin: 24px 0;
 }
