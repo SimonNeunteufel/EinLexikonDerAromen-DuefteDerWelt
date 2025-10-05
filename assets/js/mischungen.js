@@ -61,4 +61,12 @@
 
   // initial
   render(mixes.slice(0, 200));
+  // Button bind
+document.getElementById("btnSearch").addEventListener("click", apply);
+
+// Enter-Taste triggert Suche
+document.getElementById("q").addEventListener("keypress", e=>{
+  if(e.key==="Enter"){ e.preventDefault(); apply(); }
+});
+
 })();
