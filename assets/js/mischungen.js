@@ -1,17 +1,29 @@
-// Suchtabelle – MISCHUNGEN (mit Rezept-Count)
+// mischungen.js – Suchtabelle für Mischungen inkl. "Rezept"-Button
+
 (async function () {
-  const qEl = document.getElementById("q");
-  const mEl = document.getElementById("mix");
-  const sEl = document.getElementById("sensorik");
-  const pEl = document.getElementById("form");
+  // UI-Elemente
+  const qEl  = document.getElementById("q");
+  const mEl  = document.getElementById("mix");
+  const sEl  = document.getElementById("sensorik");
+  const pEl  = document.getElementById("form");
+  const btn  = document.getElementById("btnSearch");
   const tbody = document.querySelector("#tbl tbody");
 
+  // Daten laden
   const { index, recipes } = await _DataAPI.loadMasters();
   const mixes = index.filter(r => (r.Kategorie || "").toLowerCase() === "mischungen");
 
-  // Precompute: Rezepte pro Parent (ID_Neu → count)
-  const byParentId = _DataAPI.by(recipes.filter(r => r.Parent_ID_Neu), "Parent_ID_Neu");
-  // Fallback: Name → count (falls Parent_ID_Neu fehlt)
+  // Auswahlfelder befüllen
+  const mixOptions = ["", "M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","M11","M12","M13"];
+  const sensOptions = ["", "S1","S2","S3","S4","S5"];
+  const formOptions = ["", "P1","P2","P3","P4","P5"];
+
+  mEl.innerHTML = mixOptions.map(v => v ? `<option>${v}</option>` : `<option value="">Mix-Typ</option>`).join("");
+  sEl.innerHTML = sensOptions.map(v => v ? `<option>${v}</option>` : `<option value="">Sensorik</option>`).join("");
+  pEl.innerHTML = formOptions.map(v => v ? `<option>${v}</option>` : `<option value="">Form</option>`).join("");
+
+  // Precompute: Rezepte gruppiert → Counts + erste Rezept-ID je Parent
+  const byParentId   = _DataAPI.by(recipes.filter(r => r.Parent_ID_Neu), "Parent_ID_Neu");
   const byParentName = _DataAPI.by(recipes, "Parent_Name");
 
   function recipeCountFor(row) {
@@ -21,52 +33,29 @@
     return (byParentName[name] || []).length;
   }
 
+  function firstRecipeIdFor(row) {
+    const id = row.ID_Neu || "";
+    if (id && byParentId[id] && byParentId[id][0]) return byParentId[id][0].Rezept_ID || "";
+    const name = row.Name || "";
+    const arr = byParentName[name] || [];
+    return arr[0]?.Rezept_ID || "";
+  }
+
   function render(rows) {
-    const html = rows.map(r => `
-      <tr>
-        <td><span class="badge">${r.ID_Neu || ""}</span></td>
-        <td><a href="recipe_view.html?id=${encodeURIComponent(r.Rezept_ID || r.ID_Neu)}">${r.Name || ""}</a></td>
-        <td>${r.Mix_Typ || ""}</td>
-        <td>${r.SensorikProfil || ""}</td>
-        <td>${r.PhysikalischeForm || ""}</td>
-        <td>${recipeCountFor(r)}</td>
-      </tr>
-    `).join("");
-    tbody.innerHTML = html || `<tr><td colspan="6">Keine Treffer.</td></tr>`;
-  }
+    const html = rows.map(r => {
+      const rid = firstRecipeIdFor(r);
+      const nameCell = `
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span>${r.Name || ""}</span>
+          ${rid ? `
+            <a href="recipe_view.html?id=${encodeURIComponent(rid)}" title="Zum Rezept">
+              <button class="search-btn" style="padding:4px 8px;font-size:12px;">Rezept</button>
+            </a>` : ""}
+        </div>`;
 
-  function apply() {
-    const q = (qEl.value || "").toLowerCase();
-    const mix = mEl.value;
-    const s = sEl.value;
-    const p = pEl.value;
-
-    const rows = mixes.filter(r => {
-      const okQ = !q || (r.Name || "").toLowerCase().includes(q);
-      const okM = !mix || (r.Mix_Typ || "") === mix;
-      const okS = !s || (r.SensorikProfil || "") === s;
-      const okP = !p || (r.PhysikalischeForm || "") === p;
-      return okQ && okM && okS && okP;
-    }).slice(0, 2000);
-
-    render(rows);
-  }
-
-  ["input", "change"].forEach(evt => {
-    qEl.addEventListener(evt, apply);
-    mEl.addEventListener(evt, apply);
-    sEl.addEventListener(evt, apply);
-    pEl.addEventListener(evt, apply);
-  });
-
-  // initial
-  render(mixes.slice(0, 200));
-  // Button bind
-document.getElementById("btnSearch").addEventListener("click", apply);
-
-// Enter-Taste triggert Suche
-document.getElementById("q").addEventListener("keypress", e=>{
-  if(e.key==="Enter"){ e.preventDefault(); apply(); }
-});
-
-})();
+      return `
+        <tr>
+          <td><span class="badge">${r.ID_Neu || ""}</span></td>
+          <td>${nameCell}</td>
+          <td>${r.Mix_Typ || ""}</td>
+          <td>${r.SensorikProfil || ""}</td
