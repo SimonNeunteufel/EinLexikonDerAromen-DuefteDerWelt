@@ -26,6 +26,7 @@
       <tr>
         <td><span class="badge">${r.ID_Neu || ""}</span></td>
         <td>${r.Name || ""}</td>
+        <td><a href="recipe_view.html?id=${encodeURIComponent(r.Rezept_ID || r.ID_Neu)}">${r.Name || ""}</a></td>
         <td>${r.Mix_Typ || ""}</td>
         <td>${r.SensorikProfil || ""}</td>
         <td>${r.PhysikalischeForm || ""}</td>
