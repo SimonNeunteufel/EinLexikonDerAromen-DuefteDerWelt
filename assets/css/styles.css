@@ -1,56 +1,196 @@
-:root{
-  --bg-mobile: url("../img/backgrounds/BG1_mobile.jpg");
-  --bg-tablet: url("../img/backgrounds/BG2_tablet.jpg");
-  --bg-desktop: url("../img/backgrounds/BG3_desktop.jpg");
-  --text: #111; --muted:#666; --accent:#0a7; --line:#e8e8e8; --chip:#f3f3f3;
+/* === Ein Lexikon der Aromen & Düfte der Welt ====================
+   Globale Styles – responsive Layout + dynamische Hintergründe
+   ===============================================================*/
+
+:root {
+  /* Statische Fallback-Bilder (werden durch --dynamic-bg überschrieben) */
+  --bg-mobile: url("../img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_Mobile.jpg");
+  --bg-tablet: url("../img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_iPad-Landscape.jpg");
+  --bg-desktop: url("../img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_16x9.jpg");
+
+  /* Farben & UI-Grundwerte */
+  --text: #111;
+  --muted: #666;
+  --accent: #0a7;
+  --line: #e8e8e8;
+  --chip: #f3f3f3;
 }
-/* Replace the earlier background-image line with this cascade-aware version */
-body{
-  margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: var(--text); background: #fff;
+
+/* === Seitenhintergrund ========================================= */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+  background: #fff;
+
+  /* Dynamisches Hintergrundbild (von bg.js), fallback auf statische */
   background-image: var(--dynamic-bg), var(--bg-mobile);
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  transition: background-image 1s ease-in-out;
 }
-@media (min-width: 720px){ body{ background-image: var(--dynamic-bg), var(--bg-tablet);} }
-@media (min-width: 1024px){ body{ background-image: var(--dynamic-bg), var(--bg-desktop);} }
 
-/* Responsive Background */
-body{
-  margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: var(--text); background: #fff;
-  background-image: var(--bg-mobile); background-size: cover; background-position: center; background-attachment: fixed;
+/* Ab mittleren Geräten (Tablets) */
+@media (min-width: 720px) {
+  body {
+    background-image: var(--dynamic-bg), var(--bg-tablet);
+  }
 }
-@media (min-width: 720px){ body{ background-image: var(--bg-tablet);} }
-@media (min-width: 1024px){ body{ background-image: var(--bg-desktop);} }
 
-/* Page chrome */
-.backdrop{
+/* Ab Desktop */
+@media (min-width: 1024px) {
+  body {
+    background-image: var(--dynamic-bg), var(--bg-desktop);
+  }
+}
+
+/* === Halbtransparenter Vordergrund ============================== */
+.backdrop {
   backdrop-filter: blur(8px);
-  background: rgba(255,255,255,.85);
+  background: rgba(255, 255, 255, 0.85);
   min-height: 100vh;
 }
-.container{ max-width:1200px; margin:0 auto; padding:32px 20px; }
-h1{ margin:0 0 6px; font-size: clamp(28px, 4vw, 40px); }
-.sub{ color:var(--muted); margin:0 0 24px; }
 
-/* Cards & tables */
-.card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px 16px; margin:16px 0; box-shadow: 0 1px 2px rgba(0,0,0,.05);}
-.grid{ display:grid; grid-template-columns: 1fr; gap:16px; }
-@media (min-width: 900px){ .grid{ grid-template-columns: repeat(2,1fr); } }
-
-.controls{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
-input[type="search"], select{
-  padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:#fff; min-width:180px;
+/* === Grundlayout =============================================== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px;
 }
-.kpi{ display:flex; gap:16px; flex-wrap:wrap; }
-.kpi .pill{ background:var(--chip); border:1px solid var(--line); border-radius:999px; padding:8px 12px; }
 
-.table{ width:100%; border-collapse:collapse; }
-th, td{ text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); background:#fff; }
-th{ position:sticky; top:0; background:#fafafa; z-index:1; }
-tbody tr:hover td{ background:#f9fffb; }
+/* === Typografie ================================================= */
+h1 {
+  margin: 0 0 6px;
+  font-size: clamp(28px, 4vw, 40px);
+}
 
-/* Chips */
-.badge{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--line); background:#fff; font-size:12px; color:#222; }
+.sub {
+  color: var(--muted);
+  margin: 0 0 24px;
+}
+
+/* === Karten, Tabellen, Raster ================================== */
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 16px 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* === Filterleiste / Suchfelder ================================= */
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+input[type="search"],
+select {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  min-width: 180px;
+  font-size: 14px;
+}
+
+/* === Kennzahlen / KPIs ========================================= */
+.kpi {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.kpi .pill {
+  background: var(--chip);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* === Tabellen =================================================== */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+  z-index: 1;
+}
+
+tbody tr:hover td {
+  background: #f9fffb;
+}
+
+/* === Badges & Chips ============================================ */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 12px;
+  color: #222;
+}
+
+/* === Links, Buttons ============================================ */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* === Responsive Bilder ========================================= */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+/* === Animationen =============================================== */
+.fade-in {
+  animation: fadeIn 0.8s ease-in-out both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
