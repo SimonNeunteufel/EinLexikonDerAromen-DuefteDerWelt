@@ -1,1 +1,12 @@
-window.$util={safe:v=>v??''};
+
+window.$util = {
+  async loadJSON(p){
+    const r = await fetch(p, {cache:"no-store"});
+    if(!r.ok) throw new Error(`Fetch failed: ${p}`);
+    return r.json();
+  },
+  debounce(fn, ms=250){
+    let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); };
+  },
+  safe(v){ return (v==null || v===undefined) ? "" : v; }
+};

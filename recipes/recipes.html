@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rezepte – Auswahl</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <style>
+    .recipe{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; margin:14px 0; }
+    .recipe h3{ margin:6px 0 8px; }
+    .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
+    @media (min-width:900px){ .grid{ grid-template-columns: 1fr 1fr; } }
+    /* Print: one recipe per page */
+    @media print{
+      body{ background:#fff; }
+      .page{ box-shadow:none; border:none; background:#fff; }
+      .controls{ display:none !important; }
+      .recipe{ break-inside: avoid; page-break-inside: avoid; page-break-after: always; }
+    }
+  </style>
+</head>
+<body class="BG1">
+  <div class="page">
+    <div class="controls" style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+      <button class="btn" onclick="window.history.back()">← Zurück</button>
+      <button class="btn" onclick="location.href='../mischungen.html'">Zur Mischungen-Tabelle</button>
+      <button class="btn" onclick="window.print()">Als PDF drucken</button>
+    </div>
+    <div id="out"></div>
+  </div>
+  <script>
+  async function loadJSON(p){ const r = await fetch(p,{cache:"no-store"}); if(!r.ok) throw new Error(p); return r.json(); }
+  function qp(key){ const u = new URL(location.href); return u.searchParams.get(key); }
+
+  function rowId(r){
+    return r["ID_Neu"] || r["Recipe_ID"] || r["Rezept_ID"] || r["id"] || "";
+  }
+
+  function fmtList(txt){
+    if(!txt) return "";
+    return String(txt).split("|").map(s=>s.trim()).filter(Boolean).map(s=>`<li>${s}</li>`).join("");
+  }
+
+  (async () => {
+    const idsStr = qp("ids") || "";
+    const idSet = new Set(idsStr.split(",").map(s=>s.trim()).filter(Boolean));
+    const printMode = qp("print")==="1";
+
+    const rows = await loadJSON("../data/master_recipes.json");
+    const chosen = rows.filter(r => idSet.has(rowId(r)));
+
+    const out = document.getElementById("out");
+    if(!chosen.length){ out.innerHTML = "<p>Keine Rezepte gefunden.</p>"; return; }
+
+    out.innerHTML = chosen.map(r => {
+      const name = r["Mix_Name"] || "(ohne Name)";
+      const kategorie = r["Kategorie"] || "";
+      const sensorik = r["SensorikProfil"] || "";
+      const phys = r["PhysikalischeForm"] || "";
+      const mixTyp = r["Mix_Typ"] || "";
+      const zutaten = r["Zutaten"] || r["Ingredient_List"] || "";
+      const anwendung = r["Anwendung"] || r["Application"] || "";
+      const quelle = r["Quelle"] || r["Source"] || "";
+      const rid = rowId(r);
+
+      return `<article class="recipe">
+        <h3>${name}</h3>
+        <div class="grid">
+          <div>
+            <strong>Kategorie:</strong> ${kategorie}<br/>
+            <strong>Sensorik:</strong> ${sensorik} &nbsp; <strong>Trägerform:</strong> ${phys}<br/>
+            <strong>Mix-Typ:</strong> ${mixTyp}
+          </div>
+          <div>
+            <strong>ID:</strong> ${rid}<br/>
+            <strong>Quelle:</strong> ${quelle}
+          </div>
+        </div>
+        <h4>Zutaten</h4>
+        <ul>${fmtList(zutaten)}</ul>
+        ${anwendung ? `<h4>Anwendung</h4><p>${anwendung}</p>` : ""}
+      </article>`;
+    }).join("");
+
+    if(printMode){ setTimeout(()=>window.print(), 300); }
+  })();
+  </script>
+</body>
+</html>

@@ -1,55 +1,32 @@
-// Suchtabelle – STOFFE (alles außer Mischungen)
-(async function () {
-  const qEl = document.getElementById("q");
-  const katEl = document.getElementById("kat");
-  const sEl = document.getElementById("sensorik");
-  const pEl = document.getElementById("form");
+
+(async () => {
+  const {loadJSON, safe, debounce} = window.$util;
+  const data = await loadJSON("./data/master_index.json");
+
+  // dynamic columns minus IDs
+  const keys = Object.keys(data[0]||{});
+  const hidden = ["id","id_neu","recipe_id","rezept_id","parent_id","parent_id_neu","parent_mix","qr-id","illu-id","qr_id","illu_id"];
+  const columns = keys.filter(k => !hidden.some(h=>k.toLowerCase().includes(h)));
+
+  const thead = document.querySelector("#tbl thead");
+  thead.innerHTML = "<tr>" + columns.map(c=>`<th>${c}</th>`).join("") + "</tr>";
+
   const tbody = document.querySelector("#tbl tbody");
-
-  const { index } = await _DataAPI.loadMasters();
-  const stoffe = index.filter(r => (r.Kategorie || "").toLowerCase() !== "mischungen");
-
-  // Kategorien auffüllen
-  const cats = _DataAPI.uniq(stoffe.map(r => r.Kategorie).filter(Boolean)).sort();
-  katEl.innerHTML = `<option value="">Kategorie</option>` + cats.map(c => `<option>${c}</option>`).join("");
-
-  function render(rows) {
-    const html = rows.map(r => `
-      <tr>
-        <td><span class="badge">${r.ID_Neu || ""}</span></td>
-        <td>${r.Name || ""}</td>
-        <td>${r.Kategorie || ""}</td>
-        <td>${r.SensorikProfil || ""}</td>
-        <td>${r.PhysikalischeForm || ""}</td>
-      </tr>
-    `).join("");
-    tbody.innerHTML = html || `<tr><td colspan="5">Keine Treffer.</td></tr>`;
+  function render(rows){
+    tbody.innerHTML = rows.map(r =>
+      "<tr>"+columns.map(c=>`<td>${safe(r[c])}</td>`).join("")+"</tr>"
+    ).join("");
   }
+  render(data);
 
-  function apply() {
-    const q = (qEl.value || "").toLowerCase();
-    const kat = katEl.value;
-    const s = sEl.value;
-    const p = pEl.value;
-
-    const rows = stoffe.filter(r => {
-      const okQ = !q || (r.Name || "").toLowerCase().includes(q);
-      const okK = !kat || r.Kategorie === kat;
-      const okS = !s || (r.SensorikProfil || "") === s;
-      const okP = !p || (r.PhysikalischeForm || "") === p;
-      return okQ && okK && okS && okP;
-    }).slice(0, 2000);
-
-    render(rows);
-  }
-
-  ["input", "change"].forEach(evt => {
-    qEl.addEventListener(evt, apply);
-    katEl.addEventListener(evt, apply);
-    sEl.addEventListener(evt, apply);
-    pEl.addEventListener(evt, apply);
-  });
-
-  // initial
-  render(stoffe.slice(0, 200));
+  const input = document.getElementById("q");
+  const doFilter = debounce(() => {
+    const s = input.value.trim().toLowerCase();
+    if(!s){ render(data); return; }
+    const filtered = data.filter(r =>
+      columns.some(c => (safe(r[c]).toString().toLowerCase()).includes(s))
+    );
+    render(filtered);
+  }, 200);
+  input.addEventListener("input", doFilter);
 })();

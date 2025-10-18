@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bände – Lexikon der Aromen & Düfte</title>
+  <title>Stoffe – Lexikon</title>
   <link rel="stylesheet" href="./assets/css/styles.css">
 </head>
-<body class="BG5">
+<body class="BG2">
   <div class="page">
     <div class="header">
       <div class="brand">Ein Lexikon der Aromen & Düfte der Welt</div>
@@ -17,22 +17,24 @@
       </nav>
     </div>
 
-    <div class="h1">Bände</div>
-    <p class="sub">Wähle einen Band und öffne ihn als HTML oder als PDF (PDF in neuem Tab).</p>
+    <div class="h1">Stoffe – Suchtabelle</div>
+    <p class="sub">Mit Varianten und Referenzen.</p>
 
-    <div class="toolbar">
-      <label for="bandSelect" style="font-weight:600">Band wählen:</label>
-      <select id="bandSelect" class="btn"></select>
-      <button class="btn" id="openHtml">HTML öffnen</button>
-      <button class="btn" id="openPdf">PDF öffnen</button>
+    <div class="table-wrap" style="height: calc(100vh - 220px);">
+      <div class="table-head">
+        <input id="q" type="search" placeholder="Suche (Name, Kategorie, Region…)" />
+      </div>
+      <div class="table-body">
+        <table id="tbl"><thead></thead><tbody></tbody></table>
+      </div>
     </div>
 
     <div class="footer-note">
-      <div>BG5 aktiv für Bände-Ansicht</div>
+      <div>© Lexikon</div>
       <div><a href="./index.html">Zur Startseite</a></div>
     </div>
   </div>
   <script src="./assets/js/util.js"></script>
-  <script src="./assets/js/baender.js"></script>
+  <script src="./assets/js/stoffe.js"></script>
 </body>
 </html>
