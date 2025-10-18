@@ -1,4 +1,3 @@
-
 <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mischungen – Suche</title><link rel="stylesheet" href="./assets/css/styles.css"></head>
 <body class="BG4"><div class="page">
@@ -10,7 +9,6 @@
     <nav class="nav"><a href="./stoffe.html">Stoffe</a><a href="./mischungen.html">Mischungen</a><a href="./baender.html">Bände</a></nav>
   </div>
   <p class="sub">Mit Varianten- und Rezeptbezug.</p>
-
   <div class="sticky-actions">
     <input id="q" type="search" placeholder="Suche (Name, Kategorie, Region…)" />
     <button id="doSearch" class="btn">Suchen</button>
@@ -18,18 +16,17 @@
     <button id="btnPdf" class="btn">Erstelle Rezepte → PDF</button>
     <label style="margin-left:auto"><input type="checkbox" id="selectAll"> Alles wählen</label>
   </div>
-
-  <div class="table-wrap" style="height: calc(100vh - 260px);">
-    <div class="table-body"><table id="tbl"><thead></thead><tbody></tbody></table></div>
-  </div>
-
+  <div class="table-wrap" style="height: calc(100vh - 260px);"><div class="table-body"><table id="tbl"><thead></thead><tbody></tbody></table></div></div>
   <div class="footer-note"><div>© Lexikon</div><div><a href="./index.html">Start</a></div></div>
 </div>
 <script src="./assets/js/util.js"></script>
 <script>
 (async()=>{
-  const {loadCSV, safe}=window.$util;
-  let data=[]; try{ data=await loadCSV('./data/MasterRecipes.csv'); }catch(e){ data=[]; }
+  const {loadRecipesAny, safe}=window.$util;
+  let data=[]; 
+  try{ data = await loadRecipesAny(); }
+  catch(e){ $util.showError("Daten konnten nicht geladen werden. Lege <code>MasterRecipes.csv</code> oder <code>master_recipes.json</code> in <code>/data/</code> ab."); data=[]; }
+
   const keys=Object.keys(data[0]||{});
   const show=["Mix_Name","Kategorie","Mix_Typ","SensorikProfil","PhysikalischeForm","Region","Land","Quelle","Source"].filter(c=>keys.includes(c));
   const thead=document.querySelector('#tbl thead');
@@ -50,14 +47,11 @@
   }
   document.getElementById('doSearch').onclick=searchNow;
   document.getElementById('q').addEventListener('keydown',e=>{ if(e.key==='Enter') searchNow() });
-
-  document.getElementById('headSelect').addEventListener('change',e=>{ document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked); });
-  document.getElementById('selectAll').addEventListener('change',e=>{ document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked); });
-
+  const headSel=document.getElementById('headSelect'); if(headSel){ headSel.addEventListener('change',e=>{ document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked); }); }
+  const allSel=document.getElementById('selectAll'); if(allSel){ allSel.addEventListener('change',e=>{ document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked); }); }
   document.getElementById('btnHtml').onclick=()=>{ const ids=[...document.querySelectorAll('input.sel:checked')].map(x=>x.getAttribute('data-id')).filter(Boolean); if(!ids.length){alert('Bitte mindestens eine Mischung auswählen.'); return;} window.open(`./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(','))}`,'_blank'); };
   document.getElementById('btnPdf').onclick=()=>{ const ids=[...document.querySelectorAll('input.sel:checked')].map(x=>x.getAttribute('data-id')).filter(Boolean); if(!ids.length){alert('Bitte mindestens eine Mischung auswählen.'); return;} window.open(`./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(','))}&print=1`,'_blank'); };
-
-  render(data); // initial
+  render(data);
 })();
 </script>
 </body></html>

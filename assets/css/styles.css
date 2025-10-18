@@ -2,31 +2,77 @@
 :root{--text:#f8f9fa;--muted:#e1e4e9;--link:#a5d8ff;--border:rgba(255,255,255,.22);--panel:rgba(18,21,27,.62);--radius:14px;--shadow:0 12px 40px rgba(0,0,0,.55)}
 *{box-sizing:border-box}html,body{height:100%}
 body{margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0f1216;background-size:cover;background-position:center;background-attachment:fixed;color:var(--text)}
-body.BG1{background-image:url("./assets/img/BG1.jpg")}
-body.BG2{background-image:url("./assets/img/BG2.jpg")}
-body.BG3{background-image:url("./assets/img/BG3.jpg")}
-body.BG4{background-image:url("./assets/img/BG4.jpg")}
-body.BG5{background-image:url("./assets/img/BG5.jpg")}
-body.BG6{background-image:url("./assets/img/BG6.jpg")}
-body.BG7{background-image:url("./assets/img/BG7.jpg")}
+/* Default desktop 16:9 */
+body.BG1{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_16x9.jpg")}
+body.BG2{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG2_16x9.jpg")}
+body.BG3{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG3_16x9.jpg")}
+body.BG4{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG4_16x9.jpg")}
+body.BG5{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG5_16x9.jpg")}
+body.BG6{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG6_16x9.jpg")}
+body.BG7{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG7_16x9.jpg")}
+/* Desktop 16:10 */
+@media (min-aspect-ratio: 16/10) and (max-aspect-ratio: 17/10){
+  body.BG1{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_16x10.jpg")}
+  body.BG2{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG2_16x10.jpg")}
+  body.BG3{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG3_16x10.jpg")}
+  body.BG4{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG4_16x10.jpg")}
+  body.BG5{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG5_16x10.jpg")}
+  body.BG6{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG6_16x10.jpg")}
+  body.BG7{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG7_16x10.jpg")}
+}
+/* Mobile portrait */
+@media (max-width: 600px) and (orientation:portrait){
+  body.BG1{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_mobile_portrait.jpg")}
+  body.BG2{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG2_mobile_portrait.jpg")}
+  body.BG3{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG3_mobile_portrait.jpg")}
+  body.BG4{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG4_mobile_portrait.jpg")}
+  body.BG5{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG5_mobile_portrait.jpg")}
+  body.BG6{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG6_mobile_portrait.jpg")}
+  body.BG7{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG7_mobile_portrait.jpg")}
+}
+/* Mobile landscape */
+@media (max-width: 900px) and (orientation:landscape){
+  body.BG1{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_mobile_landscape.jpg")}
+  body.BG2{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG2_mobile_landscape.jpg")}
+  body.BG3{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG3_mobile_landscape.jpg")}
+  body.BG4{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG4_mobile_landscape.jpg")}
+  body.BG5{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG5_mobile_landscape.jpg")}
+  body.BG6{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG6_mobile_landscape.jpg")}
+  body.BG7{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG7_mobile_landscape.jpg")}
+}
+/* Tablet */
+@media (min-width:601px) and (max-width:1366px) and (orientation:portrait){
+  body.BG1{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_tablet_portrait.jpg")}
+  body.BG2{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG2_tablet_portrait.jpg")}
+  body.BG3{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG3_tablet_portrait.jpg")}
+  body.BG4{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG4_tablet_portrait.jpg")}
+  body.BG5{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG5_tablet_portrait.jpg")}
+  body.BG6{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG6_tablet_portrait.jpg")}
+  body.BG7{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG7_tablet_portrait.jpg")}
+}
+@media (min-width:601px) and (max-width:1366px) and (orientation:landscape){
+  body.BG1{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG1_tablet_landscape.jpg")}
+  body.BG2{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG2_tablet_landscape.jpg")}
+  body.BG3{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG3_tablet_landscape.jpg")}
+  body.BG4{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG4_tablet_landscape.jpg")}
+  body.BG5{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG5_tablet_landscape.jpg")}
+  body.BG6{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG6_tablet_landscape.jpg")}
+  body.BG7{background-image:url("./assets/img/backgrounds/EinLexikonDerAromen-DuefteDerWelt_BG7_tablet_landscape.jpg")}
+}
+
 body::before{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,.45)}
 .page{position:relative;z-index:1;max-width:1280px;margin:16px auto;padding:16px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
 .header{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;justify-content:space-between;margin:-8px -8px 12px -8px;padding:10px;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);border-bottom:1px solid rgba(255,255,255,.15)}
 .brand{font-weight:900;font-size:clamp(20px,2.6vw,32px);color:#fff;text-shadow:0 0 8px rgba(255,255,255,.75)}
-.nav a{color:#e9f6ff;text-decoration:none;padding:6px 10px;border-radius:8px}
-.nav a:hover{background:rgba(255,255,255,.18);color:#fff}
-.h1{font-size:clamp(26px,3.2vw,42px);font-weight:900;margin:6px 0}
-.sub{color:#d9e2ec;margin:0 0 12px}
+.nav a{color:#e9f6ff;text-decoration:none;padding:6px 10px;border-radius:8px}.nav a:hover{background:rgba(255,255,255,.18);color:#fff}
+.h1{font-size:clamp(26px,3.2vw,42px);font-weight:900;margin:6px 0}.sub{color:#d9e2ec;margin:0 0 12px}
 .toolbar,.sticky-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 12px}
 .sticky-actions{position:sticky;top:62px;z-index:4;background:#eaf2ff;color:#0b0f14;border:1px solid #d8e6ff;border-radius:10px;padding:10px}
 input[type=search],select{padding:12px 14px;border:1px solid rgba(255,255,255,.35);border-radius:10px;min-width:220px;background:#0b0f14;color:#f5f7fa}
-.btn{padding:10px 14px;border:1px solid rgba(255,255,255,.5);border-radius:10px;background:#fff;color:#0b0f14;cursor:pointer}
-.btn:hover{filter:brightness(1.06)}
+.btn{padding:10px 14px;border:1px solid rgba(255,255,255,.5);border-radius:10px;background:#fff;color:#0b0f14;cursor:pointer}.btn:hover{filter:brightness(1.06)}
 .table-wrap{border:1px solid rgba(255,255,255,.25);border-radius:12px;background:#fff;color:#0b0f14;display:flex;flex-direction:column}
-.table-body{overflow:auto}
-table{width:100%;border-collapse:collapse;font-size:16px}
-th,td{padding:10px 12px;border-bottom:1px solid #eef1f5;text-align:left;white-space:nowrap}
-thead th{background:#f8fafc;position:sticky;top:0;z-index:1;color:#0b0f14}
+.table-body{overflow:auto}table{width:100%;border-collapse:collapse;font-size:16px}
+th,td{padding:10px 12px;border-bottom:1px solid #eef1f5;text-align:left;white-space:nowrap}thead th{background:#f8fafc;position:sticky;top:0;z-index:1;color:#0b0f14}
 tbody tr:nth-child(odd){background:#fcfeff}tbody tr:hover{background:#f1f7ff}
 .footer-note{margin-top:18px;color:#e7ecf3;font-size:.95em;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .badges{display:flex;gap:8px;flex-wrap:wrap}.badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#eef3ff;border:1px solid #dae6ff;color:#0b0f14}
