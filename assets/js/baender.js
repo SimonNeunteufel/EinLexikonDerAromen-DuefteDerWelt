@@ -1,26 +1,27 @@
-// Lexika Bänder – Gruppierung & Anzeige
-(async function () {
-  const tblBody = document.querySelector("#tbl tbody");
-  tblBody.innerHTML = `<tr><td colspan="2">Lade…</td></tr>`;
 
-  try {
-    const { index } = await _DataAPI.loadMasters();
-    const bandKey = index[0] && Object.keys(index[0]).find(k => /band|band\s*ref/i.test(k)) || null;
+(() => {
+  const bands = [{'id': 'band0', 'num': 0, 'title': 'Einleitung & Grundlagen'}, {'id': 'band1', 'num': 1, 'title': 'Aromen – Überblick & Geschichte'}, {'id': 'band2', 'num': 2, 'title': 'Gewürze & Kräuter – Kernauswahl'}, {'id': 'band3', 'num': 3, 'title': 'Mischungen – Klassisch bis Modern'}];
+  const select = document.getElementById("bandSelect");
+  const toHtmlBtn = document.getElementById("openHtml");
+  const toPdfBtn = document.getElementById("openPdf");
 
-    const counts = {};
-    index.forEach(r => {
-      const b = bandKey ? (r[bandKey] || "Unbekannt") : "Band 27";
-      counts[b] = (counts[b] || 0) + 1;
-    });
+  function label(b){ return `Band ${b.num} — ${b.title}`; }
 
-    const rows = Object.entries(counts)
-      .sort((a,b)=> String(a[0]).localeCompare(String(b[0]), "de"))
-      .map(([band, n]) => `<tr><td>${band}</td><td>${_DataAPI.fmtInt(n)}</td></tr>`)
-      .join("");
+  bands.forEach(b => {
+    const opt = document.createElement("option");
+    opt.value = b.id; opt.textContent = label(b);
+    select.appendChild(opt);
+  });
 
-    tblBody.innerHTML = rows || `<tr><td colspan="2">Keine Daten gefunden.</td></tr>`;
-  } catch (e) {
-    console.error(e);
-    tblBody.innerHTML = `<tr><td colspan="2">Fehler beim Laden.</td></tr>`;
-  }
+  function currentBand(){ return bands.find(b => b.id === select.value); }
+
+  toHtmlBtn.addEventListener("click", () => {
+    const b = currentBand(); if(!b) return;
+    location.href = `./bands/${b.id}.html`;
+  });
+
+  toPdfBtn.addEventListener("click", () => {
+    const b = currentBand(); if(!b) return;
+    window.open(`./data/pdfs/${b.id}.pdf`, "_blank");
+  });
 })();

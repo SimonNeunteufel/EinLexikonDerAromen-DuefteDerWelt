@@ -1,0 +1,1 @@
+window.$util={safe:v=>v??''};
