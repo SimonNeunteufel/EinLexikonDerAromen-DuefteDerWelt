@@ -1,83 +1,63 @@
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mischungen – Suche</title>
-  <link rel="stylesheet" href="assets/css/styles.css" />
-<link rel="stylesheet" href="assets/css/styles.css" />
-<script src="assets/js/bg.js" defer></script>
-</head>
-<body>
-  <div class="backdrop">
-    <div class="container">
-      <h1>Mischungen – Suchtabelle</h1>
-      <p class="sub">Mit Varianten- und Rezeptbezug.</p>
 
-      <div class="card">
-        <div class="controls">
-          <input type="search" id="q" placeholder="Suche nach Name …" />
-          <select id="mix"><option value="">Mix-Typ</option><option>M1</option><option>M2</option><option>M3</option><option>M4</option><option>M5</option><option>M6</option><option>M7</option><option>M8</option><option>M9</option><option>M10</option><option>M11</option><option>M12</option><option>M13</option></select>
-          <select id="sensorik"><option value="">Sensorik</option><option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option></select>
-          <select id="form"><option value="">Form</option><option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option></select>
-        </div>
-        <table class="table" id="tbl">
-          <thead><tr><th>ID</th><th>Name</th><th>M</th><th>S</th><th>P</th><th>Rezepte</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mischungen – Suche</title><link rel="stylesheet" href="./assets/css/styles.css"></head>
+<body class="BG4"><div class="page">
+  <div class="header">
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
+      <div class="brand">Mischungen – Suchtabelle</div>
     </div>
+    <nav class="nav"><a href="./stoffe.html">Stoffe</a><a href="./mischungen.html">Mischungen</a><a href="./baender.html">Bände</a></nav>
+  </div>
+  <p class="sub">Mit Varianten- und Rezeptbezug.</p>
+
+  <div class="sticky-actions">
+    <input id="q" type="search" placeholder="Suche (Name, Kategorie, Region…)" />
+    <button id="doSearch" class="btn">Suchen</button>
+    <button id="btnHtml" class="btn">Erstelle Rezepte → HTML</button>
+    <button id="btnPdf" class="btn">Erstelle Rezepte → PDF</button>
+    <label style="margin-left:auto"><input type="checkbox" id="selectAll"> Alles wählen</label>
   </div>
 
-  <script src="assets/js/data.js"></script>
-  <script>
-  (async ()=>{
-    const {index, recipes} = await _DataAPI.loadMasters();
-    const mixes = index.filter(r => (r.Kategorie||"").toLowerCase()==="mischungen");
+  <div class="table-wrap" style="height: calc(100vh - 260px);">
+    <div class="table-body"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+  </div>
 
-    // Count recipes per Parent_ID_Neu or Parent_Name fallback
-    const byParentId = _DataAPI.by(recipes.filter(r=>r.Parent_ID_Neu), "Parent_ID_Neu");
-    const byParentName = _DataAPI.by(recipes, "Parent_Name");
+  <div class="footer-note"><div>© Lexikon</div><div><a href="./index.html">Start</a></div></div>
+</div>
+<script src="./assets/js/util.js"></script>
+<script>
+(async()=>{
+  const {loadCSV, safe}=window.$util;
+  let data=[]; try{ data=await loadCSV('./data/MasterRecipes.csv'); }catch(e){ data=[]; }
+  const keys=Object.keys(data[0]||{});
+  const show=["Mix_Name","Kategorie","Mix_Typ","SensorikProfil","PhysikalischeForm","Region","Land","Quelle","Source"].filter(c=>keys.includes(c));
+  const thead=document.querySelector('#tbl thead');
+  thead.innerHTML="<tr><th><input type='checkbox' id='headSelect'></th>"+show.map(c=>`<th>${c}</th>`).join("")+"</tr>";
+  const tbody=document.querySelector('#tbl tbody');
+  const rid = r => r["ID_Neu"]||r["Recipe_ID"]||r["Rezept_ID"]||r["id"]||"";
 
-    function recipeCountFor(row){
-      const id = row.ID_Neu||"";
-      if (id && byParentId[id]) return byParentId[id].length;
-      // fallback by name if no ID match
-      const name = row.Name||"";
-      return (byParentName[name]||[]).length;
-    }
+  function render(rows){
+    tbody.innerHTML=rows.map(r=>{
+      const cells=show.map(c=>`<td>${safe(r[c])}</td>`).join("");
+      return `<tr><td><input class='sel' type='checkbox' data-id='${rid(r)}'></td>${cells}</tr>`;
+    }).join("");
+  }
+  function searchNow(){
+    const s=document.getElementById('q').value.trim().toLowerCase();
+    const rows=!s?data:data.filter(r=>Object.values(r).some(v=>(safe(v)+'').toLowerCase().includes(s)));
+    render(rows);
+  }
+  document.getElementById('doSearch').onclick=searchNow;
+  document.getElementById('q').addEventListener('keydown',e=>{ if(e.key==='Enter') searchNow() });
 
-    function render(rows){
-      const html = rows.map(r=>`
-        <tr>
-          <td><span class="badge">${r.ID_Neu||""}</span></td>
-          <td>${r.Name||""}</td>
-          <td>${r.Mix_Typ||""}</td>
-          <td>${r.SensorikProfil||""}</td>
-          <td>${r.PhysikalischeForm||""}</td>
-          <td>${recipeCountFor(r)}</td>
-        </tr>`).join("");
-      document.querySelector("#tbl tbody").innerHTML = html || `<tr><td colspan="6">Keine Treffer.</td></tr>`;
-    }
+  document.getElementById('headSelect').addEventListener('change',e=>{ document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked); });
+  document.getElementById('selectAll').addEventListener('change',e=>{ document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked); });
 
-    function apply(){
-      const q = (document.getElementById("q").value||"").toLowerCase();
-      const m = document.getElementById("mix").value;
-      const s = document.getElementById("sensorik").value;
-      const p = document.getElementById("form").value;
-      const rows = mixes.filter(r=>{
-        const okQ = !q || (r.Name||"").toLowerCase().includes(q);
-        const okM = !m || (r.Mix_Typ||"")===m;
-        const okS = !s || (r.SensorikProfil||"")===s;
-        const okP = !p || (r.PhysikalischeForm||"")===p;
-        return okQ && okM && okS && okP;
-      }).slice(0, 1000);
-      render(rows);
-    }
+  document.getElementById('btnHtml').onclick=()=>{ const ids=[...document.querySelectorAll('input.sel:checked')].map(x=>x.getAttribute('data-id')).filter(Boolean); if(!ids.length){alert('Bitte mindestens eine Mischung auswählen.'); return;} window.open(`./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(','))}`,'_blank'); };
+  document.getElementById('btnPdf').onclick=()=>{ const ids=[...document.querySelectorAll('input.sel:checked')].map(x=>x.getAttribute('data-id')).filter(Boolean); if(!ids.length){alert('Bitte mindestens eine Mischung auswählen.'); return;} window.open(`./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(','))}&print=1`,'_blank'); };
 
-    ["q","mix","sensorik","form"].forEach(id=> document.getElementById(id).addEventListener("input", apply));
-    render(mixes.slice(0,200));
-  })();
-  </script>
-</body>
-</html>
+  render(data); // initial
+})();
+</script>
+</body></html>

@@ -1,0 +1,43 @@
+
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stoff-Datenblätter</title><link rel="stylesheet" href="./assets/css/styles.css">
+<style>.sheet{background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:12px;padding:16px;margin:14px 0;color:#0b0f14}
+.sheet h3{margin:6px 0 8px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+@media print{body{background:#fff}.page{box-shadow:none;border:none;background:#fff}.controls{display:none!important}.sheet{break-inside:avoid;page-break-after:always}}
+</style></head>
+<body class="BG7"><div class="page">
+  <div class="header">
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn" onclick="location.href='./stoffe.html'">← Zurück</button>
+      <div class="brand">Stoff-Datenblätter</div>
+    </div>
+    <nav class="nav"><a href="./stoffe.html">Stoffe</a><a href="./mischungen.html">Mischungen</a><a href="./baender.html">Bände</a></nav>
+  </div>
+  <div class="controls" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+    <button class="btn" onclick="window.print()">Als PDF drucken</button>
+  </div>
+  <div id="out"></div>
+</div>
+<script src="./assets/js/util.js"></script>
+<script>
+(async()=>{
+  const ids=new URL(location.href).searchParams.get('ids')||"";
+  const idSet=new Set(ids.split(',').map(s=>s.trim()).filter(Boolean));
+  const rows=await $util.loadCSV('./data/MasterIndex.csv');
+  const chosen=rows.filter(r=>idSet.has(r['ID_Neu']||r['id']||''));
+  const out=document.getElementById('out');
+  if(!chosen.length){ out.innerHTML = "<p>Keine Stoffe gefunden.</p>"; return; }
+  out.innerHTML=chosen.map(r=>{
+    const name=r["Name"]||"(ohne Name)"; const lat=r["Lateinischer Name/Typ"]||""; const kat=r["Kategorie"]||"";
+    const s=r["SensorikProfil"]||""; const p=r["PhysikalischeForm"]||"";
+    const region=r["Region"]||r["Region-Tags"]||""; const land=r["Land"]||""; const kont=r["Kontinent"]||"";
+    const q=r["Quelle"]||""; const notes=r["Notizen"]||r["Notes"]||""; const rid=r["ID_Neu"]||r["id"]||"";
+    return `<article class="sheet"><h3>${name}</h3><div class="grid">
+      <div><strong>Lateinischer Name/Typ:</strong> ${lat}<br/><strong>Kategorie:</strong> ${kat}<br/><strong>Sensorik:</strong> ${s} &nbsp; <strong>Trägerform:</strong> ${p}</div>
+      <div><strong>ID:</strong> ${rid}<br/><strong>Region:</strong> ${region} (${land}, ${kont})<br/><strong>Quelle:</strong> ${q}</div></div>
+      ${notes?`<h4>Notizen</h4><p>${notes}</p>`:""}</article>`;
+  }).join("");
+})();
+</script>
+</body></html>

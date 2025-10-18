@@ -1,60 +1,32 @@
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ein Lexikon der Aromen & Düfte der Welt</title>
-  <link rel="stylesheet" href="assets/css/styles.css" />
-<link rel="stylesheet" href="assets/css/styles.css" />
-<script src="assets/js/bg.js" defer></script>
-</head>
-<body>
-  <div class="backdrop">
-    <div class="container">
-      <h1>Ein Lexikon der Aromen & Düfte der Welt</h1>
-      <p class="sub">Band 27 – Masterdaten (Stoffe & Mischungen) · Live aus <code>data/</code></p>
 
-      <div class="card">
-        <div class="kpi" id="kpis">
-          <span class="pill">Lade Daten…</span>
-        </div>
-      </div>
-
-      <div class="grid">
-        <a class="card" href="baender.html">
-          <h3>Lexika Bänder →</h3>
-          <p>Alle Bände, Referenzen und Querverweise.</p>
-        </a>
-        <a class="card" href="stoffe.html">
-          <h3>Stoffe – Suchtabelle →</h3>
-          <p>Gewürze, Kräuter, Salze, Harze/Hölzer, Tees/Infusionen, Räucherstoffe.</p>
-        </a>
-        <a class="card" href="mischungen.html">
-          <h3>Mischungen – Suchtabelle →</h3>
-          <p>Gewürz-, Kräuter-, Salz-, Öl- und Räuchermischungen, inkl. Varianten.</p>
-        </a>
-      </div>
-    </div>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ein Lexikon der Aromen & Düfte der Welt</title><link rel="stylesheet" href="./assets/css/styles.css"></head>
+<body class="BG1"><div class="page">
+  <div class="header">
+    <div class="brand">Ein Lexikon der Aromen & Düfte der Welt</div>
+    <nav class="nav"><a href="./stoffe.html">Stoffe</a><a href="./mischungen.html">Mischungen</a><a href="./baender.html">Bände</a></nav>
   </div>
-
-  <!-- Data API -->
-  <script src="assets/js/data.js"></script>
-  <script>
-  (async ()=>{
-    const {index, recipes} = await _DataAPI.loadMasters();
-    const all = index.length;
-    const mixes = index.filter(r => (r.Kategorie||"").toLowerCase()==="mischungen").length;
-    const stoffe = all - mixes;
-    const recCount = recipes.length;
-
-    const el = document.getElementById("kpis");
-    el.innerHTML = `
-      <span class="pill">Einträge gesamt: <b>${_DataAPI.fmtInt(all)}</b></span>
-      <span class="pill">Stoffe: <b>${_DataAPI.fmtInt(stoffe)}</b></span>
-      <span class="pill">Mischungen: <b>${_DataAPI.fmtInt(mixes)}</b></span>
-      <span class="pill">Rezepte: <b>${_DataAPI.fmtInt(recCount)}</b></span>
-    `;
-  })();
-  </script>
-</body>
-</html>
+  <div class="h1">Willkommen</div>
+  <p class="sub">Wähle einen Bereich aus:</p>
+  <div class="toolbar" style="justify-content:center">
+    <button class="btn" onclick="location.href='./stoffe.html'">🧂 Stoffe – Suchtabelle</button>
+    <button class="btn" onclick="location.href='./mischungen.html'">🌿 Mischungen – Suchtabelle</button>
+    <button class="btn" onclick="location.href='./baender.html'">📖 Bände – Auswahl</button>
+  </div>
+  <div class="footer-note">
+    <div>© Lexikon • GitHub Pages</div>
+    <div id="stats">Lade Datenstatus …</div>
+  </div>
+</div>
+<script src="./assets/js/util.js"></script>
+<script>
+(async()=>{
+  try{
+    const idx=await $util.loadCSV('./data/MasterIndex.csv');
+    const rec=await $util.loadCSV('./data/MasterRecipes.csv');
+    const total=(idx.length+rec.length).toLocaleString('de-CH');
+    document.getElementById('stats').textContent=`Einträge gesamt: ${total} • Stoffe: ${idx.length.toLocaleString('de-CH')} • Mischungen: ${rec.length.toLocaleString('de-CH')}`;
+  }catch(e){document.getElementById('stats').textContent='Status derzeit nicht verfügbar';}
+})();
+</script>
+</body></html>
