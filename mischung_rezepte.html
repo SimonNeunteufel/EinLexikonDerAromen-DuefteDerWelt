@@ -1,38 +1,6 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mischungs-Rezepte</title><link rel="stylesheet" href="./assets/css/styles.css">
-<style>.recipe{background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:12px;padding:16px;margin:14px 0;color:#0b0f14}
-.recipe h3{margin:6px 0 8px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
-@media print{body{background:#fff}.page{box-shadow:none;border:none;background:#fff}.controls{display:none!important}.recipe{break-inside:avoid;page-break-after:always}}
-</style></head>
-<body class="BG5"><div class="page">
-  <div class="header"><div style="display:flex;gap:8px;align-items:center">
-    <button class="btn" onclick="location.href='./mischungen.html'">← Zurück</button>
-    <div class="brand">Mischungs-Rezepte</div></div>
-    <nav class="nav"><a href="./stoffe.html">Stoffe</a><a href="./mischungen.html">Mischungen</a><a href="./baender.html">Bände</a></nav>
-  </div>
-  <div class="controls" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><button class="btn" onclick="window.print()">Als PDF drucken</button></div>
-  <div id="out"></div>
-</div>
-<script src="./assets/js/util.js"></script>
-<script>
-(async()=>{
-  const ids=new URL(location.href).searchParams.get('ids')||"";
-  const idSet=new Set(ids.split(',').map(s=>s.trim()).filter(Boolean));
-  const rows=await $util.loadRecipesAny();
-  const chosen=rows.filter(r=>idSet.has(r['ID_Neu']||r['Recipe_ID']||r['Rezept_ID']||r['id']||''));
-  const out=document.getElementById('out');
-  if(!chosen.length){ out.innerHTML = "<p>Keine Rezepte gefunden.</p>"; return; }
-  function fmtList(t){ if(!t) return ""; return String(t).split("|").map(s=>s.trim()).filter(Boolean).map(s=>`<li>${s}</li>`).join(""); }
-  out.innerHTML=chosen.map(r=>{
-    const name=r["Mix_Name"]||"(ohne Name)"; const k=r["Kategorie"]||""; const s=r["SensorikProfil"]||""; const p=r["PhysikalischeForm"]||""; const m=r["Mix_Typ"]||"";
-    const z=r["Zutaten"]||r["Ingredient_List"]||""; const a=r["Anwendung"]||r["Application"]||""; const q=r["Quelle"]||r["Source"]||"";
-    const rid=r["ID_Neu"]||r["Recipe_ID"]||r["Rezept_ID"]||r["id"]||"";
-    return `<article class="recipe"><h3>${name}</h3><div class="grid">
-      <div><strong>Kategorie:</strong> ${k}<br/><strong>Sensorik:</strong> ${s} &nbsp; <strong>Trägerform:</strong> ${p}<br/><strong>Mix-Typ:</strong> ${m}</div>
-      <div><strong>ID:</strong> ${rid}<br/><strong>Quelle:</strong> ${q}</div></div>
-      <h4>Zutaten</h4><ul>${fmtList(z)}</ul>${a?`<h4>Anwendung</h4><p>${a}</p>`:""}</article>`;
-  }).join("");
-})();
-</script>
+<!doctype html><html lang='de'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Mischungs-Rezepte</title><link rel='stylesheet' href='./assets/css/styles.css'></head><body class='BG5'><div class='page'>
+<div class='header'><button class='btn' onclick="location.href='./mischungen.html'">← Zurück</button><div class='brand'>Mischungs-Rezepte</div><nav class='nav'><a href='./stoffe.html'>Stoffe</a><a href='./mischungen.html'>Mischungen</a><a href='./baender.html'>Bände</a></nav></div>
+<div class='toolbar'><button class='btn' onclick='window.print()'>Als PDF drucken</button></div><div id='out'></div>
+</div><script src='./assets/js/util.js'></script><script src='./assets/js/bg_loader.js'></script>
+<script>(async()=>{const ids=new URL(location.href).searchParams.get('ids')||'';const set=new Set(ids.split(',').map(s=>s.trim()).filter(Boolean));const rows=await $util.loadRecipes();const S=$util.safe,out=document.getElementById('out');const pick=rows.filter(r=>set.has(r.ID_Neu||r.Recipe_ID||r.Rezept_ID||r.id||''));if(!pick.length){out.innerHTML='<p>Keine Rezepte gefunden.</p>';return}function list(t){if(!t)return'';return String(t).split('|').map(s=>s.trim()).filter(Boolean).map(s=>`<li>${S(s)}</li>`).join('')}out.innerHTML=pick.map(r=>`<article style='background:#fff;color:#0b0f14;border:1px solid #0002;border-radius:12px;padding:16px;margin:12px 0'><h3>${S(r.Mix_Name||'(ohne Name)')}</h3><div style='display:grid;grid-template-columns:1fr 1fr;gap:12px'><div><b>Kategorie:</b> ${S(r.Kategorie)}<br><b>Sensorik:</b> ${S(r.SensorikProfil)} &nbsp; <b>Trägerform:</b> ${S(r.PhysikalischeForm)}<br><b>Mix-Typ:</b> ${S(r.Mix_Typ)}</div><div><b>ID:</b> ${S(r.ID_Neu||r.Recipe_ID||r.Rezept_ID||r.id||'')}<br><b>Quelle:</b> ${S(r.Quelle||r.Source)}</div></div><h4>Zutaten</h4><ul>${list(r.Zutaten||r.Ingredient_List)}</ul>${r.Anwendung||r.Application?`<h4>Anwendung</h4><p>${S(r.Anwendung||r.Application)}</p>`:''}</article>`).join('')})();</script>
 </body></html>

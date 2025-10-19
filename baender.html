@@ -1,33 +1,8 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bände – Auswahl</title><link rel="stylesheet" href="./assets/css/styles.css"></head>
-<body class="BG2"><div class="page">
-  <div class="header">
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
-      <div class="brand">Bände</div>
-    </div>
-    <nav class="nav"><a href="./stoffe.html">Stoffe</a><a href="./mischungen.html">Mischungen</a><a href="./baender.html">Bände</a></nav>
-  </div>
-  <p class="sub">Wähle einen Band und öffne ihn als HTML (gleiches Fenster) oder als PDF (neuer Tab).</p>
-  <div class="toolbar">
-    <label for="bandSelect" style="font-weight:600">Band wählen:</label>
-    <select id="bandSelect" class="btn"></select>
-    <button class="btn" id="openHtml">HTML öffnen</button>
-    <button class="btn" id="openPdf">PDF öffnen</button>
-  </div>
-  <div class="footer-note"><div>BG2 aktiv</div><div><a href="./index.html">Start</a></div></div>
-</div>
-<script>
-const bands=[
- {id:'band0',num:0,title:'Einleitung & Grundlagen'},
- {id:'band1',num:1,title:'Aromen – Überblick & Geschichte'},
- {id:'band2',num:2,title:'Gewürze & Kräuter – Kernauswahl'},
- {id:'band3',num:3,title:'Mischungen – Klassisch bis Modern'}
-];
-const s=document.getElementById('bandSelect'),h=document.getElementById('openHtml'),p=document.getElementById('openPdf');
-function lbl(x){return `Band ${x.num} — ${x.title}`}
-bands.forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=lbl(x);s.appendChild(o)});
-h.onclick=()=>{const id=s.value; location.href=`./bands/${id}.html`;};
-p.onclick=()=>{const id=s.value; window.open(`./data/pdfs/${id}.pdf`,'_blank');};
-</script>
+<!doctype html><html lang='de'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Bände – Auswahl</title><link rel='stylesheet' href='./assets/css/styles.css'></head><body class='BG2'><div class='page'>
+<div class='header'><button class='btn' onclick="location.href='./index.html'">← Zurück</button><div class='brand'>Bände</div><nav class='nav'><a href='./stoffe.html'>Stoffe</a><a href='./mischungen.html'>Mischungen</a><a href='./baender.html'>Bände</a></nav></div>
+<p class='sub'>Dummy-Auswahl. HTML öffnet im gleichen Fenster, PDF in neuem Tab.</p>
+<div class='toolbar'><label>Band wählen:</label><select id='s' class='btn'></select><button class='btn' id='h'>HTML öffnen</button><button class='btn' id='p'>PDF öffnen</button></div>
+<div class='footer-note'><div>BG2 aktiv</div><div><a href='./index.html'>Start</a></div></div>
+</div><script src='./assets/js/util.js'></script><script src='./assets/js/bg_loader.js'></script>
+<script>const B=[{id:'band0',n:0,t:'Einleitung & Grundlagen'},{id:'band1',n:1,t:'Aromen – Überblick'},{id:'band2',n:2,t:'Gewürze & Kräuter'},{id:'band3',n:3,t:'Mischungen – Klassisch'}];const s=document.getElementById('s');B.forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=`Band ${x.n} — ${x.t}`;s.appendChild(o)});document.getElementById('h').onclick=()=>location.href=`./bands/${s.value}.html`;document.getElementById('p').onclick=()=>window.open(`./data/pdfs/${s.value}.pdf`,'_blank');</script>
 </body></html>

@@ -1,28 +1,8 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ein Lexikon der Aromen & Düfte der Welt</title><link rel="stylesheet" href="./assets/css/styles.css"></head>
-<body class="BG1"><div class="page">
-  <div class="header">
-    <div class="brand">Ein Lexikon der Aromen & Düfte der Welt</div>
-    <nav class="nav"><a href="./stoffe.html">Stoffe</a><a href="./mischungen.html">Mischungen</a><a href="./baender.html">Bände</a></nav>
-  </div>
-  <div class="h1">Willkommen</div>
-  <p class="sub">Wähle einen Bereich aus:</p>
-  <div class="toolbar" style="justify-content:center">
-    <button class="btn" onclick="location.href='./stoffe.html'">🧂 Stoffe – Suchtabelle</button>
-    <button class="btn" onclick="location.href='./mischungen.html'">🌿 Mischungen – Suchtabelle</button>
-    <button class="btn" onclick="location.href='./baender.html'">📖 Bände – Auswahl</button>
-  </div>
-  <div class="footer-note"><div>© Lexikon • GitHub Pages</div><div id="stats">Lade Datenstatus …</div></div>
-</div>
-<script src="./assets/js/util.js"></script>
-<script>
-(async()=>{
-  try{
-    const idx=await $util.loadIndexAny();
-    const rec=await $util.loadRecipesAny();
-    const total=(idx.length+rec.length).toLocaleString('de-CH');
-    document.getElementById('stats').textContent=`Einträge gesamt: ${total} • Stoffe: ${idx.length.toLocaleString('de-CH')} • Mischungen: ${rec.length.toLocaleString('de-CH')}`;
-  }catch(e){document.getElementById('stats').textContent='Status derzeit nicht verfügbar';}
-})();
-</script>
+<!doctype html><html lang='de'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Lexikon – Start</title><link rel='stylesheet' href='./assets/css/styles.css'></head><body class='BG1'><div class='page'>
+<div class='header'><div class='brand'>Ein Lexikon der Aromen & Düfte der Welt</div><nav class='nav'><a href='./stoffe.html'>Stoffe</a><a href='./mischungen.html'>Mischungen</a><a href='./baender.html'>Bände</a></nav></div>
+<div class='h1'>Willkommen</div><p class='sub'>Wähle einen Bereich aus:</p>
+<div class='toolbar' style='justify-content:center'><button class='btn' onclick="location.href='./stoffe.html'">🧂 Stoffe</button><button class='btn' onclick="location.href='./mischungen.html'">🌿 Mischungen</button><button class='btn' onclick="location.href='./baender.html'">📖 Bände</button></div>
+<div class='footer-note'><div>© Lexikon</div><div id='stats'>Datenstatus …</div></div>
+</div><script src='./assets/js/util.js'></script><script src='./assets/js/bg_loader.js'></script>
+<script>(async()=>{try{const a=await $util.loadIndex(),b=await $util.loadRecipes();document.getElementById('stats').textContent=`Einträge gesamt: ${(a.length+b.length).toLocaleString('de-CH')} • Stoffe: ${a.length} • Mischungen: ${b.length}`}catch(_){document.getElementById('stats').textContent='Status derzeit nicht verfügbar'}})();</script>
 </body></html>

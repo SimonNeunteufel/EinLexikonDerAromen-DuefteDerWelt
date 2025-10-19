@@ -1,63 +1,10 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Stoffe – Suche</title><link rel="stylesheet" href="./assets/css/styles.css"></head>
-<body class="BG3"><div class="page">
-  <div class="header">
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
-      <div class="brand">Stoffe – Suchtabelle</div>
-    </div>
-    <nav class="nav"><a href="./stoffe.html">Stoffe</a><a href="./mischungen.html">Mischungen</a><a href="./baender.html">Bände</a></nav>
-  </div>
-  <p class="sub">Gewürze, Kräuter, Salze, Harze/Hölzer, Tees/Infusionen, Räucherstoffe.</p>
-  <div class="sticky-actions">
-    <input id="q" type="search" placeholder="Suche (Name, Kategorie, Region…)" />
-    <button id="doSearch" class="btn">Suchen</button>
-    <button id="btnHtml" class="btn">Erstelle Datasheets → HTML</button>
-    <button id="btnPdf" class="btn">Erstelle Datasheets → PDF</button>
-    <label style="margin-left:auto"><input type="checkbox" id="selectAll"> Alles wählen</label>
-  </div>
-  <div class="badges" id="selectionInfo"></div>
-  <div class="table-wrap" style="height: calc(100vh - 280px);"><div class="table-body"><table id="tbl"><thead></thead><tbody></tbody></table></div></div>
-  <div class="footer-note"><div>© Lexikon</div><div><a href="./index.html">Start</a></div></div>
-</div>
-<script src="./assets/js/util.js"></script>
-<script>
-(async()=>{
-  const {loadIndexAny, safe}=window.$util;
-  let data=[];
-  try{ data = await loadIndexAny(); }
-  catch(e){ $util.showError("Daten konnten nicht geladen werden. Lege <code>MasterIndex.csv</code> oder <code>master_index.json</code> in <code>/data/</code> ab."); data=[]; }
-
-  const keys=Object.keys(data[0]||{});
-  const show=["Name","Kategorie","EntityType","Region","Land","Kontinent","SensorikProfil","PhysikalischeForm","Quelle","Status","Priorität"].filter(c=>keys.includes(c));
-  const thead=document.querySelector('#tbl thead');
-  thead.innerHTML="<tr><th><input type='checkbox' id='headSelect'></th>"+show.map(c=>`<th>${c}</th>`).join("")+"</tr>";
-  const tbody=document.querySelector('#tbl tbody');
-  const info=document.getElementById('selectionInfo');
-  const rid = r => r["ID_Neu"]||r["id"]||"";
-  const rname = r => r["Name"]||r["Lateinischer Name/Typ"]||rid(r)||"(ohne Name)";
-  function render(rows){
-    tbody.innerHTML=rows.map(r=>{
-      const cells=show.map(c=>`<td>${safe(r[c])}</td>`).join("");
-      return `<tr><td><input class='sel' type='checkbox' data-id='${rid(r)}' data-name='${safe(rname(r))}'></td>${cells}</tr>`;
-    }).join("");
-    updateBadges();
-  }
-  function searchNow(){
-    const s=document.getElementById('q').value.trim().toLowerCase();
-    const rows=!s?data:data.filter(r=>Object.values(r).some(v=>(safe(v)+'').toLowerCase().includes(s)));
-    render(rows);
-  }
-  document.getElementById('doSearch').onclick=searchNow;
-  document.getElementById('q').addEventListener('keydown',e=>{ if(e.key==='Enter') searchNow() });
-  function selected(){const arr=[];document.querySelectorAll('input.sel:checked').forEach(ch=>arr.push({id:ch.getAttribute('data-id'),name:ch.getAttribute('data-name')}));return arr;}
-  function updateBadges(){const arr=selected(); info.innerHTML=arr.map(x=>`<span class='badge'>${x.name}</span>`).join('');}
-  document.addEventListener('change',e=>{ if(e.target.classList.contains('sel')) updateBadges(); });
-  const headSel=document.getElementById('headSelect'); if(headSel){ headSel.addEventListener('change',e=>{ document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked); updateBadges(); }); }
-  const allSel=document.getElementById('selectAll'); if(allSel){ allSel.addEventListener('change',e=>{ document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked); updateBadges(); }); }
-  document.getElementById('btnHtml').onclick=()=>{ const ids=selected().map(x=>x.id).filter(Boolean); if(!ids.length){alert('Bitte mindestens einen Stoff auswählen.'); return;} window.open(`./stoff_datasheet.html?ids=${encodeURIComponent(ids.join(','))}`,'_blank'); };
-  document.getElementById('btnPdf').onclick=()=>{ const ids=selected().map(x=>x.id).filter(Boolean); if(!ids.length){alert('Bitte mindestens einen Stoff auswählen.'); return;} window.open(`./stoff_datasheet.html?ids=${encodeURIComponent(ids.join(','))}&print=1`,'_blank'); };
-  render(data);
-})();
-</script>
+<!doctype html><html lang='de'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Stoffe – Suche</title><link rel='stylesheet' href='./assets/css/styles.css'></head><body class='BG3'><div class='page'>
+<div class='header'><button class='btn' onclick="location.href='./index.html'">← Zurück</button><div class='brand'>Stoffe – Suchtabelle</div><nav class='nav'><a href='./stoffe.html'>Stoffe</a><a href='./mischungen.html'>Mischungen</a><a href='./baender.html'>Bände</a></nav></div>
+<p class='sub'>Gewürze, Kräuter, Salze, Harze/Hölzer, Tees/Infusionen, Räucherstoffe.</p>
+<div class='toolbar'><input id='q' placeholder='Suche (Name, Kategorie, Region …)' type='search'><button class='btn' id='go'>Suchen</button><button class='btn' id='toHtml'>Datasheets → HTML</button><button class='btn' id='toPdf'>Datasheets → PDF</button><label style='margin-left:auto'><input type='checkbox' id='all'> Alles wählen</label></div>
+<div class='badges' id='info'></div>
+<div class='table-wrap'><div class='table-body'><table id='t'><thead></thead><tbody></tbody></table></div></div>
+<div class='footer-note'><div>© Lexikon</div><div><a href='./index.html'>Start</a></div></div>
+</div><script src='./assets/js/util.js'></script><script src='./assets/js/bg_loader.js'></script>
+<script>(async()=>{let data=[];try{data=await $util.loadIndex()}catch(_){$util.err('Daten konnten nicht geladen werden. Lege <code>MasterIndex.csv</code> oder <code>master_index.json</code> in <code>/assets/data/</code> oder <code>/data/</code> ab.')}const K=Object.keys(data[0]||{}),show=["Name","Kategorie","EntityType","Region","Land","Kontinent","SensorikProfil","PhysikalischeForm","Quelle"].filter(c=>K.includes(c));const H=document.querySelector('#t thead');H.innerHTML="<tr><th><input id='hd' type='checkbox'></th>"+show.map(c=>`<th>${c}</th>`).join('')+"</tr>";const B=document.querySelector('#t tbody'),I=document.getElementById('info'),S=$util.safe,ID=r=>r.ID_Neu||r.id||'',RN=r=>r.Name||r['Lateinischer Name/Typ']||ID(r)||'(ohne Name)';function render(rows){B.innerHTML=rows.map(r=>`<tr><td><input class='sel' type='checkbox' data-id='${ID(r)}' data-name='${S(RN(r))}'></td>`+show.map(c=>`<td>${S(r[c])}</td>`).join('')+`</tr>`).join('');upd()}function search(){const s=document.getElementById('q').value.trim().toLowerCase();render(!s?data:data.filter(r=>Object.values(r).some(v=>(S(v)+'').toLowerCase().includes(s))))}function chosen(){const a=[];document.querySelectorAll('input.sel:checked').forEach(x=>a.push({id:x.dataset.id,name:x.dataset.name}));return a}function upd(){const a=chosen();I.innerHTML=a.map(x=>`<span class='badge'>${x.name}</span>`).join('')}document.getElementById('go').onclick=search;document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')search()});document.addEventListener('change',e=>{if(e.target.classList.contains('sel'))upd()});document.getElementById('hd').addEventListener('change',e=>{document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked);upd()});document.getElementById('all').addEventListener('change',e=>{document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked);upd()});document.getElementById('toHtml').onclick=()=>{const ids=chosen().map(x=>x.id).filter(Boolean);if(!ids.length)return alert('Bitte Stoff(e) auswählen.');window.open(`./stoff_datasheet.html?ids=${encodeURIComponent(ids.join(','))}`,'_blank')};document.getElementById('toPdf').onclick=()=>{const ids=chosen().map(x=>x.id).filter(Boolean);if(!ids.length)return alert('Bitte Stoff(e) auswählen.');window.open(`./stoff_datasheet.html?ids=${encodeURIComponent(ids.join(','))}&print=1`,'_blank')};render(data);})();</script>
 </body></html>
