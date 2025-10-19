@@ -10,33 +10,41 @@ xmlns="http://www.w3.org/TR/REC-html40">
 <meta name=ProgId content=Word.Document>
 <meta name=Generator content="Microsoft Word 15">
 <meta name=Originator content="Microsoft Word 15">
-<link rel=File-List href="band0-Dateien/filelist.xml">
-<!--[if gte mso 9]><xml>
+<link rel=File-List href="Band0-Dateien/filelist.xml">
+<link rel=Edit-Time-Data href="Band0-Dateien/editdata.mso">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
  <o:DocumentProperties>
   <o:Author>Simon Neunteufel</o:Author>
   <o:LastAuthor>Simon Neunteufel</o:LastAuthor>
   <o:Revision>2</o:Revision>
-  <o:Created>2025-10-19T00:11:00Z</o:Created>
-  <o:LastSaved>2025-10-19T00:11:00Z</o:LastSaved>
-  <o:Pages>150</o:Pages>
-  <o:Words>32543</o:Words>
-  <o:Characters>225855</o:Characters>
-  <o:Lines>5133</o:Lines>
-  <o:Paragraphs>4037</o:Paragraphs>
-  <o:CharactersWithSpaces>254361</o:CharactersWithSpaces>
+  <o:Created>2025-10-19T12:44:00Z</o:Created>
+  <o:LastSaved>2025-10-19T12:44:00Z</o:LastSaved>
+  <o:Pages>174</o:Pages>
+  <o:Words>35405</o:Words>
+  <o:Characters>223053</o:Characters>
+  <o:Lines>1858</o:Lines>
+  <o:Paragraphs>515</o:Paragraphs>
+  <o:CharactersWithSpaces>257943</o:CharactersWithSpaces>
   <o:Version>16.00</o:Version>
  </o:DocumentProperties>
  <o:OfficeDocumentSettings>
   <o:AllowPNG/>
  </o:OfficeDocumentSettings>
 </xml><![endif]-->
-<link rel=dataStoreItem href="band0-Dateien/item0001.xml"
-target="band0-Dateien/props002.xml">
-<link rel=themeData href="band0-Dateien/themedata.thmx">
-<link rel=colorSchemeMapping href="band0-Dateien/colorschememapping.xml">
+<link rel=dataStoreItem href="Band0-Dateien/item0001.xml"
+target="Band0-Dateien/props002.xml">
+<link rel=themeData href="Band0-Dateien/themedata.thmx">
+<link rel=colorSchemeMapping href="Band0-Dateien/colorschememapping.xml">
 <!--[if gte mso 9]><xml>
  <w:WordDocument>
-  <w:TrackMoves/>
+  <w:TrackMoves>false</w:TrackMoves>
   <w:TrackFormatting/>
   <w:HyphenationZone>21</w:HyphenationZone>
   <w:PunctuationKerning/>
@@ -9622,6 +9630,44 @@ p.MsoCommentText, li.MsoCommentText, div.MsoCommentText
 	mso-font-kerning:1.0pt;
 	mso-ligatures:standardcontextual;
 	mso-fareast-language:DE;}
+p.MsoHeader, li.MsoHeader, div.MsoHeader
+	{mso-style-priority:99;
+	mso-style-link:"Kopfzeile Zchn";
+	margin:0cm;
+	mso-pagination:widow-orphan;
+	tab-stops:center 8.0cm right 16.0cm;
+	font-size:12.0pt;
+	font-family:"Aptos",sans-serif;
+	mso-ascii-font-family:Aptos;
+	mso-ascii-theme-font:minor-latin;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-hansi-font-family:Aptos;
+	mso-hansi-theme-font:minor-latin;
+	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-theme-font:minor-bidi;
+	mso-font-kerning:1.0pt;
+	mso-ligatures:standardcontextual;
+	mso-fareast-language:DE;}
+p.MsoFooter, li.MsoFooter, div.MsoFooter
+	{mso-style-priority:99;
+	mso-style-link:"Fu zeile Zchn";
+	margin:0cm;
+	mso-pagination:widow-orphan;
+	tab-stops:center 8.0cm right 16.0cm;
+	font-size:12.0pt;
+	font-family:"Aptos",sans-serif;
+	mso-ascii-font-family:Aptos;
+	mso-ascii-theme-font:minor-latin;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-hansi-font-family:Aptos;
+	mso-hansi-theme-font:minor-latin;
+	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-theme-font:minor-bidi;
+	mso-font-kerning:1.0pt;
+	mso-ligatures:standardcontextual;
+	mso-fareast-language:DE;}
 span.MsoCommentReference
 	{mso-style-noshow:yes;
 	mso-style-priority:99;
@@ -10490,6 +10536,18 @@ span.KommentarthemaZchn
 	mso-ansi-font-size:10.0pt;
 	mso-bidi-font-size:10.0pt;
 	font-weight:bold;}
+span.KopfzeileZchn
+	{mso-style-name:"Kopfzeile Zchn";
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-style-locked:yes;
+	mso-style-link:Kopfzeile;}
+span.FuzeileZchn
+	{mso-style-name:"Fu zeile Zchn";
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-style-locked:yes;
+	mso-style-link:Fu zeile;}
 span.msoIns
 	{mso-style-type:export-only;
 	mso-style-name:"";
@@ -10501,9 +10559,6 @@ span.msoDel
 	mso-style-name:"";
 	text-decoration:line-through;
 	color:red;}
-span.msoChangeProp
-	{mso-style-type:export-only;
-	mso-style-name:"";}
 .MsoChpDefault
 	{mso-style-type:export-only;
 	mso-default-props:yes;
@@ -10524,27 +10579,39 @@ span.msoChangeProp
 	{mso-style-type:export-only;
 	margin-bottom:8.0pt;
 	line-height:115%;}
+ /* Page Definitions */
+ @page
+	{mso-footnote-separator:url("Band0-Dateien/header.htm") fs;
+	mso-footnote-continuation-separator:url("Band0-Dateien/header.htm") fcs;
+	mso-endnote-separator:url("Band0-Dateien/header.htm") es;
+	mso-endnote-continuation-separator:url("Band0-Dateien/header.htm") ecs;}
 @page WordSection1
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
+	margin:0cm 0cm 0cm 0cm;
 	mso-header-margin:35.4pt;
 	mso-footer-margin:35.4pt;
+	mso-footer:url("Band0-Dateien/header.htm") f1;
 	mso-paper-source:0;}
 div.WordSection1
 	{page:WordSection1;}
 @page WordSection2
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:42.55pt 70.85pt 1.0cm 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.7pt;
+	mso-page-numbers:1;
+	mso-header:url("Band0-Dateien/header.htm") h2;
+	mso-footer:url("Band0-Dateien/header.htm") f1;
 	mso-paper-source:0;}
 div.WordSection2
 	{page:WordSection2;}
 @page WordSection3
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:49.65pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.7pt;
+	mso-header:url("Band0-Dateien/header.htm") h3;
+	mso-footer:url("Band0-Dateien/header.htm") f3;
 	mso-paper-source:0;}
 div.WordSection3
 	{page:WordSection3;}
@@ -10553,14 +10620,18 @@ div.WordSection3
 	margin:70.85pt 70.85pt 2.0cm 70.85pt;
 	mso-header-margin:35.4pt;
 	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h4;
+	mso-footer:url("Band0-Dateien/header.htm") f4;
 	mso-paper-source:0;}
 div.WordSection4
 	{page:WordSection4;}
 @page WordSection5
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:42.55pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.7pt;
+	mso-header:url("Band0-Dateien/header.htm") h5;
+	mso-footer:url("Band0-Dateien/header.htm") f5;
 	mso-paper-source:0;}
 div.WordSection5
 	{page:WordSection5;}
@@ -10569,14 +10640,18 @@ div.WordSection5
 	margin:70.85pt 70.85pt 2.0cm 70.85pt;
 	mso-header-margin:35.4pt;
 	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h6;
+	mso-footer:url("Band0-Dateien/header.htm") f6;
 	mso-paper-source:0;}
 div.WordSection6
 	{page:WordSection6;}
 @page WordSection7
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:42.55pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:0cm;
+	mso-header:url("Band0-Dateien/header.htm") h7;
+	mso-footer:url("Band0-Dateien/header.htm") f7;
 	mso-paper-source:0;}
 div.WordSection7
 	{page:WordSection7;}
@@ -10585,14 +10660,18 @@ div.WordSection7
 	margin:70.85pt 70.85pt 2.0cm 70.85pt;
 	mso-header-margin:35.4pt;
 	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h8;
+	mso-footer:url("Band0-Dateien/header.htm") f8;
 	mso-paper-source:0;}
 div.WordSection8
 	{page:WordSection8;}
 @page WordSection9
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:49.65pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:21.3pt;
+	mso-footer-margin:3.3pt;
+	mso-header:url("Band0-Dateien/header.htm") h9;
+	mso-footer:url("Band0-Dateien/header.htm") f9;
 	mso-paper-source:0;}
 div.WordSection9
 	{page:WordSection9;}
@@ -10601,30 +10680,38 @@ div.WordSection9
 	margin:70.85pt 70.85pt 2.0cm 70.85pt;
 	mso-header-margin:35.4pt;
 	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h10;
+	mso-footer:url("Band0-Dateien/header.htm") f10;
 	mso-paper-source:0;}
 div.WordSection10
 	{page:WordSection10;}
 @page WordSection11
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:49.65pt 70.85pt 42.55pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:10.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h11;
+	mso-footer:url("Band0-Dateien/header.htm") f11;
 	mso-paper-source:0;}
 div.WordSection11
 	{page:WordSection11;}
 @page WordSection12
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:49.65pt 70.85pt 42.55pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:10.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h12;
+	mso-footer:url("Band0-Dateien/header.htm") f12;
 	mso-paper-source:0;}
 div.WordSection12
 	{page:WordSection12;}
 @page WordSection13
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:49.65pt 70.85pt 42.55pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:10.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h13;
+	mso-footer:url("Band0-Dateien/header.htm") f13;
 	mso-paper-source:0;}
 div.WordSection13
 	{page:WordSection13;}
@@ -10633,14 +10720,18 @@ div.WordSection13
 	margin:70.85pt 70.85pt 2.0cm 70.85pt;
 	mso-header-margin:35.4pt;
 	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h14;
+	mso-footer:url("Band0-Dateien/header.htm") f14;
 	mso-paper-source:0;}
 div.WordSection14
 	{page:WordSection14;}
 @page WordSection15
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:49.65pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:10.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h15;
+	mso-footer:url("Band0-Dateien/header.htm") f15;
 	mso-paper-source:0;}
 div.WordSection15
 	{page:WordSection15;}
@@ -10649,14 +10740,18 @@ div.WordSection15
 	margin:70.85pt 70.85pt 2.0cm 70.85pt;
 	mso-header-margin:35.4pt;
 	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h16;
+	mso-footer:url("Band0-Dateien/header.htm") f16;
 	mso-paper-source:0;}
 div.WordSection16
 	{page:WordSection16;}
 @page WordSection17
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:49.65pt 70.85pt 42.55pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:10.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h17;
+	mso-footer:url("Band0-Dateien/header.htm") f17;
 	mso-paper-source:0;}
 div.WordSection17
 	{page:WordSection17;}
@@ -10665,30 +10760,38 @@ div.WordSection17
 	margin:70.85pt 70.85pt 2.0cm 70.85pt;
 	mso-header-margin:35.4pt;
 	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h18;
+	mso-footer:url("Band0-Dateien/header.htm") f18;
 	mso-paper-source:0;}
 div.WordSection18
 	{page:WordSection18;}
 @page WordSection19
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:42.55pt 70.85pt 49.65pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:10.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h19;
+	mso-footer:url("Band0-Dateien/header.htm") f19;
 	mso-paper-source:0;}
 div.WordSection19
 	{page:WordSection19;}
 @page WordSection20
 	{size:595.3pt 841.9pt;
 	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	mso-header-margin:28.4pt;
+	mso-footer-margin:3.3pt;
+	mso-header:url("Band0-Dateien/header.htm") h20;
+	mso-footer:url("Band0-Dateien/header.htm") f20;
 	mso-paper-source:0;}
 div.WordSection20
 	{page:WordSection20;}
 @page WordSection21
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:49.65pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h21;
+	mso-footer:url("Band0-Dateien/header.htm") f21;
 	mso-paper-source:0;}
 div.WordSection21
 	{page:WordSection21;}
@@ -10696,26 +10799,402 @@ div.WordSection21
 	{size:595.3pt 841.9pt;
 	margin:70.85pt 70.85pt 2.0cm 70.85pt;
 	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	mso-footer-margin:10.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h22;
+	mso-footer:url("Band0-Dateien/header.htm") f22;
 	mso-paper-source:0;}
 div.WordSection22
 	{page:WordSection22;}
 @page WordSection23
 	{size:595.3pt 841.9pt;
-	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
+	margin:49.65pt 70.85pt 42.55pt 70.85pt;
+	mso-header-margin:21.3pt;
+	mso-footer-margin:9.5pt;
+	mso-header:url("Band0-Dateien/header.htm") h23;
+	mso-footer:url("Band0-Dateien/header.htm") f23;
 	mso-paper-source:0;}
 div.WordSection23
 	{page:WordSection23;}
 @page WordSection24
 	{size:595.3pt 841.9pt;
 	margin:70.85pt 70.85pt 2.0cm 70.85pt;
-	mso-header-margin:35.4pt;
+	mso-header-margin:21.3pt;
 	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h24;
+	mso-footer:url("Band0-Dateien/header.htm") f24;
 	mso-paper-source:0;}
 div.WordSection24
 	{page:WordSection24;}
+@page WordSection25
+	{size:595.3pt 841.9pt;
+	margin:49.65pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:21.3pt;
+	mso-footer-margin:3.3pt;
+	mso-header:url("Band0-Dateien/header.htm") h25;
+	mso-footer:url("Band0-Dateien/header.htm") f25;
+	mso-paper-source:0;}
+div.WordSection25
+	{page:WordSection25;}
+@page WordSection26
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h26;
+	mso-footer:url("Band0-Dateien/header.htm") f26;
+	mso-paper-source:0;}
+div.WordSection26
+	{page:WordSection26;}
+@page WordSection27
+	{size:595.3pt 841.9pt;
+	margin:49.65pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.55pt;
+	mso-header:url("Band0-Dateien/header.htm") h27;
+	mso-footer:url("Band0-Dateien/header.htm") f27;
+	mso-paper-source:0;}
+div.WordSection27
+	{page:WordSection27;}
+@page WordSection28
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h28;
+	mso-footer:url("Band0-Dateien/header.htm") f28;
+	mso-paper-source:0;}
+div.WordSection28
+	{page:WordSection28;}
+@page WordSection29
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 1.0cm 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.55pt;
+	mso-header:url("Band0-Dateien/header.htm") h29;
+	mso-footer:url("Band0-Dateien/header.htm") f29;
+	mso-paper-source:0;}
+div.WordSection29
+	{page:WordSection29;}
+@page WordSection30
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h30;
+	mso-footer:url("Band0-Dateien/header.htm") f30;
+	mso-paper-source:0;}
+div.WordSection30
+	{page:WordSection30;}
+@page WordSection31
+	{size:595.3pt 841.9pt;
+	margin:49.65pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.55pt;
+	mso-header:url("Band0-Dateien/header.htm") h31;
+	mso-footer:url("Band0-Dateien/header.htm") f31;
+	mso-paper-source:0;}
+div.WordSection31
+	{page:WordSection31;}
+@page WordSection32
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h32;
+	mso-footer:url("Band0-Dateien/header.htm") f32;
+	mso-paper-source:0;}
+div.WordSection32
+	{page:WordSection32;}
+@page WordSection33
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 1.0cm 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.55pt;
+	mso-header:url("Band0-Dateien/header.htm") h33;
+	mso-footer:url("Band0-Dateien/header.htm") f33;
+	mso-paper-source:0;}
+div.WordSection33
+	{page:WordSection33;}
+@page WordSection34
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:7.1pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h34;
+	mso-footer:url("Band0-Dateien/header.htm") f34;
+	mso-paper-source:0;}
+div.WordSection34
+	{page:WordSection34;}
+@page WordSection35
+	{size:595.3pt 841.9pt;
+	margin:49.65pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:3.05pt;
+	mso-header:url("Band0-Dateien/header.htm") h35;
+	mso-footer:url("Band0-Dateien/header.htm") f35;
+	mso-paper-source:0;}
+div.WordSection35
+	{page:WordSection35;}
+@page WordSection36
+	{size:595.3pt 841.9pt;
+	margin:35.45pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:7.1pt;
+	mso-footer-margin:2.7pt;
+	mso-header:url("Band0-Dateien/header.htm") h36;
+	mso-footer:url("Band0-Dateien/header.htm") f36;
+	mso-paper-source:0;}
+div.WordSection36
+	{page:WordSection36;}
+@page WordSection37
+	{size:595.3pt 841.9pt;
+	margin:35.45pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:7.1pt;
+	mso-footer-margin:2.7pt;
+	mso-header:url("Band0-Dateien/header.htm") h37;
+	mso-footer:url("Band0-Dateien/header.htm") f37;
+	mso-paper-source:0;}
+div.WordSection37
+	{page:WordSection37;}
+@page WordSection38
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:0cm;
+	mso-header:url("Band0-Dateien/header.htm") h38;
+	mso-footer:url("Band0-Dateien/header.htm") f38;
+	mso-paper-source:0;}
+div.WordSection38
+	{page:WordSection38;}
+@page WordSection39
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 1.0cm 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:0cm;
+	mso-header:url("Band0-Dateien/header.htm") h39;
+	mso-footer:url("Band0-Dateien/header.htm") f39;
+	mso-paper-source:0;}
+div.WordSection39
+	{page:WordSection39;}
+@page WordSection40
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:0cm;
+	mso-header:url("Band0-Dateien/header.htm") h40;
+	mso-footer:url("Band0-Dateien/header.htm") f40;
+	mso-paper-source:0;}
+div.WordSection40
+	{page:WordSection40;}
+@page WordSection41
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 1.0cm 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:0cm;
+	mso-header:url("Band0-Dateien/header.htm") h41;
+	mso-footer:url("Band0-Dateien/header.htm") f41;
+	mso-paper-source:0;}
+div.WordSection41
+	{page:WordSection41;}
+@page WordSection42
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:21.3pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h42;
+	mso-footer:url("Band0-Dateien/header.htm") f42;
+	mso-paper-source:0;}
+div.WordSection42
+	{page:WordSection42;}
+@page WordSection43
+	{size:595.3pt 841.9pt;
+	margin:56.75pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:21.3pt;
+	mso-footer-margin:9.65pt;
+	mso-header:url("Band0-Dateien/header.htm") h43;
+	mso-footer:url("Band0-Dateien/header.htm") f43;
+	mso-paper-source:0;}
+div.WordSection43
+	{page:WordSection43;}
+@page WordSection44
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h44;
+	mso-footer:url("Band0-Dateien/header.htm") f44;
+	mso-paper-source:0;}
+div.WordSection44
+	{page:WordSection44;}
+@page WordSection45
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.55pt;
+	mso-header:url("Band0-Dateien/header.htm") h45;
+	mso-footer:url("Band0-Dateien/header.htm") f45;
+	mso-paper-source:0;}
+div.WordSection45
+	{page:WordSection45;}
+@page WordSection46
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:7.1pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h46;
+	mso-footer:url("Band0-Dateien/header.htm") f46;
+	mso-paper-source:0;}
+div.WordSection46
+	{page:WordSection46;}
+@page WordSection47
+	{size:595.3pt 841.9pt;
+	margin:49.65pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:3.05pt;
+	mso-header:url("Band0-Dateien/header.htm") h47;
+	mso-footer:url("Band0-Dateien/header.htm") f47;
+	mso-paper-source:0;}
+div.WordSection47
+	{page:WordSection47;}
+@page WordSection48
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h48;
+	mso-footer:url("Band0-Dateien/header.htm") f48;
+	mso-paper-source:0;}
+div.WordSection48
+	{page:WordSection48;}
+@page WordSection49
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.55pt;
+	mso-header:url("Band0-Dateien/header.htm") h49;
+	mso-footer:url("Band0-Dateien/header.htm") f49;
+	mso-paper-source:0;}
+div.WordSection49
+	{page:WordSection49;}
+@page WordSection50
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.7pt;
+	mso-header:url("Band0-Dateien/header.htm") h50;
+	mso-footer:url("Band0-Dateien/header.htm") f50;
+	mso-paper-source:0;}
+div.WordSection50
+	{page:WordSection50;}
+@page WordSection51
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.7pt;
+	mso-header:url("Band0-Dateien/header.htm") h51;
+	mso-footer:url("Band0-Dateien/header.htm") f51;
+	mso-paper-source:0;}
+div.WordSection51
+	{page:WordSection51;}
+@page WordSection52
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.7pt;
+	mso-header:url("Band0-Dateien/header.htm") h52;
+	mso-footer:url("Band0-Dateien/header.htm") f52;
+	mso-paper-source:0;}
+div.WordSection52
+	{page:WordSection52;}
+@page WordSection53
+	{size:595.3pt 841.9pt;
+	margin:42.55pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.7pt;
+	mso-header:url("Band0-Dateien/header.htm") h53;
+	mso-footer:url("Band0-Dateien/header.htm") f53;
+	mso-paper-source:0;}
+div.WordSection53
+	{page:WordSection53;}
+@page WordSection54
+	{size:595.3pt 841.9pt;
+	margin:0cm 0cm 0cm 0cm;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h54;
+	mso-footer:url("Band0-Dateien/header.htm") f54;
+	mso-paper-source:0;}
+div.WordSection54
+	{page:WordSection54;}
+@page WordSection55
+	{size:595.3pt 841.9pt;
+	margin:49.65pt 70.85pt 35.45pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:2.7pt;
+	mso-header:url("Band0-Dateien/header.htm") h55;
+	mso-footer:url("Band0-Dateien/header.htm") f55;
+	mso-paper-source:0;}
+div.WordSection55
+	{page:WordSection55;}
+@page WordSection56
+	{size:595.3pt 841.9pt;
+	margin:0cm 0cm 0cm 0cm;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h56;
+	mso-footer:url("Band0-Dateien/header.htm") f56;
+	mso-paper-source:0;}
+div.WordSection56
+	{page:WordSection56;}
+@page WordSection57
+	{size:595.3pt 841.9pt;
+	margin:49.65pt 70.85pt 42.55pt 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:0cm;
+	mso-header:url("Band0-Dateien/header.htm") h57;
+	mso-footer:url("Band0-Dateien/header.htm") f57;
+	mso-paper-source:0;}
+div.WordSection57
+	{page:WordSection57;}
+@page WordSection58
+	{size:595.3pt 841.9pt;
+	margin:0cm 0cm 0cm 0cm;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h58;
+	mso-footer:url("Band0-Dateien/header.htm") f58;
+	mso-paper-source:0;}
+div.WordSection58
+	{page:WordSection58;}
+@page WordSection59
+	{size:595.3pt 841.9pt;
+	margin:49.65pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:7.1pt;
+	mso-footer-margin:2.7pt;
+	mso-header:url("Band0-Dateien/header.htm") h59;
+	mso-footer:url("Band0-Dateien/header.htm") f59;
+	mso-paper-source:0;}
+div.WordSection59
+	{page:WordSection59;}
+@page WordSection60
+	{size:595.3pt 841.9pt;
+	margin:0cm 0cm 0cm 0cm;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-header:url("Band0-Dateien/header.htm") h60;
+	mso-footer:url("Band0-Dateien/header.htm") f60;
+	mso-paper-source:0;}
+div.WordSection60
+	{page:WordSection60;}
+@page WordSection61
+	{size:595.3pt 841.9pt;
+	margin:49.65pt 70.85pt 2.0cm 70.85pt;
+	mso-header-margin:14.2pt;
+	mso-footer-margin:0cm;
+	mso-header:url("Band0-Dateien/header.htm") h61;
+	mso-footer:url("Band0-Dateien/header.htm") f61;
+	mso-paper-source:0;}
+div.WordSection61
+	{page:WordSection61;}
  /* List Definitions */
  @list l0
 	{mso-list-id:84884159;
@@ -14668,10 +15147,10 @@ ul
 	mso-fareast-language:DE;}
 </style>
 <![endif]--><!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext="edit" spidmax="1026"/>
+ <o:shapedefaults v:ext="edit" spidmax="2080"/>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <o:shapelayout v:ext="edit">
-  <o:idmap v:ext="edit" data="1"/>
+  <o:idmap v:ext="edit" data="2"/>
  </o:shapelayout></xml><![endif]-->
 </head>
 
@@ -14679,6 +15158,59 @@ ul
 word-wrap:break-word'>
 
 <div class=WordSection1>
+
+<p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+line-height:normal;mso-outline-level:1'><!--[if gte vml 1]><v:shapetype id="_x0000_t75"
+ coordsize="21600,21600" o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe"
+ filled="f" stroked="f">
+ <v:stroke joinstyle="miter"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+  <v:f eqn="sum @0 1 0"/>
+  <v:f eqn="sum 0 0 @1"/>
+  <v:f eqn="prod @2 1 2"/>
+  <v:f eqn="prod @3 21600 pixelWidth"/>
+  <v:f eqn="prod @3 21600 pixelHeight"/>
+  <v:f eqn="sum @0 0 1"/>
+  <v:f eqn="prod @6 1 2"/>
+  <v:f eqn="prod @7 21600 pixelWidth"/>
+  <v:f eqn="sum @8 21600 0"/>
+  <v:f eqn="prod @7 21600 pixelHeight"/>
+  <v:f eqn="sum @10 21600 0"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+ <o:lock v:ext="edit" aspectratio="t"/>
+</v:shapetype><v:shape id="Grafik_x0020_1" o:spid="_x0000_s2079" type="#_x0000_t75"
+ alt="Ein Bild, das Text, Buch, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:543.4pt;margin-top:0;width:594.6pt;
+ height:841.2pt;z-index:-251658240;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:margin;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image001.png" o:title="Ein Bild, das Text, Buch, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="margin"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+absolute;z-index:-1895825408;margin-left:33px;margin-top:4px;width:991px;
+height:1402px'><img width=793 height=1122 src="Band0-Dateien/image002.jpg"
+alt="Ein Bild, das Text, Buch, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_1"></span><![endif]><b><span style='font-size:24.0pt;
+font-family:"Apple Color Emoji";mso-fareast-font-family:"Times New Roman";
+mso-bidi-font-family:"Apple Color Emoji";mso-font-kerning:18.0pt;mso-ligatures:
+none'><o:p></o:p></span></b></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Apple Color Emoji";mso-fareast-font-family:
+"Times New Roman";mso-bidi-font-family:"Apple Color Emoji";mso-font-kerning:
+18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:DE;
+mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection2>
 
 <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
 line-height:normal;mso-outline-level:1'><b><span style='font-size:24.0pt;
@@ -15116,7 +15648,7 @@ mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:DE;mso-bidi-lang
 AR-SA'><br clear=all style='page-break-before:always;mso-break-type:section-break'>
 </span>
 
-<div class=WordSection2>
+<div class=WordSection3>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 1   Geschichte
@@ -15356,7 +15888,36 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection3>
+<div class=WordSection4>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_6" o:spid="_x0000_s2078"
+ type="#_x0000_t75" style='position:absolute;margin-left:542.8pt;margin-top:-70.85pt;
+ width:594pt;height:841.5pt;z-index:-251653120;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image003.png" o:title=""/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+absolute;z-index:-1895820288;margin-left:34px;margin-top:1899px;width:990px;
+height:1402px'><img width=792 height=1122 src="Band0-Dateien/image004.jpg"
+v:shapes="Grafik_x0020_6"></span><![endif]><span lang=EN-US style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji";mso-ansi-language:
+EN-US'><o:p></o:p></span></p>
+
+</div>
+
+<b><span lang=EN-US style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:EN-US;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection5>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 2   Techniken,
@@ -15606,7 +16167,37 @@ mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:DE;mso-bidi-lang
 AR-SA'><br clear=all style='page-break-before:always;mso-break-type:section-break'>
 </span>
 
-<div class=WordSection4>
+<div class=WordSection6>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_8" o:spid="_x0000_s2077"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Poster enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:542.8pt;margin-top:-70.85pt;width:594pt;
+ height:840pt;z-index:-251651072;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image005.png" o:title="Ein Bild, das Text, Poster enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+absolute;z-index:-1895818240;margin-left:34px;margin-top:2735px;width:990px;
+height:1400px'><img width=792 height=1120 src="Band0-Dateien/image006.jpg"
+alt="Ein Bild, das Text, Poster enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_8"></span><![endif]><span style='font-family:"Segoe UI Emoji",sans-serif;
+mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection7>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 3   Sensorik &amp;
@@ -15804,7 +16395,37 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection5>
+<div class=WordSection8>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_9" o:spid="_x0000_s2076"
+ type="#_x0000_t75" alt="Ein Bild, das Frucht, Text, Beeren, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:541.8pt;margin-top:-69.85pt;width:593pt;
+ height:838pt;z-index:-251650048;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image007.png" o:title="Ein Bild, das Frucht, Text, Beeren, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+absolute;z-index:-1895817216;margin-left:36px;margin-top:3502px;width:988px;
+height:1397px'><img width=790 height=1118 src="Band0-Dateien/image008.jpg"
+alt="Ein Bild, das Frucht, Text, Beeren, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_9"></span><![endif]><span style='font-family:"Segoe UI Emoji",sans-serif;
+mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection9>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128215;</span> Band 4   Pfeffer &amp;
@@ -16031,7 +16652,37 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection6>
+<div class=WordSection10>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_10" o:spid="_x0000_s2075"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Poster, Buch, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:541.8pt;margin-top:-70.85pt;width:593pt;
+ height:843.95pt;z-index:-251649024;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image009.png" o:title="Ein Bild, das Text, Poster, Buch, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+absolute;z-index:-1895816192;margin-left:36px;margin-top:4320px;width:988px;
+height:1407px'><img width=790 height=1126 src="Band0-Dateien/image010.jpg"
+alt="Ein Bild, das Text, Poster, Buch, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_10"></span><![endif]><span style='font-family:"Segoe UI Emoji",sans-serif;
+mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection11>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 5   Zimt, Nelken
@@ -16165,7 +16816,35 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection7>
+<div class=WordSection12>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_11" o:spid="_x0000_s2074"
+ type="#_x0000_t75" style='position:absolute;margin-left:0;margin-top:-49.65pt;
+ width:596pt;height:844.5pt;z-index:-251648000;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:left;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image011.png" o:title=""/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+absolute;z-index:-1895815168;margin-left:0px;margin-top:4889px;width:993px;
+height:1408px'><img width=794 height=1126 src="Band0-Dateien/image012.jpg"
+v:shapes="Grafik_x0020_11"></span><![endif]><span style='font-family:"Segoe UI Emoji",sans-serif;
+mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection13>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 6   Safran   Das
@@ -16391,7 +17070,35 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection8>
+<div class=WordSection14>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_12" o:spid="_x0000_s2073"
+ type="#_x0000_t75" style='position:absolute;margin-left:544.8pt;margin-top:-70.85pt;
+ width:596pt;height:840pt;z-index:-251646976;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image013.png" o:title=""/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+absolute;z-index:-1895814144;margin-left:31px;margin-top:5645px;width:993px;
+height:1400px'><img width=794 height=1120 src="Band0-Dateien/image014.jpg"
+v:shapes="Grafik_x0020_12"></span><![endif]><span style='font-family:"Segoe UI Emoji",sans-serif;
+mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection15>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 7   Ingwer &amp;
@@ -16759,7 +17466,36 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection9>
+<div class=WordSection16>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_13" o:spid="_x0000_s2072"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Gem se, Buch, Pflanze enth lt."
+ style='position:absolute;margin-left:542.8pt;margin-top:-70.85pt;width:594pt;
+ height:844.5pt;z-index:-251645952;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image015.png" o:title="Ein Bild, das Text, Gem se, Buch, Pflanze enth lt"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+absolute;z-index:-1895813120;margin-left:34px;margin-top:5438px;width:990px;
+height:1px'><img width=792 height=1 src="Band0-Dateien/image016.jpg"
+alt="Ein Bild, das Text, Gem se, Buch, Pflanze enth lt." v:shapes="Grafik_x0020_13"></span><![endif]><span
+style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection17>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 8   Wurzeln &amp;
@@ -16961,7 +17697,36 @@ mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:DE;mso-bidi-lang
 AR-SA'><br clear=all style='page-break-before:always;mso-break-type:section-break'>
 </span>
 
-<div class=WordSection10>
+<div class=WordSection18>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_14" o:spid="_x0000_s2071"
+ type="#_x0000_t75" alt="Ein Bild, das Naturkost, Produkt, Text, Gem se enth lt."
+ style='position:absolute;margin-left:542.8pt;margin-top:-69.85pt;width:594pt;
+ height:838.5pt;z-index:-251644928;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image017.png" o:title="Ein Bild, das Naturkost, Produkt, Text, Gem se enth lt"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+absolute;z-index:-1895812096;margin-left:34px;margin-top:2383px;width:990px;
+height:1px'><img width=792 height=1 src="Band0-Dateien/image018.jpg"
+alt="Ein Bild, das Naturkost, Produkt, Text, Gem se enth lt." v:shapes="Grafik_x0020_14"></span><![endif]><span
+style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection19>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 9   Chili &amp;
@@ -16972,9 +17737,9 @@ Paprika (Capsaicinoide, Sch rfekultur, Sortenvielfalt)</p>
 <p class=TextBody>Die Chili und die Paprika haben die K chen der Welt
 revolutioniert. Ihr Feuer pr gt heute Gerichte von Mexiko bis Thailand, von
 Ungarn bis Indien. Was wir als Sch rfe empfinden, ist jedoch keine
-Geschmacksrichtung, sondern eine Illusion des Nervensystems: Das
-TRPV1-Rezeptorprotein wird durch Capsaicinoide gereizt und sendet Schmerz- und
-W rmesignale   obwohl keine echte Hitze vorhanden ist.</p>
+Geschmacksrichtung, sondern eine Illusion des Nervensystems: Das TRPV1-Rezeptorprotein
+wird durch Capsaicinoide gereizt und sendet Schmerz- und W rmesignale   obwohl
+keine echte Hitze vorhanden ist.</p>
 
 <p class=TexdBodyHinweis><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128073;</span> Chili &amp; Paprika
@@ -17221,11 +17986,42 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection11>
+<div class=WordSection20>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_15" o:spid="_x0000_s2070"
+ type="#_x0000_t75" alt="Ein Bild, das Pflanze, Buch, Blume, Botanik enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:542.8pt;margin-top:-70.85pt;width:594pt;
+ height:840pt;z-index:-251643904;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image019.png" o:title="Ein Bild, das Pflanze, Buch, Blume, Botanik enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895811072'><span style='position:absolute;left:34px;
+top:-702px;width:990px;height:1px'><img width=792 height=1
+src="Band0-Dateien/image020.jpg"
+alt="Ein Bild, das Pflanze, Buch, Blume, Botanik enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_15"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection21>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 10  
-Mittelmeerkr uter I (Rosmarin, Salbei, Thymian)</p>
+Mittelmeerkr uter I <a name="_Hlk211766304">(Rosmarin, Salbei, Thymian)</a></p>
 
 <p class=Abs>Einleitung</p>
 
@@ -17391,7 +18187,35 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection12>
+<div class=WordSection22>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_16" o:spid="_x0000_s2069"
+ type="#_x0000_t75" style='position:absolute;margin-left:543.8pt;margin-top:-70.85pt;
+ width:595pt;height:838.5pt;z-index:-251642880;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image021.png" o:title=""/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895810048'><span style='position:absolute;left:32px;
+top:-3237px;width:992px;height:1px'><img width=794 height=1
+src="Band0-Dateien/image022.jpg" v:shapes="Grafik_x0020_16"></span></span><![endif]><span
+style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection23>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 11  
@@ -17826,7 +18650,35 @@ mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:DE;mso-bidi-lang
 AR-SA'><br clear=all style='page-break-before:always;mso-break-type:section-break'>
 </span>
 
-<div class=WordSection13>
+<div class=WordSection24>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_17" o:spid="_x0000_s2068"
+ type="#_x0000_t75" style='position:absolute;margin-left:0;margin-top:-70.85pt;
+ width:592.5pt;height:840pt;z-index:-251641856;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:left;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image023.png" o:title=""/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895809024'><span style='position:absolute;left:0px;
+top:-6958px;width:988px;height:1px'><img width=790 height=1
+src="Band0-Dateien/image024.jpg" v:shapes="Grafik_x0020_17"></span></span><![endif]><span
+style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection25>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 12   Kr uter &amp;
@@ -18514,7 +19366,35 @@ mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:DE;mso-bidi-lang
 AR-SA'><br clear=all style='page-break-before:always;mso-break-type:section-break'>
 </span>
 
-<div class=WordSection14>
+<div class=WordSection26>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_18" o:spid="_x0000_s2067"
+ type="#_x0000_t75" style='position:absolute;margin-left:0;margin-top:-70.85pt;
+ width:591pt;height:840pt;z-index:-251640832;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:left;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image025.png" o:title=""/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895808000'><span style='position:absolute;left:0px;
+top:-12592px;width:985px;height:1px'><img width=788 height=1
+src="Band0-Dateien/image026.jpg" v:shapes="Grafik_x0020_18"></span></span><![endif]><span
+style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection27>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 13   Grundlagen
@@ -18981,7 +19861,35 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection15>
+<div class=WordSection28>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_19" o:spid="_x0000_s2066"
+ type="#_x0000_t75" style='position:absolute;margin-left:542.05pt;margin-top:-70.1pt;
+ width:593.25pt;height:840pt;z-index:-251639808;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image027.png" o:title=""/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895806976'><span style='position:absolute;left:35px;
+top:-16097px;width:989px;height:1px'><img width=791 height=1
+src="Band0-Dateien/image028.jpg" v:shapes="Grafik_x0020_19"></span></span><![endif]><span
+style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection29>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 14   Salze der
@@ -19508,7 +20416,35 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection16>
+<div class=WordSection30>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_33" o:spid="_x0000_s2065"
+ type="#_x0000_t75" style='position:absolute;margin-left:543.1pt;margin-top:-69.7pt;
+ width:594.3pt;height:840pt;z-index:-251628544;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image029.png" o:title=""/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895795712'><span style='position:absolute;left:34px;
+top:-20222px;width:990px;height:1px'><img width=792 height=1
+src="Band0-Dateien/image030.jpg" v:shapes="Grafik_x0020_33"></span></span><![endif]><span
+style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection31>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 15  
@@ -19954,7 +20890,38 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection17>
+<div class=WordSection32>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_31" o:spid="_x0000_s2064"
+ type="#_x0000_t75" alt="Ein Bild, das Frucht, Zitrone, Flasche, Stillleben enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:544pt;margin-top:-70.85pt;width:595.2pt;
+ height:844.2pt;z-index:-251629568;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image031.png" o:title="Ein Bild, das Frucht, Zitrone, Flasche, Stillleben enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895796736'><span style='position:absolute;left:32px;
+top:-23148px;width:992px;height:1px'><img width=794 height=1
+src="Band0-Dateien/image032.jpg"
+alt="Ein Bild, das Frucht, Zitrone, Flasche, Stillleben enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_31"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection33>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 16    therische
@@ -20409,7 +21376,38 @@ mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:DE;mso-bidi-lang
 AR-SA'><br clear=all style='page-break-before:always;mso-break-type:section-break'>
 </span>
 
-<div class=WordSection18>
+<div class=WordSection34>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_30" o:spid="_x0000_s2063"
+ type="#_x0000_t75" alt="Ein Bild, das Bild, Snack, Fastfood, Text enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:542.8pt;margin-top:-73.25pt;width:594pt;
+ height:851.4pt;z-index:-251630592;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image033.png" o:title="Ein Bild, das Bild, Snack, Fastfood, Text enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895797760'><span style='position:absolute;left:34px;
+top:-26103px;width:990px;height:1px'><img width=792 height=1
+src="Band0-Dateien/image034.jpg"
+alt="Ein Bild, das Bild, Snack, Fastfood, Text enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_30"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection35>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 17   Balsame &amp;
@@ -20851,7 +21849,38 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection19>
+<div class=WordSection36>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_29" o:spid="_x0000_s2062"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Teekanne, Serviergeschirr, Bild enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:544pt;margin-top:-35.45pt;width:595.2pt;
+ height:846pt;z-index:-251631616;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image035.png" o:title="Ein Bild, das Text, Teekanne, Serviergeschirr, Bild enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895798784'><span style='position:absolute;left:32px;
+top:-28911px;width:992px;height:1px'><img width=794 height=1
+src="Band0-Dateien/image036.jpg"
+alt="Ein Bild, das Text, Teekanne, Serviergeschirr, Bild enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_29"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection37>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span><span lang=EN-US
@@ -21359,7 +22388,38 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection20>
+<div class=WordSection38>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_28" o:spid="_x0000_s2061"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Blume, Buch, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:542.8pt;margin-top:-42.55pt;width:594pt;
+ height:840pt;z-index:-251632640;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image037.png" o:title="Ein Bild, das Text, Blume, Buch, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895799808'><span style='position:absolute;left:34px;
+top:-31872px;width:990px;height:1px'><img width=792 height=1
+src="Band0-Dateien/image038.jpg"
+alt="Ein Bild, das Text, Blume, Buch, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_28"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection39>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 19   Kr utertees
@@ -21573,6 +22633,8 @@ mso-bidi-font-family:"Segoe UI Emoji"'>&#128073;</span> Kr utertees sind
 sozialer Kitt und spirituelles Symbol zugleich.</p>
 
 <p class=TextBody>[PlH-Illu: B19, K5 illu1]</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=TextBody>[PlH-QR: B19, K5, A1-qr6]   (En) YouTube: Moroccan mint tea
 culture   Link: https://www.youtube.com/watch?v=9bRtJ5g8RZI</p>
@@ -21816,11 +22878,48 @@ https://www.youtube.com/watch?v=3Kq1VgQuOos</p>
 
 <p class=TextBody>[PlH-QR: B19, Zusammenfassung, A1-qr7b]   (En) YouTube:
 Herbal teas   complete guide   Link:
-https://www.youtube.com/watch?v=1E9PGQoRZLk<b><span style='font-size:24.0pt;
-font-family:"Apple Color Emoji";mso-fareast-font-family:"Times New Roman";
-mso-bidi-font-family:"Apple Color Emoji";mso-font-kerning:18.0pt'><br
-clear=all style='mso-special-character:line-break;page-break-before:always'>
-</span></b></p>
+https://www.youtube.com/watch?v=1E9PGQoRZLk</p>
+
+</div>
+
+<span style='font-size:12.0pt;font-family:"Times New Roman",serif;mso-fareast-font-family:
+"Times New Roman";mso-fareast-theme-font:minor-fareast;mso-font-kerning:0pt;
+mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:DE;mso-bidi-language:
+AR-SA'><br clear=all style='page-break-before:always;mso-break-type:section-break'>
+</span>
+
+<div class=WordSection40>
+
+<p class=TextBody><!--[if gte vml 1]><v:shape id="Grafik_x0020_34" o:spid="_x0000_s2060"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Getr nk, Kaffee, Serviergeschirr enth lt."
+ style='position:absolute;margin-left:0;margin-top:-42.6pt;width:594.3pt;
+ height:848.55pt;z-index:-251627520;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:left;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image039.png" o:title="Ein Bild, das Text, Getr nk, Kaffee, Serviergeschirr enth lt"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895794688'><span style='position:absolute;left:0px;
+top:-34715px;width:990px;height:1px'><img width=792 height=1
+src="Band0-Dateien/image040.jpg"
+alt="Ein Bild, das Text, Getr nk, Kaffee, Serviergeschirr enth lt." v:shapes="Grafik_x0020_34"></span></span><![endif]></p>
+
+<p class=TextBody><o:p>&nbsp;</o:p></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection41>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 20   Kaffee, Kakao
@@ -22301,7 +23400,38 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection21>
+<div class=WordSection42>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_26" o:spid="_x0000_s2059"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Kunst, Buch, Bild enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:544pt;margin-top:-68.45pt;width:595.2pt;
+ height:847.8pt;z-index:-251633664;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image041.png" o:title="Ein Bild, das Text, Kunst, Buch, Bild enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895800832'><span style='position:absolute;left:32px;
+top:-37565px;width:992px;height:1px'><img width=794 height=1
+src="Band0-Dateien/image042.jpg"
+alt="Ein Bild, das Text, Kunst, Buch, Bild enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_26"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection43>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 21   R ucherkultur
@@ -22755,7 +23885,38 @@ mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:DE;mso-bidi-lang
 AR-SA'><br clear=all style='page-break-before:always;mso-break-type:section-break'>
 </span>
 
-<div class=WordSection22>
+<div class=WordSection44>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_25" o:spid="_x0000_s2058"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Gem se, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:542.8pt;margin-top:-68.45pt;width:594pt;
+ height:837.6pt;z-index:-251634688;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image043.png" o:title="Ein Bild, das Text, Gem se, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895801856'><span style='position:absolute;left:34px;
+top:-40380px;width:990px;height:1px'><img width=792 height=1
+src="Band0-Dateien/image044.jpg"
+alt="Ein Bild, das Text, Gem se, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_25"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection45>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 22   Harze &amp;
@@ -23326,7 +24487,38 @@ DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
 mso-break-type:section-break'>
 </span>
 
-<div class=WordSection23>
+<div class=WordSection46>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_24" o:spid="_x0000_s2057"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Buch, Zimmerpflanze, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:544pt;margin-top:-70.85pt;width:595.2pt;
+ height:840pt;z-index:-251635712;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image045.png" o:title="Ein Bild, das Text, Buch, Zimmerpflanze, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895802880'><span style='position:absolute;left:32px;
+top:-43275px;width:992px;height:1px'><img width=794 height=1
+src="Band0-Dateien/image046.jpg"
+alt="Ein Bild, das Text, Buch, Zimmerpflanze, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_24"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection47>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 23   Kr uter &amp;
@@ -23780,7 +24972,38 @@ mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:DE;mso-bidi-lang
 AR-SA'><br clear=all style='page-break-before:always;mso-break-type:section-break'>
 </span>
 
-<div class=WordSection24>
+<div class=WordSection48>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_23" o:spid="_x0000_s2056"
+ type="#_x0000_t75" alt="Ein Bild, das Gem se, Text, Essen, Sch ssel enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:541.6pt;margin-top:-69.65pt;width:592.8pt;
+ height:843.6pt;z-index:-251636736;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image047.png" o:title="Ein Bild, das Gem se, Text, Essen, Sch ssel enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895803904'><span style='position:absolute;left:36px;
+top:-46000px;width:988px;height:1px'><img width=790 height=1
+src="Band0-Dateien/image048.jpg"
+alt="Ein Bild, das Gem se, Text, Essen, Sch ssel enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_23"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection49>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 24   Welt der
@@ -24239,6 +25462,48 @@ style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:EN-US'><br
 clear=all style='mso-special-character:line-break;page-break-before:always'>
 </span><span lang=EN-US style='mso-ansi-language:EN-US'><o:p></o:p></span></p>
 
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection50>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_22" o:spid="_x0000_s2055"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Buch, Gem se, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:0;margin-top:-42.55pt;width:596.4pt;
+ height:846pt;z-index:-251637760;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:left;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image049.png" o:title="Ein Bild, das Text, Buch, Gem se, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895804928'><span style='position:absolute;left:0px;
+top:-49024px;width:994px;height:1px'><img width=795 height=1
+src="Band0-Dateien/image050.jpg"
+alt="Ein Bild, das Text, Buch, Gem se, Essen enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_22"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection51>
+
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 25   Kr uter-
 &amp; Salz-Mischungen <span style='font-family:"Segoe UI Emoji",sans-serif;
@@ -24691,13 +25956,44 @@ Kr utersalz selber machen   Link: https://www.youtube.com/watch?v=ny43fTo08Bg</p
 <p class=TextBody>[PlH-QR: B25, Zusammenfassung, A1-qr4b]   (En) YouTube:
 Homemade herb salts   Link: https://www.youtube.com/watch?v=vYt6asKcFBo</p>
 
-<span style='font-size:12.0pt;font-family:"Times New Roman",serif;mso-fareast-font-family:
-"Times New Roman";mso-font-kerning:0pt;mso-ligatures:none;mso-ansi-language:
-DE-CH;mso-fareast-language:DE;mso-bidi-language:AR-SA'><br clear=all
-style='mso-special-character:line-break;page-break-before:always'>
-</span>
+</div>
 
-<p class=TextBody><o:p>&nbsp;</o:p></p>
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection52>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_21" o:spid="_x0000_s2054"
+ type="#_x0000_t75" style='position:absolute;margin-left:542.8pt;margin-top:-41.35pt;
+ width:594pt;height:837.6pt;z-index:-251638784;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:page;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image051.png" o:title=""/>
+ <w:wrap anchorx="page"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895805952'><span style='position:absolute;left:34px;
+top:-52449px;width:990px;height:1px'><img width=792 height=1
+src="Band0-Dateien/image052.jpg" v:shapes="Grafik_x0020_21"></span></span><![endif]><span
+style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection53>
 
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 26   Psychoaktive
@@ -24726,8 +26022,9 @@ Spannungsfeld von Heilung und Verbot.</p>
 <p class=TextBody>[PlH-QR: B26, Einleitung, A1-qr1a]   (De) YouTube: Geschichte
 psychoaktiver Pflanzen   Link: https://www.youtube.com/watch?v=O3lh5D3bB2E</p>
 
-<p class=TextBody>[PlH-QR: B26, Einleitung, A1-qr1b]   (En) YouTube: Plants of
-the Gods   Link: https://www.youtube.com/watch?v=7BGzxRkl9mE</p>
+<p class=TextBody><span lang=EN-US style='mso-ansi-language:EN-US'>[PlH-QR:
+B26, Einleitung, A1-qr1b]   (En) YouTube: Plants of the Gods   Link:
+https://www.youtube.com/watch?v=7BGzxRkl9mE<o:p></o:p></span></p>
 
 <p class=Kapitel>Pflanzen</p>
 
@@ -24879,8 +26176,9 @@ Diskussion um kulturelle Aneignung.</p>
 
 <p class=TextBody>[PlH-Illu: B26, K1 illu1]</p>
 
-<p class=TextBody>[PlH-QR: B26, K1, A1-qr2]   (En) YouTube: Sacred plants in
-rituals   Link: https://www.youtube.com/watch?v=UlJeumxcn6w</p>
+<p class=TextBody><span lang=EN-US style='mso-ansi-language:EN-US'>[PlH-QR:
+B26, K1, A1-qr2]   (En) YouTube: Sacred plants in rituals   Link:
+https://www.youtube.com/watch?v=UlJeumxcn6w<o:p></o:p></span></p>
 
 <p class=Kapitel>Pilze</p>
 
@@ -25061,8 +26359,9 @@ Stimmen der G tter.<o:p></o:p></span></p>
 
 <p class=TextBody>[PlH-Illu: B26, K3 illu1]</p>
 
-<p class=TextBody>[PlH-QR: B26, K3, A1-qr4]   (En) YouTube: Sacred resins &amp;
-rituals   Link: https://www.youtube.com/watch?v=KcMW_3NVhZY</p>
+<p class=TextBody><span lang=EN-US style='mso-ansi-language:EN-US'>[PlH-QR:
+B26, K3, A1-qr4]   (En) YouTube: Sacred resins &amp; rituals   Link:
+https://www.youtube.com/watch?v=KcMW_3NVhZY<o:p></o:p></span></p>
 
 <p class=Kapitel>Kulturelle Kontexte</p>
 
@@ -25455,9 +26754,50 @@ mso-bidi-font-family:"Apple Color Emoji"'><br clear=all style='mso-special-chara
 line-break;page-break-before:always'>
 <o:p></o:p></span></p>
 
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection54>
+
+<p class=BandTitel style='margin-left:7.1pt'><!--[if gte vml 1]><v:shape id="Grafik_x0020_5"
+ o:spid="_x0000_s2053" type="#_x0000_t75" alt="Ein Bild, das Text, Frucht, Buch, Botanik enth lt."
+ style='position:absolute;left:0;text-align:left;margin-left:542.8pt;
+ margin-top:-58.6pt;width:594pt;height:841.9pt;z-index:-251654144;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:margin;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image053.png" o:title="Ein Bild, das Text, Frucht, Buch, Botanik enth lt"/>
+ <w:wrap anchorx="margin"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895821312'><span style='left:0px;position:absolute;
+left:34px;top:-56500px;width:990px;height:1px'><img width=792 height=1
+src="Band0-Dateien/image054.jpg"
+alt="Ein Bild, das Text, Frucht, Buch, Botanik enth lt." v:shapes="Grafik_x0020_5"></span></span><![endif]><span
+style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection55>
+
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
-mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 27   Lexikon der
-Stoffe (Datasheets)</p>
+mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 27  Stoffelexikon
+(Datasheets)</p>
 
 <p class=Abs>Prolog</p>
 
@@ -29139,7 +30479,8 @@ gesellschaftliche Rituale.</p>
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128073;</span> Neben dem klassischen
 Tee aus der Teepflanze (Camellia sinensis) geh ren auch Kr uteraufg sse,
 Bl tentees und Fruchtinfusionen zu diesem Kapitel. Sie alle zeigen, wie hei es
-Wasser und Pflanzenstoffe zusammen ein universelles Getr nk der Menschheit bilden.</p>
+Wasser und Pflanzenstoffe zusammen ein universelles Getr nk der Menschheit
+bilden.</p>
 
 <p class=Abs3>Gr ner Tee</p>
 
@@ -31994,6 +33335,47 @@ always'>
 
 <p class=TexdBodyHinweis><o:p>&nbsp;</o:p></p>
 
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection56>
+
+<p class=BandTitel style='margin-left:14.2pt'><!--[if gte vml 1]><v:shape id="Grafik_x0020_4"
+ o:spid="_x0000_s2052" type="#_x0000_t75" alt="Ein Bild, das Text, Darstellung enth lt."
+ style='position:absolute;left:0;text-align:left;margin-left:542.8pt;
+ margin-top:-59.2pt;width:594pt;height:841.9pt;z-index:-251655168;visibility:visible;
+ mso-wrap-style:square;mso-width-percent:0;mso-height-percent:0;
+ mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:right;
+ mso-position-horizontal-relative:margin;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image055.png" o:title="Ein Bild, das Text, Darstellung enth lt"/>
+ <w:wrap anchorx="margin"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895822336'><span style='left:0px;position:absolute;
+left:34px;top:-97325px;width:990px;height:1px'><img width=792 height=1
+src="Band0-Dateien/image056.jpg" alt="Ein Bild, das Text, Darstellung enth lt."
+v:shapes="Grafik_x0020_4"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection57>
+
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 28   Systeme der
 Aromen &amp; D fte <span style='font-family:"Segoe UI Emoji",sans-serif;
@@ -32379,6 +33761,49 @@ style='mso-special-character:line-break;page-break-before:always'>
 
 <p class=TextBody><o:p>&nbsp;</o:p></p>
 
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection58>
+
+<p class=BandTitel style='margin-left:7.1pt'><!--[if gte vml 1]><v:shape id="Grafik_x0020_3"
+ o:spid="_x0000_s2051" type="#_x0000_t75" alt="Ein Bild, das Text, Buch, Poster enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;left:0;text-align:left;margin-left:547.6pt;
+ margin-top:-49.45pt;width:598.8pt;height:841.9pt;z-index:-251656192;
+ visibility:visible;mso-wrap-style:square;mso-width-percent:0;
+ mso-height-percent:0;mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;
+ mso-wrap-distance-right:9pt;mso-wrap-distance-bottom:0;
+ mso-position-horizontal:right;mso-position-horizontal-relative:margin;
+ mso-position-vertical:absolute;mso-position-vertical-relative:text;
+ mso-width-percent:0;mso-height-percent:0;mso-width-relative:page;
+ mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image057.png" o:title="Ein Bild, das Text, Buch, Poster enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+ <w:wrap anchorx="margin"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895823360'><span style='left:0px;position:absolute;
+left:26px;top:-101441px;width:998px;height:1px'><img width=798 height=1
+src="Band0-Dateien/image058.jpg"
+alt="Ein Bild, das Text, Buch, Poster enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_3"></span></span><![endif]><span style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji"'><o:p></o:p></span></p>
+
+</div>
+
+<b><span style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:DE-CH;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection59>
+
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> Band 29   Geruch &amp;
 Geschmack   Wissenschaft &amp; Kultur <span style='font-family:"Segoe UI Emoji",sans-serif;
@@ -32733,6 +34158,48 @@ science   Link: https://www.youtube.com/watch?v=7L2jA4KqLsk<br clear=all
 style='mso-special-character:line-break;page-break-before:always'>
 <o:p></o:p></span></p>
 
+</div>
+
+<b><span lang=EN-US style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:EN-US;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection60>
+
+<p class=BandTitel><!--[if gte vml 1]><v:shape id="Grafik_x0020_2" o:spid="_x0000_s2050"
+ type="#_x0000_t75" alt="Ein Bild, das Text, Blume, Buch, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+ style='position:absolute;margin-left:1.2pt;margin-top:-49.45pt;width:593.4pt;
+ height:841.9pt;z-index:-251657216;visibility:visible;mso-wrap-style:square;
+ mso-width-percent:0;mso-height-percent:0;mso-wrap-distance-left:9pt;
+ mso-wrap-distance-top:0;mso-wrap-distance-right:9pt;
+ mso-wrap-distance-bottom:0;mso-position-horizontal:absolute;
+ mso-position-horizontal-relative:text;mso-position-vertical:absolute;
+ mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent:0;
+ mso-width-relative:page;mso-height-relative:page'>
+ <v:imagedata src="Band0-Dateien/image059.png" o:title="Ein Bild, das Text, Blume, Buch, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein"/>
+</v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;position:
+relative;z-index:-1895824384'><span style='position:absolute;left:10px;
+top:-105380px;width:989px;height:1px'><img width=791 height=1
+src="Band0-Dateien/image060.jpg"
+alt="Ein Bild, das Text, Blume, Buch, Pflanze enth lt.&#10;&#10;KI-generierte Inhalte k nnen fehlerhaft sein."
+v:shapes="Grafik_x0020_2"></span></span><![endif]><span lang=EN-US
+style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji";
+mso-ansi-language:EN-US'><o:p></o:p></span></p>
+
+</div>
+
+<b><span lang=EN-US style='font-size:24.0pt;font-family:"Segoe UI Emoji",sans-serif;
+mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Segoe UI Emoji";
+mso-font-kerning:18.0pt;mso-ligatures:none;mso-ansi-language:EN-US;mso-fareast-language:
+DE;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always;
+mso-break-type:section-break'>
+</span></b>
+
+<div class=WordSection61>
+
 <p class=BandTitel><span style='font-family:"Segoe UI Emoji",sans-serif;
 mso-bidi-font-family:"Segoe UI Emoji"'>&#128216;</span> <span lang=DE
 style='mso-ansi-language:DE'>Band 30   Zukunft der Aromen &amp; D fte<o:p></o:p></span></p>
@@ -32874,12 +34341,10 @@ immaterielles Erbe zu sch tzen.<o:p></o:p></span></p>
 zwischen globalem Markt und lokaler Authentizit t wird entschieden, welche
 D fte wir weitergeben   und welche verschwinden.<o:p></o:p></span></p>
 
-<p class=Kapitel><span lang=EN-US style='mso-ansi-language:EN-US'>Future
-Cooking &amp; Design </span><span lang=DE style='font-family:"Segoe UI Emoji",sans-serif;
-mso-bidi-font-family:"Segoe UI Emoji";mso-ansi-language:DE'>&#127864;&#128300;</span><span
-lang=EN-US style='font-family:"Segoe UI Emoji",sans-serif;mso-bidi-font-family:
-"Segoe UI Emoji";mso-ansi-language:EN-US'>&#10024;</span><span lang=EN-US
-style='mso-ansi-language:EN-US'><o:p></o:p></span></p>
+<p class=Kapitel>Future Cooking &amp; Design <span lang=DE style='font-family:
+"Segoe UI Emoji",sans-serif;mso-bidi-font-family:"Segoe UI Emoji";mso-ansi-language:
+DE'>&#127864;&#128300;</span><span style='font-family:"Segoe UI Emoji",sans-serif;
+mso-bidi-font-family:"Segoe UI Emoji"'>&#10024;</span></p>
 
 <p class=TextBody><span lang=DE style='mso-ansi-language:DE'>Die Zukunft der
 Aromen spielt sich auch in der K che ab. Molekulare Gastronomie hat T ren
