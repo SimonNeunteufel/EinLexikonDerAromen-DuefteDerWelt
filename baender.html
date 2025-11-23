@@ -1,8 +1,112 @@
-<!doctype html><html lang='de'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Bände – Auswahl</title><link rel='stylesheet' href='./assets/css/styles.css'></head><body class='BG2'><div class='page'>
-<div class='header'><button class='btn' onclick="location.href='./index.html'">← Zurück</button><div class='brand'>Bände</div><nav class='nav'><a href='./stoffe.html'>Stoffe</a><a href='./mischungen.html'>Mischungen</a><a href='./baender.html'>Bände</a></nav></div>
-<p class='sub'>Dummy-Auswahl. HTML öffnet im gleichen Fenster, PDF in neuem Tab.</p>
-<div class='toolbar'><label>Band wählen:</label><select id='s' class='btn'></select><button class='btn' id='h'>HTML öffnen</button><button class='btn' id='p'>PDF öffnen</button></div>
-<div class='footer-note'><div>BG2 aktiv</div><div><a href='./index.html'>Start</a></div></div>
-</div><script src='./assets/js/util.js'></script><script src='./assets/js/bg_loader.js'></script>
-<script>const B=[{id:'band0',n:0,t:'Einleitung & Grundlagen'},{id:'band1',n:1,t:'Aromen – Überblick'},{id:'band2',n:2,t:'Gewürze & Kräuter'},{id:'band3',n:3,t:'Mischungen – Klassisch'}];const s=document.getElementById('s');B.forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=`Band ${x.n} — ${x.t}`;s.appendChild(o)});document.getElementById('h').onclick=()=>location.href=`./bands/${s.value}.html`;document.getElementById('p').onclick=()=>window.open(`./data/pdfs/${s.value}.pdf`,'_blank');</script>
-</body></html>
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bände – Auswahl</title>
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body class="BG2">
+<div class="page">
+
+  <div class="header">
+    <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
+
+    <div class="brand">
+      <!-- Unauffälliges Icon für Gesamtwerk-PDF -->
+      <button class="btn icon-btn" style="padding:2px 6px;font-size:0.9rem;opacity:.7;margin-right:6px"
+              title="Gesamtwerk als PDF öffnen"
+              onclick="window.open('./data/pdfs/LdAuDdW.pdf','_blank')">
+        📚
+      </button>
+      Bände
+    </div>
+
+    <nav class="nav">
+      <a href="./stoffe.html">Stoffe</a>
+      <a href="./mischungen.html">Mischungen</a>
+      <a href="./baender.html">Bände</a>
+    </nav>
+  </div>
+
+  <p class="sub">Auswahl der Bände. HTML öffnet im gleichen Fenster, PDF in einem neuen Tab.</p>
+
+  <div class="toolbar">
+    <label for="s">Band wählen:</label>
+    <select id="s" class="btn"></select>
+    <button class="btn" id="h">HTML öffnen</button>
+    <button class="btn" id="p">PDF öffnen</button>
+  </div>
+
+  <div class="footer-note">
+    <div>BG2 aktiv</div>
+    <div><a href="./index.html">Start</a></div>
+  </div>
+
+</div>
+
+<script src="./assets/js/util.js"></script>
+<script src="./assets/js/bg_loader.js"></script>
+<script>
+  // Statische Definition aller Bände
+  const BANDS = [
+    { id: 'band00', label: 'Band 0 – Ein Lexikon der Aromen & Düfte der Welt' },
+    { id: 'band01', label: 'Band 1 – Geschichte & Kultur der Aromen' },
+    { id: 'band02', label: 'Band 2 – Techniken, Verarbeitung & Zubereitung' },
+    { id: 'band03', label: 'Band 3 – Sensorik & Wahrnehmung der Aromen' },
+    { id: 'band04', label: 'Band 4 – Pfeffer & Verwandte' },
+    { id: 'band05', label: 'Band 5 – Zimt, Nelken & Vanille' },
+    { id: 'band06', label: 'Band 6 – Safran – Das rote Gold' },
+    { id: 'band07', label: 'Band 7 – Ingwer & Rhizome I (Ingwer, Kurkuma, Galgant)' },
+    { id: 'band08', label: 'Band 8 – Wurzeln & Rhizome II (Meerrettich, Wasabi, Süßholz, Angelika, Kalmus …)' },
+    { id: 'band09', label: 'Band 9 – Chili & Paprika (Capsaicinoide, Schärfekultur, Sortenvielfalt)' },
+    { id: 'band10', label: 'Band 10 – Mittelmeerkräuter I (Rosmarin, Salbei, Thymian)' },
+    { id: 'band11', label: 'Band 11 – Mittelmeerkräuter II (Oregano, Majoran, Basilikum, Petersilie, Koriander)' },
+    { id: 'band12', label: 'Band 12 – Kräuter & Samen (Dill, Fenchel, Anis, Kreuzkümmel, Epazote, Shiso, Mahlep, Alpenkräuter …)' },
+    { id: 'band13', label: 'Band 13 – Grundlagen der Salzgewinnung' },
+    { id: 'band14', label: 'Band 14 – Salze der Welt' },
+    { id: 'band15', label: 'Band 15 – Salztraditionen & Spezialitäten' },
+    { id: 'band16', label: 'Band 16 – Ätherische Öle & Destillate' },
+    { id: 'band17', label: 'Band 17 – Balsame & Harze' },
+    { id: 'band18', label: 'Band 18 – Tee (Camellia sinensis)' },
+    { id: 'band19', label: 'Band 19 – Kräutertees & Infusionen' },
+    { id: 'band20', label: 'Band 20 – Kaffee, Kakao & Pflanzengetränke' },
+    { id: 'band21', label: 'Band 21 – Räucherkultur der Welt' },
+    { id: 'band22', label: 'Band 22 – Harze & Hölzer' },
+    { id: 'band23', label: 'Band 23 – Kräuter & Mischungen fürs Räuchern' },
+    { id: 'band24', label: 'Band 24 – Welt der Gewürzmischungen' },
+    { id: 'band25', label: 'Band 25 – Kräuter- & Salz-Mischungen' },
+    { id: 'band26', label: 'Band 26 – Psychoaktive Pflanzen, Pilze & Harze in Ritualen' },
+    { id: 'band27', label: 'Band 27 – Stoffelexikon (Datasheets)' },
+    { id: 'band28', label: 'Band 28 – Systeme der Aromen & Düfte' },
+    { id: 'band29', label: 'Band 29 – Geruch & Geschmack – Wissenschaft & Kultur' },
+    { id: 'band30', label: 'Band 30 – Zukunft der Aromen & Düfte' }
+  ];
+
+  const select = document.getElementById('s');
+
+  // Dropdown füllen
+  BANDS.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.id;            // z.B. "band00"
+    opt.textContent = b.label;   // z.B. "Band 0 – Ein Lexikon …"
+    select.appendChild(opt);
+  });
+
+  // HTML öffnen (gleiches Fenster)
+  document.getElementById('h').onclick = () => {
+    const id = select.value; // z.B. "band00"
+    if (!id) return;
+    location.href = `./bands/${id}.html`;
+  };
+
+  // PDF öffnen (neuer Tab)
+  document.getElementById('p').onclick = () => {
+    const id = select.value;
+    if (!id) return;
+    window.open(`./data/pdfs/${id}.pdf`, '_blank');
+  };
+</script>
+
+</body>
+</html>
