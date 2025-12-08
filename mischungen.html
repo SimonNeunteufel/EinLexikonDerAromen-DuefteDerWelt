@@ -1,9 +1,240 @@
-<!doctype html><html lang='de'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Mischungen – Suche</title><link rel='stylesheet' href='./assets/css/styles.css'></head><body class='BG4'><div class='page'>
-<div class='header'><button class='btn' onclick="location.href='./index.html'">← Zurück</button><div class='brand'>Mischungen – Suchtabelle</div><nav class='nav'><a href='./stoffe.html'>Stoffe</a><a href='./mischungen.html'>Mischungen</a><a href='./baender.html'>Bände</a></nav></div>
-<p class='sub'>Mit Varianten- und Rezeptbezug.</p>
-<div class='toolbar'><input id='q' placeholder='Suche (Name, Kategorie, Region …)' type='search'><button class='btn' id='go'>Suchen</button><button class='btn' id='toHtml'>Rezepte → HTML</button><button class='btn' id='toPdf'>Rezepte → PDF</button><label style='margin-left:auto'><input type='checkbox' id='all'> Alles wählen</label></div>
-<div class='table-wrap'><div class='table-body'><table id='t'><thead></thead><tbody></tbody></table></div></div>
-<div class='footer-note'><div>© Lexikon</div><div><a href='./index.html'>Start</a></div></div>
-</div><script src='./assets/js/util.js'></script><script src='./assets/js/bg_loader.js'></script>
-<script>(async()=>{let data=[];try{data=await $util.loadRecipes()}catch(_){$util.err('Daten konnten nicht geladen werden. Lege <code>MasterRecipes.csv</code> oder <code>master_recipes.json</code> in <code>/assets/data/</code> oder <code>/data/</code> ab.')}const K=Object.keys(data[0]||{}),show=["Mix_Name","Kategorie","Mix_Typ","SensorikProfil","PhysikalischeForm","Region","Land","Quelle","Source"].filter(c=>K.includes(c));const H=document.querySelector('#t thead');H.innerHTML="<tr><th><input id='hd' type='checkbox'></th>"+show.map(c=>`<th>${c}</th>`).join('')+"</tr>";const B=document.querySelector('#t tbody'),S=$util.safe,ID=r=>r.ID_Neu||r.Recipe_ID||r.Rezept_ID||r.id||'';function render(rows){B.innerHTML=rows.map(r=>`<tr><td><input class='sel' type='checkbox' data-id='${ID(r)}'></td>`+show.map(c=>`<td>${S(r[c])}</td>`).join('')+`</tr>`).join('')}function search(){const s=document.getElementById('q').value.trim().toLowerCase();render(!s?data:data.filter(r=>Object.values(r).some(v=>(S(v)+'').toLowerCase().includes(s))))}document.getElementById('go').onclick=search;document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')search()});document.getElementById('hd').addEventListener('change',e=>{document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked)});document.getElementById('all').addEventListener('change',e=>{document.querySelectorAll('input.sel').forEach(x=>x.checked=e.target.checked)});document.getElementById('toHtml').onclick=()=>{const ids=[...document.querySelectorAll('input.sel:checked')].map(x=>x.dataset.id).filter(Boolean);if(!ids.length)return alert('Bitte Mischung(en) auswählen.');window.open(`./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(','))}`,'_blank')};document.getElementById('toPdf').onclick=()=>{const ids=[...document.querySelectorAll('input.sel:checked')].map(x=>x.dataset.id).filter(Boolean);if(!ids.length)return alert('Bitte Mischung(en) auswählen.');window.open(`./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(','))}&print=1`,'_blank')};render(data);})();</script>
-</body></html>
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mischungen – Suche</title>
+  <link rel="stylesheet" href="./assets/css/styles.css">
+
+  <!-- Zusätzliche, seiten­eigene Styles für bessere Lesbarkeit -->
+  <style>
+    .table-wrap {
+      margin-top: 1rem;
+    }
+    .table-body {
+      max-height: 60vh;          /* sichtbarer Bereich, Rest scrollt */
+      overflow: auto;
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+    }
+    #t {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #t th,
+    #t td {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      white-space: nowrap;
+    }
+    #t th:first-child,
+    #t td:first-child {
+      text-align: center;
+      width: 2.5rem;
+      white-space: nowrap;
+    }
+    #t thead {
+      position: sticky;
+      top: 0;
+      background: rgba(245,245,245,0.98);
+      backdrop-filter: blur(2px);
+      z-index: 1;
+    }
+  </style>
+</head>
+<body class="BG4">
+<div class="page">
+
+  <div class="header">
+    <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
+    <div class="brand">Mischungen – Suchtabelle</div>
+    <nav class="nav">
+      <a href="./stoffe.html">Stoffe</a>
+      <a href="./mischungen.html">Mischungen</a>
+      <a href="./baender.html">Bände</a>
+    </nav>
+  </div>
+
+  <p class="sub">Mit Varianten- und Rezeptbezug.</p>
+
+  <div class="toolbar">
+    <input id="q" placeholder="Suche (Name, Kategorie, Region …)" type="search">
+    <button class="btn" id="go">Suchen</button>
+    <button class="btn" id="toHtml">Rezepte → HTML</button>
+    <button class="btn" id="toPdf">Rezepte → PDF</button>
+    <label style="margin-left:auto">
+      <input type="checkbox" id="all"> Alles wählen
+    </label>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-body">
+      <table id="t">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <div>© Lexikon</div>
+    <div><a href="./index.html">Start</a></div>
+  </div>
+
+</div>
+
+<script src="./assets/js/util.js"></script>
+<script src="./assets/js/bg_loader.js"></script>
+
+<script>
+(async () => {
+  let data = [];
+  try {
+    // lädt Rezepte aus /data/MasterRecipes.csv oder /assets/data/…
+    data = await $util.loadRecipes();
+  } catch (_) {
+    $util.err(
+      'Daten konnten nicht geladen werden. ' +
+      'Lege <code>MasterRecipes.csv</code> oder <code>master_recipes.json</code> in <code>/data/</code> oder <code>/assets/data/</code> ab.'
+    );
+  }
+
+  const keys = Object.keys(data[0] || {});
+
+  // Bevorzugte Spaltennamen (falls im CSV vorhanden)
+  const PREFERRED = [
+    "Mix_Name",
+    "Name_der_Mischung",
+    "Name",
+    "Rezept_Name",
+    "Kategorie",
+    "Mix_Typ",
+    "SensorikProfil",
+    "PhysikalischeForm",
+    "Region",
+    "Land",
+    "Quelle",
+    "Source"
+  ];
+
+  // Schöne Anzeigenamen für bekannte Felder
+  const LABEL = {
+    Mix_Name: "Mischung",
+    Name_der_Mischung: "Mischung",
+    Rezept_Name: "Rezept",
+    Kategorie: "Kategorie",
+    Mix_Typ: "Mix-Typ",
+    SensorikProfil: "Sensorik",
+    PhysikalischeForm: "Form",
+    Region: "Region",
+    Land: "Land",
+    Quelle: "Quelle",
+    Source: "Quelle"
+  };
+
+  // Spalten wählen: erst bevorzugte, sonst Fallback auf erste "sinnvollen" Keys
+  let show = PREFERRED.filter(c => keys.includes(c));
+
+  if (!show.length && keys.length) {
+    const technical = ["Row", "Index", "__rowid__", "_rowid_", "id", "ID_Internal"];
+    show = keys.filter(k => !technical.includes(k)).slice(0, 8);
+  }
+
+  const tableHead = document.querySelector('#t thead');
+  const tableBody = document.querySelector('#t tbody');
+  const S = $util.safe;
+
+  const getID = r =>
+    r.ID_Neu || r.Recipe_ID || r.Rezept_ID || r.id || r.ID || "";
+
+  // Kopfzeile rendern
+  tableHead.innerHTML =
+    "<tr>" +
+    "<th><input id='hd' type='checkbox'></th>" +
+    show.map(c => `<th>${LABEL[c] || c}</th>`).join('') +
+    "</tr>";
+
+  function render(rows) {
+    tableBody.innerHTML = rows.map(r => {
+      const cells = show.map(c => `<td>${S(r[c])}</td>`).join('');
+      return `<tr>
+        <td><input class="sel" type="checkbox" data-id="${S(getID(r))}"></td>
+        ${cells}
+      </tr>`;
+    }).join('');
+  }
+
+  function search() {
+    const s = document.getElementById('q').value.trim().toLowerCase();
+    if (!s) {
+      render(data);
+      return;
+    }
+    const filtered = data.filter(r =>
+      Object.values(r).some(v => (S(v) + '').toLowerCase().includes(s))
+    );
+    render(filtered);
+  }
+
+  document.getElementById('go').onclick = search;
+  document.getElementById('q').addEventListener('keydown', e => {
+    if (e.key === 'Enter') search();
+  });
+
+  // Kopf-Checkbox
+  document.addEventListener('change', e => {
+    if (e.target && e.target.id === 'hd') {
+      document.querySelectorAll('input.sel').forEach(x => {
+        x.checked = e.target.checked;
+      });
+    }
+  });
+
+  // "Alles wählen" unten in der Toolbar
+  document.getElementById('all').addEventListener('change', e => {
+    document.querySelectorAll('input.sel').forEach(x => {
+      x.checked = e.target.checked;
+    });
+    const hd = document.getElementById('hd');
+    if (hd) hd.checked = e.target.checked;
+  });
+
+  // HTML-Ausgabe
+  document.getElementById('toHtml').onclick = () => {
+    const ids = [...document.querySelectorAll('input.sel:checked')]
+      .map(x => x.dataset.id)
+      .filter(Boolean);
+    if (!ids.length) {
+      alert('Bitte Mischung(en) auswählen.');
+      return;
+    }
+    window.open(
+      `./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(','))}`,
+      '_blank'
+    );
+  };
+
+  // PDF-Ausgabe
+  document.getElementById('toPdf').onclick = () => {
+    const ids = [...document.querySelectorAll('input.sel:checked')]
+      .map(x => x.dataset.id)
+      .filter(Boolean);
+    if (!ids.length) {
+      alert('Bitte Mischung(en) auswählen.');
+      return;
+    }
+    window.open(
+      `./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(','))}&print=1`,
+      '_blank'
+    );
+  };
+
+  // Initial
+  render(data);
+})();
+</script>
+
+</body>
+</html>
