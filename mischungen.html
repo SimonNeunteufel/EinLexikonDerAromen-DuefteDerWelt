@@ -6,7 +6,7 @@
   <title>Mischungen – Suche</title>
   <link rel="stylesheet" href="./assets/css/styles.css">
 
-  <!-- Zusatzstyles für bessere Lesbarkeit -->
+  <!-- Zusätzliche Styles für Lesbarkeit & fixen Header -->
   <style>
     .table-wrap {
       margin-top: 1rem;
@@ -23,10 +23,10 @@
     }
     #t th,
     #t td {
-      padding: 0.4rem 0.6rem;
+      padding: 0.45rem 0.6rem;
       font-size: 0.9rem;
       text-align: left;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
       white-space: nowrap;
     }
     #t th:first-child,
@@ -35,12 +35,13 @@
       width: 2.5rem;
       white-space: nowrap;
     }
-    #t thead {
+    /* wirklich fixer Header – Sticky auf TH */
+    #t thead th {
       position: sticky;
       top: 0;
+      z-index: 2;
       background: rgba(245,245,245,0.98);
       backdrop-filter: blur(2px);
-      z-index: 1;
     }
   </style>
 </head>
@@ -60,7 +61,7 @@
   <p class="sub">Mit Varianten- und Rezeptbezug.</p>
 
   <div class="toolbar">
-    <input id="q" placeholder="Suche (Name, Kategorie, Region …)" type="search">
+    <input id="q" placeholder="Scharf, Kategorie, Region …" type="search">
     <button class="btn" id="go">Suchen</button>
     <button class="btn" id="toHtml">Rezepte → HTML</button>
     <button class="btn" id="toPdf">Rezepte → PDF</button>
@@ -90,123 +91,160 @@
 
 <script>
 (async () => {
-  let data = [];
+  const S = v => (v == null ? "" : String(v).trim());
+
+  // CSV aus /data/MasterRecipes.csv laden (Semikolon-getrennt)
+  async function loadCsv(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    let text = await res.text();
+    // BOM ggf. entfernen
+    if (text.charCodeAt(0) === 0xFEFF) {
+      text = text.slice(1);
+    }
+    const lines = text.trim().split(/\r?\n/);
+    const rows = lines.map(l => l.split(";"));
+    return rows;
+  }
+
+  let table;
   try {
-    data = await $util.loadRecipes();
-  } catch (_) {
+    // Primär aus /data/, optional Fallback auf /assets/data/
+    try {
+      table = await loadCsv("./data/MasterRecipes.csv");
+    } catch (_) {
+      table = await loadCsv("./assets/data/MasterRecipes.csv");
+    }
+  } catch (e) {
     $util.err(
       'Daten konnten nicht geladen werden. ' +
-      'Lege <code>MasterRecipes.csv</code> oder <code>master_recipes.json</code> in <code>/data/</code> oder <code>/assets/data/</code> ab.'
+      'Lege <code>MasterRecipes.csv</code> in <code>/data/</code> oder <code>/assets/data/</code> ab.'
     );
+    return;
   }
 
-  const keys = Object.keys(data[0] || {});
-  const S = $util.safe;
-
-  // Hilfsfunktion: erstes vorhandenes Feld aus Liste wählen
-  const pickKey = list => list.find(k => keys.includes(k));
-
-  // Spalten-Definitionen (nur diese 4 werden gezeigt)
-  const columns = [
-    { key: pickKey(["Mix_Name","Name_der_Mischung","Name","Rezept_Name"]), label: "Mischung" },
-    { key: pickKey(["Region","Herkunft","Land","Kontinent"]),             label: "Herkunft" },
-    { key: pickKey(["Kategorie","Mix_Typ","Kategorie_Mischung"]),         label: "Kategorie" },
-    { key: pickKey(["SensorikProfil","Sensorik","Scharfkeit","Schärfe"]), label: "Sensorik" }
-  ].filter(c => c.key);
-
-  // Falls aus irgendeinem Grund keine Spalten gefunden wurden → Fallback auf erste paar Textfelder
-  if (!columns.length && keys.length) {
-    keys.slice(0, 4).forEach(k => columns.push({key: k, label: k}));
+  if (!table || table.length < 2) {
+    $util.err("MasterRecipes.csv enthält keine Daten.");
+    return;
   }
 
-  const tableHead = document.querySelector('#t thead');
-  const tableBody = document.querySelector('#t tbody');
+  const header = table[0].map(S);
+  const rows   = table.slice(1);
 
-  // Kopfzeile (ohne Auswahl-Checkbox im Header)
-  tableHead.innerHTML =
+  // Hilfsfunktion: Index der ersten vorkommenden Spalte aus einer Liste holen
+  const idx = (candidates) => {
+    for (const name of candidates) {
+      const i = header.indexOf(name);
+      if (i !== -1) return i;
+    }
+    return -1;
+  };
+
+  const idxId   = idx(["ID_Neu","Recipe_ID","Rezept_ID","ID","Mix_ID","Mischung_ID","ME_ID","MeID","Code"]);
+  const idxName = idx(["Mix_Name","Name_der_Mischung","Name","Rezept_Name"]);
+  const idxReg  = idx(["Region","Herkunft","Land","Kontinent"]);
+  const idxKat  = idx(["Kategorie","Mix_Typ","Kategorie_Mischung"]);
+  const idxSens = idx(["SensorikProfil","Sensorik","Scharfkeit","Schärfe"]);
+
+  // Datenobjekte bauen – nur die 4 relevanten Felder
+  const data = rows.map(cells => {
+    const name = idxName >= 0 ? S(cells[idxName]) : "";
+    const id   = idxId   >= 0 ? S(cells[idxId])   : name;  // Fallback: Name
+    return {
+      id,
+      name,
+      region:  idxReg  >= 0 ? S(cells[idxReg])  : "",
+      kat:     idxKat  >= 0 ? S(cells[idxKat])  : "",
+      sens:    idxSens >= 0 ? S(cells[idxSens]) : ""
+    };
+  });
+
+  const thead = document.querySelector("#t thead");
+  const tbody = document.querySelector("#t tbody");
+
+  // Kopfzeile (ohne Checkbox im Header)
+  thead.innerHTML =
     "<tr>" +
       "<th></th>" +
-      columns.map(c => `<th>${c.label}</th>`).join('') +
+      "<th>Mischung</th>" +
+      "<th>Herkunft</th>" +
+      "<th>Kategorie</th>" +
+      "<th>Sensorik</th>" +
     "</tr>";
 
-  // ID für Auswahl / Rezept-Erzeugung; robust, mit Fallback auf Namen
-  const getID = r =>
-    r.ID_Neu       || r.Recipe_ID   || r.Rezept_ID ||
-    r.ID           || r.Mix_ID      || r.Mischung_ID ||
-    r.ME_ID        || r.MeID        ||
-    r.Code         ||
-    r.Mix_Name     || r.Name_der_Mischung || r.Name || "";
-
-  function render(rows) {
-    tableBody.innerHTML = rows.map(r => {
-      const id = S(getID(r));
-      const cells = columns.map(c => `<td>${S(r[c.key])}</td>`).join('');
-      return `<tr>
-        <td><input class="sel" type="checkbox" data-id="${id}"></td>
-        ${cells}
-      </tr>`;
-    }).join('');
+  function render(list) {
+    tbody.innerHTML = list.map(r => `
+      <tr>
+        <td><input class="sel" type="checkbox" data-id="${r.id}"></td>
+        <td>${S(r.name)}</td>
+        <td>${S(r.region)}</td>
+        <td>${S(r.kat)}</td>
+        <td>${S(r.sens)}</td>
+      </tr>
+    `).join("");
   }
 
   function search() {
-    const s = document.getElementById('q').value.trim().toLowerCase();
+    const s = document.getElementById("q").value.trim().toLowerCase();
     if (!s) {
       render(data);
       return;
     }
     const filtered = data.filter(r =>
-      Object.values(r).some(v => (S(v) + '').toLowerCase().includes(s))
+      (r.name   && r.name.toLowerCase().includes(s)) ||
+      (r.region && r.region.toLowerCase().includes(s)) ||
+      (r.kat    && r.kat.toLowerCase().includes(s)) ||
+      (r.sens   && r.sens.toLowerCase().includes(s))
     );
     render(filtered);
   }
 
-  document.getElementById('go').onclick = search;
-  document.getElementById('q').addEventListener('keydown', e => {
-    if (e.key === 'Enter') search();
+  document.getElementById("go").onclick = search;
+  document.getElementById("q").addEventListener("keydown", e => {
+    if (e.key === "Enter") search();
   });
 
-  // "Alles wählen" in der Toolbar
-  document.getElementById('all').addEventListener('change', e => {
-    document.querySelectorAll('input.sel').forEach(x => {
+  // Alles wählen / abwählen
+  document.getElementById("all").addEventListener("change", e => {
+    document.querySelectorAll("input.sel").forEach(x => {
       x.checked = e.target.checked;
     });
   });
 
-  // HTML-Rezepte
-  document.getElementById('toHtml').onclick = () => {
-    const ids = [...document.querySelectorAll('input.sel:checked')]
+  function getSelectedIds() {
+    return [...document.querySelectorAll("input.sel:checked")]
       .map(x => x.dataset.id)
       .filter(id => id && id.trim().length > 0);
+  }
+
+  document.getElementById("toHtml").onclick = () => {
+    const ids = getSelectedIds();
     if (!ids.length) {
-      alert('Bitte Mischung(en) auswählen.');
+      alert("Bitte Mischung(en) auswählen.");
       return;
     }
     window.open(
-      `./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(','))}`,
-      '_blank'
+      "./mischung_rezepte.html?ids=" + encodeURIComponent(ids.join(",")),
+      "_blank"
     );
   };
 
-  // PDF-Rezepte
-  document.getElementById('toPdf').onclick = () => {
-    const ids = [...document.querySelectorAll('input.sel:checked')]
-      .map(x => x.dataset.id)
-      .filter(id => id && id.trim().length > 0);
+  document.getElementById("toPdf").onclick = () => {
+    const ids = getSelectedIds();
     if (!ids.length) {
-      alert('Bitte Mischung(en) auswählen.');
+      alert("Bitte Mischung(en) auswählen.");
       return;
     }
     window.open(
-      `./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(','))}&print=1`,
-      '_blank'
+      "./mischung_rezepte.html?ids=" + encodeURIComponent(ids.join(",")) + "&print=1",
+      "_blank"
     );
   };
 
-  // Initiales Rendering
+  // Anfangs alle Daten anzeigen
   render(data);
 })();
 </script>
-
 
 </body>
 </html>
