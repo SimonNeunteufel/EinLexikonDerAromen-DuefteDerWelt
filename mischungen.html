@@ -6,13 +6,13 @@
   <title>Mischungen – Suche</title>
   <link rel="stylesheet" href="./assets/css/styles.css">
 
-  <!-- Zusätzliche, seiten­eigene Styles für bessere Lesbarkeit -->
+  <!-- Zusatzstyles für bessere Lesbarkeit -->
   <style>
     .table-wrap {
       margin-top: 1rem;
     }
     .table-body {
-      max-height: 60vh;          /* sichtbarer Bereich, Rest scrollt */
+      max-height: 60vh;
       overflow: auto;
       background: rgba(255,255,255,0.9);
       border-radius: 12px;
@@ -92,7 +92,6 @@
 (async () => {
   let data = [];
   try {
-    // lädt Rezepte aus /data/MasterRecipes.csv oder /assets/data/…
     data = await $util.loadRecipes();
   } catch (_) {
     $util.err(
@@ -102,65 +101,48 @@
   }
 
   const keys = Object.keys(data[0] || {});
+  const S = $util.safe;
 
-  // Bevorzugte Spaltennamen (falls im CSV vorhanden)
-  const PREFERRED = [
-    "Mix_Name",
-    "Name_der_Mischung",
-    "Name",
-    "Rezept_Name",
-    "Kategorie",
-    "Mix_Typ",
-    "SensorikProfil",
-    "PhysikalischeForm",
-    "Region",
-    "Land",
-    "Quelle",
-    "Source"
-  ];
+  // Hilfsfunktion: erstes vorhandenes Feld aus Liste wählen
+  const pickKey = list => list.find(k => keys.includes(k));
 
-  // Schöne Anzeigenamen für bekannte Felder
-  const LABEL = {
-    Mix_Name: "Mischung",
-    Name_der_Mischung: "Mischung",
-    Rezept_Name: "Rezept",
-    Kategorie: "Kategorie",
-    Mix_Typ: "Mix-Typ",
-    SensorikProfil: "Sensorik",
-    PhysikalischeForm: "Form",
-    Region: "Region",
-    Land: "Land",
-    Quelle: "Quelle",
-    Source: "Quelle"
-  };
+  // Spalten-Definitionen (nur diese 4 werden gezeigt)
+  const columns = [
+    { key: pickKey(["Mix_Name","Name_der_Mischung","Name","Rezept_Name"]), label: "Mischung" },
+    { key: pickKey(["Region","Herkunft","Land","Kontinent"]),             label: "Herkunft" },
+    { key: pickKey(["Kategorie","Mix_Typ","Kategorie_Mischung"]),         label: "Kategorie" },
+    { key: pickKey(["SensorikProfil","Sensorik","Scharfkeit","Schärfe"]), label: "Sensorik" }
+  ].filter(c => c.key);
 
-  // Spalten wählen: erst bevorzugte, sonst Fallback auf erste "sinnvollen" Keys
-  let show = PREFERRED.filter(c => keys.includes(c));
-
-  if (!show.length && keys.length) {
-    const technical = ["Row", "Index", "__rowid__", "_rowid_", "id", "ID_Internal"];
-    show = keys.filter(k => !technical.includes(k)).slice(0, 8);
+  // Falls aus irgendeinem Grund keine Spalten gefunden wurden → Fallback auf erste paar Textfelder
+  if (!columns.length && keys.length) {
+    keys.slice(0, 4).forEach(k => columns.push({key: k, label: k}));
   }
 
   const tableHead = document.querySelector('#t thead');
   const tableBody = document.querySelector('#t tbody');
-  const S = $util.safe;
 
-  const getID = r =>
-    r.ID_Neu || r.Recipe_ID || r.Rezept_ID || r.id || r.ID || "";
-
-  // Kopfzeile rendern
+  // Kopfzeile (ohne Auswahl-Checkbox im Header)
   tableHead.innerHTML =
     "<tr>" +
-    "<th><input id='hd' type='checkbox'></th>" +
-    show.map(c => `<th>${LABEL[c] || c}</th>`).join('') +
+      "<th></th>" +
+      columns.map(c => `<th>${c.label}</th>`).join('') +
     "</tr>";
+
+  // ID für Auswahl / Rezept-Erzeugung; robust, mit Fallback auf Namen
+  const getID = r =>
+    r.ID_Neu       || r.Recipe_ID   || r.Rezept_ID ||
+    r.ID           || r.Mix_ID      || r.Mischung_ID ||
+    r.ME_ID        || r.MeID        ||
+    r.Code         ||
+    r.Mix_Name     || r.Name_der_Mischung || r.Name || "";
 
   function render(rows) {
     tableBody.innerHTML = rows.map(r => {
-      const cells = show.map(c => `<td>${S(r[c])}</td>`).join('');
+      const id = S(getID(r));
+      const cells = columns.map(c => `<td>${S(r[c.key])}</td>`).join('');
       return `<tr>
-        <td><input class="sel" type="checkbox" data-id="${S(getID(r))}"></td>
+        <td><input class="sel" type="checkbox" data-id="${id}"></td>
         ${cells}
       </tr>`;
     }).join('');
@@ -183,29 +165,18 @@
     if (e.key === 'Enter') search();
   });
 
-  // Kopf-Checkbox
-  document.addEventListener('change', e => {
-    if (e.target && e.target.id === 'hd') {
-      document.querySelectorAll('input.sel').forEach(x => {
-        x.checked = e.target.checked;
-      });
-    }
-  });
-
-  // "Alles wählen" unten in der Toolbar
+  // "Alles wählen" in der Toolbar
   document.getElementById('all').addEventListener('change', e => {
     document.querySelectorAll('input.sel').forEach(x => {
       x.checked = e.target.checked;
     });
-    const hd = document.getElementById('hd');
-    if (hd) hd.checked = e.target.checked;
   });
 
-  // HTML-Ausgabe
+  // HTML-Rezepte
   document.getElementById('toHtml').onclick = () => {
     const ids = [...document.querySelectorAll('input.sel:checked')]
       .map(x => x.dataset.id)
-      .filter(Boolean);
+      .filter(id => id && id.trim().length > 0);
     if (!ids.length) {
       alert('Bitte Mischung(en) auswählen.');
       return;
@@ -216,11 +187,11 @@
     );
   };
 
-  // PDF-Ausgabe
+  // PDF-Rezepte
   document.getElementById('toPdf').onclick = () => {
     const ids = [...document.querySelectorAll('input.sel:checked')]
       .map(x => x.dataset.id)
-      .filter(Boolean);
+      .filter(id => id && id.trim().length > 0);
     if (!ids.length) {
       alert('Bitte Mischung(en) auswählen.');
       return;
@@ -231,7 +202,7 @@
     );
   };
 
-  // Initial
+  // Initiales Rendering
   render(data);
 })();
 </script>
