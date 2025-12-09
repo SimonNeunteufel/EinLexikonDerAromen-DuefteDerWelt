@@ -1,6 +1,278 @@
-<!doctype html><html lang='de'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Mischungs-Rezepte</title><link rel='stylesheet' href='./assets/css/styles.css'></head><body class='BG5'><div class='page'>
-<div class='header'><button class='btn' onclick="location.href='./mischungen.html'">← Zurück</button><div class='brand'>Mischungs-Rezepte</div><nav class='nav'><a href='./stoffe.html'>Stoffe</a><a href='./mischungen.html'>Mischungen</a><a href='./baender.html'>Bände</a></nav></div>
-<div class='toolbar'><button class='btn' onclick='window.print()'>Als PDF drucken</button></div><div id='out'></div>
-</div><script src='./assets/js/util.js'></script><script src='./assets/js/bg_loader.js'></script>
-<script>(async()=>{const ids=new URL(location.href).searchParams.get('ids')||'';const set=new Set(ids.split(',').map(s=>s.trim()).filter(Boolean));const rows=await $util.loadRecipes();const S=$util.safe,out=document.getElementById('out');const pick=rows.filter(r=>set.has(r.ID_Neu||r.Recipe_ID||r.Rezept_ID||r.id||''));if(!pick.length){out.innerHTML='<p>Keine Rezepte gefunden.</p>';return}function list(t){if(!t)return'';return String(t).split('|').map(s=>s.trim()).filter(Boolean).map(s=>`<li>${S(s)}</li>`).join('')}out.innerHTML=pick.map(r=>`<article style='background:#fff;color:#0b0f14;border:1px solid #0002;border-radius:12px;padding:16px;margin:12px 0'><h3>${S(r.Mix_Name||'(ohne Name)')}</h3><div style='display:grid;grid-template-columns:1fr 1fr;gap:12px'><div><b>Kategorie:</b> ${S(r.Kategorie)}<br><b>Sensorik:</b> ${S(r.SensorikProfil)} &nbsp; <b>Trägerform:</b> ${S(r.PhysikalischeForm)}<br><b>Mix-Typ:</b> ${S(r.Mix_Typ)}</div><div><b>ID:</b> ${S(r.ID_Neu||r.Recipe_ID||r.Rezept_ID||r.id||'')}<br><b>Quelle:</b> ${S(r.Quelle||r.Source)}</div></div><h4>Zutaten</h4><ul>${list(r.Zutaten||r.Ingredient_List)}</ul>${r.Anwendung||r.Application?`<h4>Anwendung</h4><p>${S(r.Anwendung||r.Application)}</p>`:''}</article>`).join('')})();</script>
-</body></html>
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mischungs-Rezepte</title>
+  <link rel="stylesheet" href="./assets/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    .recipes-page {
+      padding-bottom: 2rem;
+    }
+    .recipe-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      padding: 1.2rem 1.4rem;
+      margin: 1rem 0;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+    }
+    .recipe-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem 1rem;
+      align-items: baseline;
+      margin-bottom: .6rem;
+    }
+    .recipe-header h2 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+    .recipe-meta {
+      font-size: .85rem;
+      color: #555;
+    }
+    .recipe-body {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 2rem;
+      margin-top: .8rem;
+    }
+    .ingredients, .instructions {
+      flex: 1 1 260px;
+      min-width: 0;
+    }
+    .ingredients table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+    }
+    .ingredients th,
+    .ingredients td {
+      padding: 0.25rem 0.4rem;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      text-align: left;
+    }
+    .ingredients th {
+      font-weight: 600;
+    }
+    .instructions p {
+      margin: 0 0 .4rem;
+      font-size: .92rem;
+      line-height: 1.4;
+    }
+    @media print {
+      body {
+        background: #fff !important;
+      }
+      .header,
+      .toolbar,
+      .footer-note {
+        display: none !important;
+      }
+      .recipe-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="BG5">
+<div class="page recipes-page">
+
+  <div class="header">
+    <button class="btn" onclick="location.href='./mischungen.html'">← Zurück</button>
+    <div class="brand">Mischungs-Rezepte</div>
+    <nav class="nav">
+      <a href="./stoffe.html">Stoffe</a>
+      <a href="./mischungen.html">Mischungen</a>
+      <a href="./baender.html">Bände</a>
+    </nav>
+  </div>
+
+  <p class="sub">Detailansicht der ausgewählten Mischungen inkl. Zutaten und Anleitung.</p>
+
+  <div id="recipes"></div>
+
+  <div class="footer-note">
+    <div>© Lexikon</div>
+    <div><a href="./index.html">Start</a></div>
+  </div>
+
+</div>
+
+<script src="./assets/js/bg_loader.js"></script>
+
+<script>
+(async () => {
+  const safe = v => (v == null ? "" : String(v).trim());
+
+  // ids aus Query lesen
+  const params = new URLSearchParams(location.search);
+  const idParam = params.get("ids") || "";
+  const idSet = new Set(
+    idParam.split(",").map(s => safe(decodeURIComponent(s))).filter(Boolean)
+  );
+  const printMode = params.get("print") === "1";
+
+  if (!idSet.size) {
+    document.getElementById("recipes").innerHTML =
+      "<p>Keine IDs übergeben. Rufe diese Seite via <code>mischung_rezepte.html?ids=ID1,ID2</code> auf.</p>";
+    return;
+  }
+
+  async function loadXlsx(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const ab = await res.arrayBuffer();
+    const wb = XLSX.read(ab, { type: "array" });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    return XLSX.utils.sheet_to_json(sheet, { defval: "" });
+  }
+
+  let rows;
+  try {
+    rows = await loadXlsx("./data/MasterRecipes.xlsx");
+  } catch (e) {
+    document.getElementById("recipes").innerHTML =
+      "<p>MasterRecipes.xlsx konnte nicht geladen werden.</p>";
+    console.error(e);
+    return;
+  }
+
+  if (!rows.length) {
+    document.getElementById("recipes").innerHTML =
+      "<p>MasterRecipes.xlsx enthält keine Datensätze.</p>";
+    return;
+  }
+
+  const keys = Object.keys(rows[0]);
+  const pickKey = (candidates) => {
+    for (const k of candidates) if (keys.includes(k)) return k;
+    return null;
+  };
+
+  // ▼ Feldzuordnung – bei Bedarf an dein Layout anpassen
+  const kID   = pickKey(["ID_Neu","Recipe_ID","Rezept_ID","ID","Mix_ID","Mischung_ID","ME_ID","MeID","Code"]);
+  const kName = pickKey(["Mix_Name","Name_der_Mischung","Name","Rezept_Name"]);
+  const kReg  = pickKey(["Region","Herkunft","Land","Kontinent"]);
+  const kKat  = pickKey(["Kategorie","Mix_Typ","Kategorie_Mischung"]);
+  const kSens = pickKey(["SensorikProfil","Sensorik","Scharfkeit","Schaerfe","Schärfe"]);
+
+  const kInstr = pickKey(["Anleitung","Zubereitung","Rezept_Text","Rezept","Hinweis_Rezept"]);
+
+  // Zutaten: angenommen Zutat_1 / Menge_1 / Einheit_1, etc.
+  // Wenn du andere Präfixe hast (z.B. "Ing1", "Qty1"), hier anpassen:
+  const ingredientNamePrefix   = "Zutat_";
+  const ingredientAmountPrefix = "Menge_";
+  const ingredientUnitPrefix   = "Einheit_";
+  const ingredientNotePrefix   = "Hinweis_"; // optional
+
+  function extractIngredients(row) {
+    const ingredients = [];
+    // wir schauen bis zu 30 Zutaten durch
+    for (let i = 1; i <= 30; i++) {
+      const nKey = ingredientNamePrefix   + i;
+      const aKey = ingredientAmountPrefix + i;
+      const uKey = ingredientUnitPrefix   + i;
+      const hKey = ingredientNotePrefix   + i;
+
+      const name = row[nKey];
+      const amount = row[aKey];
+      const unit = row[uKey];
+      const note = row[hKey];
+
+      if (!name && !amount && !note) continue;
+      ingredients.push({
+        name:   safe(name),
+        amount: safe(amount),
+        unit:   safe(unit),
+        note:   safe(note)
+      });
+    }
+
+    // Fallback: eine Sammelspalte "Zutaten" / "Zutaten_Text"
+    if (!ingredients.length) {
+      const kZut = pickKey(["Zutaten","Zutaten_Text","Ingredients"]);
+      if (kZut && row[kZut]) {
+        ingredients.push({ name: safe(row[kZut]), amount: "", unit: "", note: "" });
+      }
+    }
+    return ingredients;
+  }
+
+  const selected = rows.filter(r => {
+    const id = kID ? safe(r[kID]) : safe(r[kName]);
+    return idSet.has(id);
+  });
+
+  if (!selected.length) {
+    document.getElementById("recipes").innerHTML =
+      "<p>Keine passenden Mischungen zu den übergebenen IDs gefunden.</p>";
+    return;
+  }
+
+  const container = document.getElementById("recipes");
+  container.innerHTML = selected.map(r => {
+    const id   = kID   ? safe(r[kID])   : "";
+    const name = kName ? safe(r[kName]) : "";
+    const title = (id && name) ? `${id} – ${name}` : (name || id || "Mischung");
+
+    const metaParts = [];
+    if (kReg  && r[kReg])  metaParts.push("Herkunft: " + safe(r[kReg]));
+    if (kKat  && r[kKat])  metaParts.push("Kategorie: " + safe(r[kKat]));
+    if (kSens && r[kSens]) metaParts.push("Sensorik: " + safe(r[kSens]));
+    const meta = metaParts.join(" · ");
+
+    const instr = kInstr ? safe(r[kInstr]) : "";
+
+    const ings = extractIngredients(r);
+    const ingTable = ings.length
+      ? `<table>
+          <thead><tr><th>Menge</th><th>Zutat</th><th>Notiz</th></tr></thead>
+          <tbody>
+            ${ings.map(z => `
+              <tr>
+                <td>${[z.amount, z.unit].filter(Boolean).join(" ")}</td>
+                <td>${z.name}</td>
+                <td>${z.note}</td>
+              </tr>`).join("")}
+          </tbody>
+        </table>`
+      : "<p>Keine Zutaten hinterlegt.</p>";
+
+    const instrHtml = instr
+      ? instr.split(/\n{2,}|\r\n{2,}/).map(p => `<p>${p}</p>`).join("")
+      : "<p>Keine Anleitung hinterlegt.</p>";
+
+    return `
+      <section class="recipe-card">
+        <div class="recipe-header">
+          <h2>${title}</h2>
+          ${meta ? `<div class="recipe-meta">${meta}</div>` : ""}
+        </div>
+        <div class="recipe-body">
+          <div class="ingredients">
+            <h3>Zutaten</h3>
+            ${ingTable}
+          </div>
+          <div class="instructions">
+            <h3>Zubereitung</h3>
+            ${instrHtml}
+          </div>
+        </div>
+      </section>
+    `;
+  }).join("");
+
+  if (printMode) {
+    // kleine Verzögerung, damit alles gerendert ist
+    setTimeout(() => window.print(), 500);
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -6,7 +6,10 @@
   <title>Mischungen – Suche</title>
   <link rel="stylesheet" href="./assets/css/styles.css">
 
-  <!-- Zusätzliche Styles für Lesbarkeit & fixen Header -->
+  <!-- XLSX-Library zum Lesen von MasterRecipes.xlsx -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Zusatzstyles: gut lesbare Tabelle, fixer Header -->
   <style>
     .table-wrap {
       margin-top: 1rem;
@@ -23,7 +26,7 @@
     }
     #t th,
     #t td {
-      padding: 0.45rem 0.6rem;
+      padding: 0.4rem 0.6rem;
       font-size: 0.9rem;
       text-align: left;
       border-bottom: 1px solid rgba(0,0,0,0.06);
@@ -35,7 +38,7 @@
       width: 2.5rem;
       white-space: nowrap;
     }
-    /* wirklich fixer Header – Sticky auf TH */
+    /* fixer Header */
     #t thead th {
       position: sticky;
       top: 0;
@@ -58,10 +61,10 @@
     </nav>
   </div>
 
-  <p class="sub">Mit Varianten- und Rezeptbezug.</p>
+  <p class="sub">Mit Varianten- und Rezeptbezug (aus MasterRecipes.xlsx).</p>
 
   <div class="toolbar">
-    <input id="q" placeholder="Scharf, Kategorie, Region …" type="search">
+    <input id="q" placeholder="Suche (Name, Herkunft, Kategorie, Sensorik …)" type="search">
     <button class="btn" id="go">Suchen</button>
     <button class="btn" id="toHtml">Rezepte → HTML</button>
     <button class="btn" id="toPdf">Rezepte → PDF</button>
@@ -91,78 +94,65 @@
 
 <script>
 (async () => {
-  const S = v => (v == null ? "" : String(v).trim());
+  const safe = v => (v == null ? "" : String(v).trim());
 
-  // CSV aus /data/MasterRecipes.csv laden (Semikolon-getrennt)
-  async function loadCsv(url) {
+  async function loadXlsx(url) {
     const res = await fetch(url);
     if (!res.ok) throw new Error("HTTP " + res.status);
-    let text = await res.text();
-    // BOM ggf. entfernen
-    if (text.charCodeAt(0) === 0xFEFF) {
-      text = text.slice(1);
-    }
-    const lines = text.trim().split(/\r?\n/);
-    const rows = lines.map(l => l.split(";"));
-    return rows;
+    const ab = await res.arrayBuffer();
+    const wb = XLSX.read(ab, { type: "array" });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    // Jede Zeile als Objekt (Header aus erster Zeile)
+    return XLSX.utils.sheet_to_json(sheet, { defval: "" });
   }
 
-  let table;
+  let rows;
   try {
-    // Primär aus /data/, optional Fallback auf /assets/data/
-    try {
-      table = await loadCsv("./data/MasterRecipes.csv");
-    } catch (_) {
-      table = await loadCsv("./assets/data/MasterRecipes.csv");
-    }
+    rows = await loadXlsx("./data/MasterRecipes.xlsx");
   } catch (e) {
-    $util.err(
-      'Daten konnten nicht geladen werden. ' +
-      'Lege <code>MasterRecipes.csv</code> in <code>/data/</code> oder <code>/assets/data/</code> ab.'
+    $util?.err?.(
+      "MasterRecipes.xlsx konnte nicht geladen werden. " +
+      "Lege die Datei unter <code>/data/MasterRecipes.xlsx</code> ab."
     );
+    console.error(e);
     return;
   }
 
-  if (!table || table.length < 2) {
-    $util.err("MasterRecipes.csv enthält keine Daten.");
+  if (!rows.length) {
+    $util?.err?.("MasterRecipes.xlsx enthält keine Datensätze.");
     return;
   }
 
-  const header = table[0].map(S);
-  const rows   = table.slice(1);
+  const keys = Object.keys(rows[0]);
 
-  // Hilfsfunktion: Index der ersten vorkommenden Spalte aus einer Liste holen
-  const idx = (candidates) => {
-    for (const name of candidates) {
-      const i = header.indexOf(name);
-      if (i !== -1) return i;
-    }
-    return -1;
+  const pickKey = (candidates) => {
+    for (const k of candidates) if (keys.includes(k)) return k;
+    return null;
   };
 
-  const idxId   = idx(["ID_Neu","Recipe_ID","Rezept_ID","ID","Mix_ID","Mischung_ID","ME_ID","MeID","Code"]);
-  const idxName = idx(["Mix_Name","Name_der_Mischung","Name","Rezept_Name"]);
-  const idxReg  = idx(["Region","Herkunft","Land","Kontinent"]);
-  const idxKat  = idx(["Kategorie","Mix_Typ","Kategorie_Mischung"]);
-  const idxSens = idx(["SensorikProfil","Sensorik","Scharfkeit","Schärfe"]);
+  // ▼ HIER bei Bedarf Feldnamen anpassen, falls dein XLSX andere Spaltennamen hat
+  const kID   = pickKey(["ID_Neu","Recipe_ID","Rezept_ID","ID","Mix_ID","Mischung_ID","ME_ID","MeID","Code"]);
+  const kName = pickKey(["Mix_Name","Name_der_Mischung","Name","Rezept_Name"]);
+  const kReg  = pickKey(["Region","Herkunft","Land","Kontinent"]);
+  const kKat  = pickKey(["Kategorie","Mix_Typ","Kategorie_Mischung"]);
+  const kSens = pickKey(["SensorikProfil","Sensorik","Scharfkeit","Schaerfe","Schärfe"]);
 
-  // Datenobjekte bauen – nur die 4 relevanten Felder
-  const data = rows.map(cells => {
-    const name = idxName >= 0 ? S(cells[idxName]) : "";
-    const id   = idxId   >= 0 ? S(cells[idxId])   : name;  // Fallback: Name
+  const data = rows.map(r => {
+    const name = kName ? safe(r[kName]) : "";
+    const id   = kID   ? safe(r[kID])   : name;   // FallbackName als ID, falls keine ID-Spalte
     return {
+      raw:   r,       // komplette Zeile für spätere Nutzung
       id,
       name,
-      region:  idxReg  >= 0 ? S(cells[idxReg])  : "",
-      kat:     idxKat  >= 0 ? S(cells[idxKat])  : "",
-      sens:    idxSens >= 0 ? S(cells[idxSens]) : ""
+      herkunft: kReg  ? safe(r[kReg])  : "",
+      kat:     kKat  ? safe(r[kKat])  : "",
+      sens:    kSens ? safe(r[kSens]) : ""
     };
   });
 
   const thead = document.querySelector("#t thead");
   const tbody = document.querySelector("#t tbody");
 
-  // Kopfzeile (ohne Checkbox im Header)
   thead.innerHTML =
     "<tr>" +
       "<th></th>" +
@@ -176,25 +166,22 @@
     tbody.innerHTML = list.map(r => `
       <tr>
         <td><input class="sel" type="checkbox" data-id="${r.id}"></td>
-        <td>${S(r.name)}</td>
-        <td>${S(r.region)}</td>
-        <td>${S(r.kat)}</td>
-        <td>${S(r.sens)}</td>
+        <td>${safe(r.name)}</td>
+        <td>${safe(r.herkunft)}</td>
+        <td>${safe(r.kat)}</td>
+        <td>${safe(r.sens)}</td>
       </tr>
     `).join("");
   }
 
   function search() {
     const s = document.getElementById("q").value.trim().toLowerCase();
-    if (!s) {
-      render(data);
-      return;
-    }
+    if (!s) { render(data); return; }
     const filtered = data.filter(r =>
-      (r.name   && r.name.toLowerCase().includes(s)) ||
-      (r.region && r.region.toLowerCase().includes(s)) ||
-      (r.kat    && r.kat.toLowerCase().includes(s)) ||
-      (r.sens   && r.sens.toLowerCase().includes(s))
+      (r.name     && r.name.toLowerCase().includes(s)) ||
+      (r.herkunft && r.herkunft.toLowerCase().includes(s)) ||
+      (r.kat      && r.kat.toLowerCase().includes(s)) ||
+      (r.sens     && r.sens.toLowerCase().includes(s))
     );
     render(filtered);
   }
@@ -204,7 +191,7 @@
     if (e.key === "Enter") search();
   });
 
-  // Alles wählen / abwählen
+  // Alles wählen
   document.getElementById("all").addEventListener("change", e => {
     document.querySelectorAll("input.sel").forEach(x => {
       x.checked = e.target.checked;
@@ -219,10 +206,7 @@
 
   document.getElementById("toHtml").onclick = () => {
     const ids = getSelectedIds();
-    if (!ids.length) {
-      alert("Bitte Mischung(en) auswählen.");
-      return;
-    }
+    if (!ids.length) { alert("Bitte Mischung(en) auswählen."); return; }
     window.open(
       "./mischung_rezepte.html?ids=" + encodeURIComponent(ids.join(",")),
       "_blank"
@@ -231,17 +215,13 @@
 
   document.getElementById("toPdf").onclick = () => {
     const ids = getSelectedIds();
-    if (!ids.length) {
-      alert("Bitte Mischung(en) auswählen.");
-      return;
-    }
+    if (!ids.length) { alert("Bitte Mischung(en) auswählen."); return; }
     window.open(
       "./mischung_rezepte.html?ids=" + encodeURIComponent(ids.join(",")) + "&print=1",
       "_blank"
     );
   };
 
-  // Anfangs alle Daten anzeigen
   render(data);
 })();
 </script>
