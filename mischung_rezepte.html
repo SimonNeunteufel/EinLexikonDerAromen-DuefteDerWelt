@@ -123,24 +123,35 @@
     return;
   }
 
-  const S = $util.safe;
+const S = $util.safe;
 
-  function getId(r) {
-    return r.MIX_ID || r.ID_Neu || r.Recipe_ID || r.Rezept_ID || r.id || '';
-  }
+const sample = data[0] || {};
+const KEYS = Object.keys(sample);
 
-  const byId = new Map(data.map(r => [getId(r), r]));
-  const selected = idList.map(id => byId.get(id)).filter(Boolean);
+// wieder robust die ID-Spalte finden
+const MIX_ID_KEY =
+  KEYS.find(k => /mix[_\s\-]*id/i.test(k)) ||
+  KEYS.find(k => /^id$/i.test(k)) ||
+  null;
 
-  const COL_NAME   = 'Mix_Name';
-  const COL_CAT    = data[0].Mix_Typ       ? 'Mix_Typ'
-                     : data[0].Kategorie   ? 'Kategorie'
+function getId(r) {
+  return (MIX_ID_KEY && r[MIX_ID_KEY]) ||
+         r.MIX_ID || r.ID_Neu || r.Recipe_ID || r.Rezept_ID || r.id || '';
+}
+
+const byId = new Map(data.map(r => [getId(r), r]));
+const selected = idList.map(id => byId.get(id)).filter(Boolean);
+
+const COL_NAME   = 'Mix_Name';
+const COL_CAT    = sample.Mix_Typ       ? 'Mix_Typ'
+                     : sample.Kategorie   ? 'Kategorie'
                      : '';
-  const COL_REGION = data[0].Region        ? 'Region' : '';
-  const COL_LAND   = data[0].Land          ? 'Land'   : '';
-  const COL_SENSOR = data[0].SensorikProfil ? 'SensorikProfil'
-                     : data[0].Sensorik    ? 'Sensorik'
+const COL_REGION = sample.Region        ? 'Region' : '';
+const COL_LAND   = sample.Land          ? 'Land'   : '';
+const COL_SENSOR = sample.SensorikProfil ? 'SensorikProfil'
+                     : sample.Sensorik    ? 'Sensorik'
                      : '';
+
 
   const COL_ZUTATEN   = 'Zutaten_Mengen_Structured';
   const COL_HERSTELL  = 'Herstellung_Zubereitung';

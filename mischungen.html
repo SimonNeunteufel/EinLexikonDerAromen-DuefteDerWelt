@@ -100,20 +100,33 @@
   const S = $util.safe;
 
   // Spalten-Mapping mit Fallbacks
-  const sample = data[0];
-  const COL_NAME   = 'Mix_Name';
-  const COL_CAT    = sample.Mix_Typ       ? 'Mix_Typ'
+const sample = data[0] || {};
+
+// alle Spaltennamen
+const KEYS = Object.keys(sample);
+
+// robuste Suche nach der MIX-ID-Spalte
+const MIX_ID_KEY =
+  KEYS.find(k => /mix[_\s\-]*id/i.test(k)) ||   // z.B. MIX_ID, Mix ID, MIX-ID
+  KEYS.find(k => /^id$/i.test(k))        ||     // Fallback: einfach "ID"
+  null;
+
+const COL_NAME   = 'Mix_Name';
+const COL_CAT    = sample.Mix_Typ       ? 'Mix_Typ'
                      : sample.Kategorie   ? 'Kategorie'
                      : '';
-  const COL_REGION = sample.Region        ? 'Region' : '';
-  const COL_LAND   = sample.Land          ? 'Land'   : '';
-  const COL_SENSOR = sample.SensorikProfil ? 'SensorikProfil'
+const COL_REGION = sample.Region        ? 'Region' : '';
+const COL_LAND   = sample.Land          ? 'Land'   : '';
+const COL_SENSOR = sample.SensorikProfil ? 'SensorikProfil'
                      : sample.Sensorik     ? 'Sensorik'
                      : '';
 
-  function getId(row) {
-    return row.MIX_ID || row.ID_Neu || row.Recipe_ID || row.Rezept_ID || row.id || '';
-  }
+function getId(row) {
+  return (MIX_ID_KEY && row[MIX_ID_KEY]) ||
+         row.MIX_ID || row.ID_Neu || row.Recipe_ID || row.Rezept_ID || row.id || '';
+}
+
+
 
   const thead = document.querySelector('#t thead');
   thead.innerHTML = `
