@@ -3,276 +3,227 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Mischungs-Rezepte</title>
+  <title>Mischungen – Rezepte</title>
   <link rel="stylesheet" href="./assets/css/styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
   <style>
-    .recipes-page {
-      padding-bottom: 2rem;
+    .recipe-page {
+      padding: 1.5rem 1.5rem 2rem;
+      max-width: 980px;
+      margin: 0 auto;
     }
-    .recipe-card {
-      background: rgba(255,255,255,0.95);
-      border-radius: 16px;
-      padding: 1.2rem 1.4rem;
-      margin: 1rem 0;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+    .recipe {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
     }
     .recipe-header {
       display: flex;
+      gap: 1rem;
+      align-items: flex-start;
       flex-wrap: wrap;
-      gap: .5rem 1rem;
-      align-items: baseline;
-      margin-bottom: .6rem;
     }
-    .recipe-header h2 {
-      margin: 0;
-      font-size: 1.2rem;
+    .recipe-header-text {
+      flex: 1 1 260px;
+    }
+    .recipe-title {
+      font-size: 1.6rem;
+      margin: 0 0 0.3rem;
     }
     .recipe-meta {
-      font-size: .85rem;
-      color: #555;
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin-bottom: 0.4rem;
     }
-    .recipe-body {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem 2rem;
-      margin-top: .8rem;
+    .recipe-img-wrap {
+      flex: 0 0 220px;
+      max-width: 260px;
     }
-    .ingredients, .instructions {
-      flex: 1 1 260px;
-      min-width: 0;
-    }
-    .ingredients table {
+    .recipe-img {
       width: 100%;
-      border-collapse: collapse;
-      font-size: .88rem;
+      border-radius: 12px;
+      display: block;
+      object-fit: cover;
     }
-    .ingredients th,
-    .ingredients td {
-      padding: 0.25rem 0.4rem;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-      text-align: left;
-    }
-    .ingredients th {
+    .section-title {
+      margin-top: 1.2rem;
+      margin-bottom: 0.2rem;
+      font-size: 1.1rem;
       font-weight: 600;
     }
-    .instructions p {
-      margin: 0 0 .4rem;
-      font-size: .92rem;
+    .ingredients-list {
+      margin: 0.2rem 0 0.8rem;
+      padding-left: 1.1rem;
+      font-size: 0.95rem;
+    }
+    .ingredients-list li {
+      margin: 0.1rem 0;
+    }
+    .block-text {
+      font-size: 0.95rem;
       line-height: 1.4;
+      white-space: pre-wrap;
+      margin: 0.15rem 0 0.7rem;
     }
     @media print {
       body {
-        background: #fff !important;
+        background: #fff;
       }
-      .header,
-      .toolbar,
-      .footer-note {
-        display: none !important;
+      .recipe-page {
+        padding: 0.5cm 1cm;
+        max-width: none;
       }
-      .recipe-card {
-        box-shadow: none;
-        border: 1px solid #ccc;
+      .recipe {
         page-break-inside: avoid;
       }
     }
   </style>
 </head>
-<body class="BG5">
-<div class="page recipes-page">
-
+<body class="BG4">
+<div class="page">
   <div class="header">
-    <button class="btn" onclick="location.href='./mischungen.html'">← Zurück</button>
-    <div class="brand">Mischungs-Rezepte</div>
-    <nav class="nav">
-      <a href="./stoffe.html">Stoffe</a>
-      <a href="./mischungen.html">Mischungen</a>
-      <a href="./baender.html">Bände</a>
-    </nav>
+    <button class="btn" onclick="history.back()">← Zurück</button>
+    <div class="brand">Mischungen – Rezepte</div>
   </div>
 
-  <p class="sub">Detailansicht der ausgewählten Mischungen inkl. Zutaten und Anleitung.</p>
-
-  <div id="recipes"></div>
+  <div class="recipe-page" id="recipes"></div>
 
   <div class="footer-note">
     <div>© Lexikon</div>
     <div><a href="./index.html">Start</a></div>
   </div>
-
 </div>
 
+<script src="./assets/js/util.js"></script>
 <script src="./assets/js/bg_loader.js"></script>
-
 <script>
 (async () => {
-  const safe = v => (v == null ? "" : String(v).trim());
-
-  // ids aus Query lesen
   const params = new URLSearchParams(location.search);
-  const idParam = params.get("ids") || "";
-  const idSet = new Set(
-    idParam.split(",").map(s => safe(decodeURIComponent(s))).filter(Boolean)
-  );
-  const printMode = params.get("print") === "1";
+  const idsParam = params.get('ids') || '';
+  const idList = idsParam.split(',').map(s => s.trim()).filter(Boolean);
 
-  if (!idSet.size) {
-    document.getElementById("recipes").innerHTML =
-      "<p>Keine IDs übergeben. Rufe diese Seite via <code>mischung_rezepte.html?ids=ID1,ID2</code> auf.</p>";
+  const printMode = params.get('print') === '1';
+
+  if (!idList.length) {
+    document.getElementById('recipes').innerHTML =
+      '<p>Keine Mischungen ausgewählt.</p>';
     return;
   }
 
-  async function loadXlsx(url) {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const ab = await res.arrayBuffer();
-    const wb = XLSX.read(ab, { type: "array" });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    return XLSX.utils.sheet_to_json(sheet, { defval: "" });
-  }
-
-  let rows;
+  let data = [];
   try {
-    rows = await loadXlsx("./data/MasterRecipes.xlsx");
+    data = await $util.loadRecipes();
   } catch (e) {
-    document.getElementById("recipes").innerHTML =
-      "<p>MasterRecipes.xlsx konnte nicht geladen werden.</p>";
-    console.error(e);
+    $util.err('Rezepte konnten nicht geladen werden.');
     return;
   }
 
-  if (!rows.length) {
-    document.getElementById("recipes").innerHTML =
-      "<p>MasterRecipes.xlsx enthält keine Datensätze.</p>";
+  if (!data.length) {
+    document.getElementById('recipes').innerHTML =
+      '<p>Keine Rezepte gefunden.</p>';
     return;
   }
 
-  const keys = Object.keys(rows[0]);
-  const pickKey = (candidates) => {
-    for (const k of candidates) if (keys.includes(k)) return k;
-    return null;
-  };
+  const S = $util.safe;
 
-  // ▼ Feldzuordnung – bei Bedarf an dein Layout anpassen
-  const kID   = pickKey(["ID_Neu","Recipe_ID","Rezept_ID","ID","Mix_ID","Mischung_ID","ME_ID","MeID","Code"]);
-  const kName = pickKey(["Mix_Name","Name_der_Mischung","Name","Rezept_Name"]);
-  const kReg  = pickKey(["Region","Herkunft","Land","Kontinent"]);
-  const kKat  = pickKey(["Kategorie","Mix_Typ","Kategorie_Mischung"]);
-  const kSens = pickKey(["SensorikProfil","Sensorik","Scharfkeit","Schaerfe","Schärfe"]);
-
-  const kInstr = pickKey(["Anleitung","Zubereitung","Rezept_Text","Rezept","Hinweis_Rezept"]);
-
-  // Zutaten: angenommen Zutat_1 / Menge_1 / Einheit_1, etc.
-  // Wenn du andere Präfixe hast (z.B. "Ing1", "Qty1"), hier anpassen:
-  const ingredientNamePrefix   = "Zutat_";
-  const ingredientAmountPrefix = "Menge_";
-  const ingredientUnitPrefix   = "Einheit_";
-  const ingredientNotePrefix   = "Hinweis_"; // optional
-
-  function extractIngredients(row) {
-    const ingredients = [];
-    // wir schauen bis zu 30 Zutaten durch
-    for (let i = 1; i <= 30; i++) {
-      const nKey = ingredientNamePrefix   + i;
-      const aKey = ingredientAmountPrefix + i;
-      const uKey = ingredientUnitPrefix   + i;
-      const hKey = ingredientNotePrefix   + i;
-
-      const name = row[nKey];
-      const amount = row[aKey];
-      const unit = row[uKey];
-      const note = row[hKey];
-
-      if (!name && !amount && !note) continue;
-      ingredients.push({
-        name:   safe(name),
-        amount: safe(amount),
-        unit:   safe(unit),
-        note:   safe(note)
-      });
-    }
-
-    // Fallback: eine Sammelspalte "Zutaten" / "Zutaten_Text"
-    if (!ingredients.length) {
-      const kZut = pickKey(["Zutaten","Zutaten_Text","Ingredients"]);
-      if (kZut && row[kZut]) {
-        ingredients.push({ name: safe(row[kZut]), amount: "", unit: "", note: "" });
-      }
-    }
-    return ingredients;
+  function getId(r) {
+    return r.MIX_ID || r.ID_Neu || r.Recipe_ID || r.Rezept_ID || r.id || '';
   }
 
-  const selected = rows.filter(r => {
-    const id = kID ? safe(r[kID]) : safe(r[kName]);
-    return idSet.has(id);
-  });
+  const byId = new Map(data.map(r => [getId(r), r]));
+  const selected = idList.map(id => byId.get(id)).filter(Boolean);
 
-  if (!selected.length) {
-    document.getElementById("recipes").innerHTML =
-      "<p>Keine passenden Mischungen zu den übergebenen IDs gefunden.</p>";
-    return;
+  const COL_NAME   = 'Mix_Name';
+  const COL_CAT    = data[0].Mix_Typ       ? 'Mix_Typ'
+                     : data[0].Kategorie   ? 'Kategorie'
+                     : '';
+  const COL_REGION = data[0].Region        ? 'Region' : '';
+  const COL_LAND   = data[0].Land          ? 'Land'   : '';
+  const COL_SENSOR = data[0].SensorikProfil ? 'SensorikProfil'
+                     : data[0].Sensorik    ? 'Sensorik'
+                     : '';
+
+  const COL_ZUTATEN   = 'Zutaten_Mengen_Structured';
+  const COL_HERSTELL  = 'Herstellung_Zubereitung';
+  const COL_PROC      = 'Herstellungsprozess';
+  const COL_TEMP      = 'Temperaturfuehrung';
+  const COL_REIFE     = 'Reifezeit_Lagerzeit';
+  const COL_ANW       = 'Anwendung';
+  const COL_ILLU      = 'PlH_Illu';
+
+  function originOf(r) {
+    const parts = [];
+    if (COL_REGION && r[COL_REGION]) parts.push(S(r[COL_REGION]));
+    if (COL_LAND   && r[COL_LAND])   parts.push(S(r[COL_LAND]));
+    return parts.join(' – ');
   }
 
-  const container = document.getElementById("recipes");
+  function ingredientList(txt) {
+    if (!txt) return '';
+    // CSV-artige Struktur: mit "|" getrennt → als Liste darstellen
+    const items = (txt + '').split('|').map(s => s.trim()).filter(Boolean);
+    if (!items.length) return '';
+    return '<ul class="ingredients-list">' +
+      items.map(x => '<li>' + S(x) + '</li>').join('') +
+      '</ul>';
+  }
+
+  const container = document.getElementById('recipes');
+
   container.innerHTML = selected.map(r => {
-    const id   = kID   ? safe(r[kID])   : "";
-    const name = kName ? safe(r[kName]) : "";
-    const title = (id && name) ? `${id} – ${name}` : (name || id || "Mischung");
+    const name   = S(r[COL_NAME] || '');
+    const cat    = COL_CAT    ? S(r[COL_CAT]    || '') : '';
+    const origin = originOf(r);
+    const sens   = COL_SENSOR ? S(r[COL_SENSOR] || '') : '';
+    const id     = getId(r);
 
-    const metaParts = [];
-    if (kReg  && r[kReg])  metaParts.push("Herkunft: " + safe(r[kReg]));
-    if (kKat  && r[kKat])  metaParts.push("Kategorie: " + safe(r[kKat]));
-    if (kSens && r[kSens]) metaParts.push("Sensorik: " + safe(r[kSens]));
-    const meta = metaParts.join(" · ");
+    const zutaten = ingredientList(r[COL_ZUTATEN]);
+    const herst   = r[COL_HERSTELL] ? '<div class="block-text">' + S(r[COL_HERSTELL]) + '</div>' : '';
+    const proc    = r[COL_PROC]     ? '<div class="block-text">' + S(r[COL_PROC])     + '</div>' : '';
+    const temp    = r[COL_TEMP]     ? '<div class="block-text">' + S(r[COL_TEMP])     + '</div>' : '';
+    const reife   = r[COL_REIFE]    ? '<div class="block-text">' + S(r[COL_REIFE])    + '</div>' : '';
+    const anw     = r[COL_ANW]      ? '<div class="block-text">' + S(r[COL_ANW])      + '</div>' : '';
 
-    const instr = kInstr ? safe(r[kInstr]) : "";
-
-    const ings = extractIngredients(r);
-    const ingTable = ings.length
-      ? `<table>
-          <thead><tr><th>Menge</th><th>Zutat</th><th>Notiz</th></tr></thead>
-          <tbody>
-            ${ings.map(z => `
-              <tr>
-                <td>${[z.amount, z.unit].filter(Boolean).join(" ")}</td>
-                <td>${z.name}</td>
-                <td>${z.note}</td>
-              </tr>`).join("")}
-          </tbody>
-        </table>`
-      : "<p>Keine Zutaten hinterlegt.</p>";
-
-    const instrHtml = instr
-      ? instr.split(/\n{2,}|\r\n{2,}/).map(p => `<p>${p}</p>`).join("")
-      : "<p>Keine Anleitung hinterlegt.</p>";
+    const illu    = r[COL_ILLU] ? S(r[COL_ILLU]) : '';
+    const imgHtml = illu
+      ? `<div class="recipe-img-wrap">
+           <img class="recipe-img"
+                src="./assets/img/mischungen/${illu}.jpg"
+                alt="${name}"
+                onerror="this.style.display='none'">
+         </div>`
+      : '';
 
     return `
-      <section class="recipe-card">
-        <div class="recipe-header">
-          <h2>${title}</h2>
-          ${meta ? `<div class="recipe-meta">${meta}</div>` : ""}
-        </div>
-        <div class="recipe-body">
-          <div class="ingredients">
-            <h3>Zutaten</h3>
-            ${ingTable}
+      <article class="recipe" data-id="${id}">
+        <header class="recipe-header">
+          <div class="recipe-header-text">
+            <h2 class="recipe-title">${name}</h2>
+            <div class="recipe-meta">
+              ${origin ? 'Herkunft: ' + origin + '<br>' : ''}
+              ${cat    ? 'Kategorie: ' + cat + '<br>'     : ''}
+              ${sens   ? 'Sensorik: ' + sens             : ''}
+            </div>
+            <div class="recipe-meta">ID: ${S(id)}</div>
           </div>
-          <div class="instructions">
-            <h3>Zubereitung</h3>
-            ${instrHtml}
-          </div>
-        </div>
-      </section>
+          ${imgHtml}
+        </header>
+
+        ${zutaten ? '<h3 class="section-title">Zutaten &amp; Mengen</h3>' + zutaten : ''}
+
+        ${herst ? '<h3 class="section-title">Herstellung / Zubereitung</h3>' + herst : ''}
+        ${proc  ? '<h3 class="section-title">Herstellungsprozess</h3>'       + proc  : ''}
+        ${temp  ? '<h3 class="section-title">Temperaturführung</h3>'        + temp  : ''}
+        ${reife ? '<h3 class="section-title">Reifezeit / Lagerzeit</h3>'     + reife : ''}
+        ${anw   ? '<h3 class="section-title">Anwendung</h3>'                 + anw   : ''}
+      </article>
     `;
-  }).join("");
+  }).join('');
 
   if (printMode) {
-    // kleine Verzögerung, damit alles gerendert ist
+    // Druckansicht automatisch öffnen
     setTimeout(() => window.print(), 500);
   }
 })();
 </script>
-
 </body>
 </html>

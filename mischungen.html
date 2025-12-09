@@ -5,46 +5,39 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Mischungen – Suche</title>
   <link rel="stylesheet" href="./assets/css/styles.css">
-
-  <!-- XLSX-Library zum Lesen von MasterRecipes.xlsx -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-  <!-- Zusatzstyles: gut lesbare Tabelle, fixer Header -->
   <style>
+    /* Kopfzeile der Tabelle fixieren */
     .table-wrap {
-      margin-top: 1rem;
-    }
-    .table-body {
-      max-height: 60vh;
+      max-height: calc(100vh - 260px);
       overflow: auto;
-      background: rgba(255,255,255,0.9);
-      border-radius: 12px;
     }
     #t {
       width: 100%;
       border-collapse: collapse;
     }
-    #t th,
-    #t td {
-      padding: 0.4rem 0.6rem;
-      font-size: 0.9rem;
-      text-align: left;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-      white-space: nowrap;
-    }
-    #t th:first-child,
-    #t td:first-child {
-      text-align: center;
-      width: 2.5rem;
-      white-space: nowrap;
-    }
-    /* fixer Header */
-    #t thead th {
+    #t thead th,
+    #t thead td {
       position: sticky;
       top: 0;
       z-index: 2;
-      background: rgba(245,245,245,0.98);
-      backdrop-filter: blur(2px);
+      background: rgba(255,255,255,0.95);
+    }
+    #t th, #t td {
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      white-space: nowrap;
+    }
+    #t td.col-name {
+      font-weight: 600;
+      white-space: normal;
+    }
+    #t td.col-origin {
+      white-space: normal;
+    }
+    #t tbody tr:nth-child(2n) {
+      background: rgba(0,0,0,0.12);
     }
   </style>
 </head>
@@ -61,10 +54,10 @@
     </nav>
   </div>
 
-  <p class="sub">Mit Varianten- und Rezeptbezug (aus MasterRecipes.xlsx).</p>
+  <p class="sub">Mit Varianten- und Rezeptbezug.</p>
 
   <div class="toolbar">
-    <input id="q" placeholder="Suche (Name, Herkunft, Kategorie, Sensorik …)" type="search">
+    <input id="q" placeholder="Suche (Name, Kategorie, Region …)" type="search">
     <button class="btn" id="go">Suchen</button>
     <button class="btn" id="toHtml">Rezepte → HTML</button>
     <button class="btn" id="toPdf">Rezepte → PDF</button>
@@ -91,140 +84,138 @@
 
 <script src="./assets/js/util.js"></script>
 <script src="./assets/js/bg_loader.js"></script>
-
 <script>
 (async () => {
-  const safe = v => (v == null ? "" : String(v).trim());
-
-  async function loadXlsx(url) {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const ab = await res.arrayBuffer();
-    const wb = XLSX.read(ab, { type: "array" });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    // Jede Zeile als Objekt (Header aus erster Zeile)
-    return XLSX.utils.sheet_to_json(sheet, { defval: "" });
-  }
-
-  let rows;
+  let data = [];
   try {
-    rows = await loadXlsx("./data/MasterRecipes.xlsx");
+    // Lädt MasterRecipes.csv oder master_recipes.json aus /data oder /assets/data
+    data = await $util.loadRecipes();
   } catch (e) {
-    $util?.err?.(
-      "MasterRecipes.xlsx konnte nicht geladen werden. " +
-      "Lege die Datei unter <code>/data/MasterRecipes.xlsx</code> ab."
-    );
-    console.error(e);
+    $util.err('Daten konnten nicht geladen werden. Lege <code>MasterRecipes.csv</code> oder <code>master_recipes.json</code> in <code>/assets/data/</code> oder <code>/data/</code> ab.');
     return;
   }
 
-  if (!rows.length) {
-    $util?.err?.("MasterRecipes.xlsx enthält keine Datensätze.");
-    return;
+  if (!data.length) return;
+
+  const S = $util.safe;
+
+  // Spalten-Mapping mit Fallbacks
+  const sample = data[0];
+  const COL_NAME   = 'Mix_Name';
+  const COL_CAT    = sample.Mix_Typ       ? 'Mix_Typ'
+                     : sample.Kategorie   ? 'Kategorie'
+                     : '';
+  const COL_REGION = sample.Region        ? 'Region' : '';
+  const COL_LAND   = sample.Land          ? 'Land'   : '';
+  const COL_SENSOR = sample.SensorikProfil ? 'SensorikProfil'
+                     : sample.Sensorik     ? 'Sensorik'
+                     : '';
+
+  function getId(row) {
+    return row.MIX_ID || row.ID_Neu || row.Recipe_ID || row.Rezept_ID || row.id || '';
   }
 
-  const keys = Object.keys(rows[0]);
+  const thead = document.querySelector('#t thead');
+  thead.innerHTML = `
+    <tr>
+      <th style="width:2.5rem;"><input type="checkbox" id="hd"></th>
+      <th>Name</th>
+      <th>Herkunft</th>
+      <th>Kategorie</th>
+      <th>Sensorik</th>
+    </tr>
+  `;
 
-  const pickKey = (candidates) => {
-    for (const k of candidates) if (keys.includes(k)) return k;
-    return null;
-  };
+  const tbody = document.querySelector('#t tbody');
 
-  // ▼ HIER bei Bedarf Feldnamen anpassen, falls dein XLSX andere Spaltennamen hat
-  const kID   = pickKey(["ID_Neu","Recipe_ID","Rezept_ID","ID","Mix_ID","Mischung_ID","ME_ID","MeID","Code"]);
-  const kName = pickKey(["Mix_Name","Name_der_Mischung","Name","Rezept_Name"]);
-  const kReg  = pickKey(["Region","Herkunft","Land","Kontinent"]);
-  const kKat  = pickKey(["Kategorie","Mix_Typ","Kategorie_Mischung"]);
-  const kSens = pickKey(["SensorikProfil","Sensorik","Scharfkeit","Schaerfe","Schärfe"]);
+  function originOf(r) {
+    const parts = [];
+    if (COL_REGION && r[COL_REGION]) parts.push(S(r[COL_REGION]));
+    if (COL_LAND   && r[COL_LAND])   parts.push(S(r[COL_LAND]));
+    return parts.join(' – ');
+  }
 
-  const data = rows.map(r => {
-    const name = kName ? safe(r[kName]) : "";
-    const id   = kID   ? safe(r[kID])   : name;   // FallbackName als ID, falls keine ID-Spalte
-    return {
-      raw:   r,       // komplette Zeile für spätere Nutzung
-      id,
-      name,
-      herkunft: kReg  ? safe(r[kReg])  : "",
-      kat:     kKat  ? safe(r[kKat])  : "",
-      sens:    kSens ? safe(r[kSens]) : ""
-    };
-  });
+  function render(rows) {
+    tbody.innerHTML = rows.map(r => {
+      const id  = getId(r);
+      const name = S(r[COL_NAME] || '');
+      const origin = originOf(r);
+      const cat = COL_CAT    ? S(r[COL_CAT]    || '') : '';
+      const sens = COL_SENSOR ? S(r[COL_SENSOR] || '') : '';
 
-  const thead = document.querySelector("#t thead");
-  const tbody = document.querySelector("#t tbody");
-
-  thead.innerHTML =
-    "<tr>" +
-      "<th></th>" +
-      "<th>Mischung</th>" +
-      "<th>Herkunft</th>" +
-      "<th>Kategorie</th>" +
-      "<th>Sensorik</th>" +
-    "</tr>";
-
-  function render(list) {
-    tbody.innerHTML = list.map(r => `
-      <tr>
-        <td><input class="sel" type="checkbox" data-id="${r.id}"></td>
-        <td>${safe(r.name)}</td>
-        <td>${safe(r.herkunft)}</td>
-        <td>${safe(r.kat)}</td>
-        <td>${safe(r.sens)}</td>
-      </tr>
-    `).join("");
+      return `
+        <tr>
+          <td><input class="sel" type="checkbox" data-id="${id}"></td>
+          <td class="col-name">${name}</td>
+          <td class="col-origin">${origin}</td>
+          <td>${cat}</td>
+          <td>${sens}</td>
+        </tr>
+      `;
+    }).join('');
   }
 
   function search() {
-    const s = document.getElementById("q").value.trim().toLowerCase();
-    if (!s) { render(data); return; }
-    const filtered = data.filter(r =>
-      (r.name     && r.name.toLowerCase().includes(s)) ||
-      (r.herkunft && r.herkunft.toLowerCase().includes(s)) ||
-      (r.kat      && r.kat.toLowerCase().includes(s)) ||
-      (r.sens     && r.sens.toLowerCase().includes(s))
+    const q = document.getElementById('q').value.trim().toLowerCase();
+    if (!q) {
+      render(data);
+      return;
+    }
+    const rows = data.filter(r =>
+      Object.values(r).some(v => (S(v) + '').toLowerCase().includes(q))
     );
-    render(filtered);
+    render(rows);
   }
 
-  document.getElementById("go").onclick = search;
-  document.getElementById("q").addEventListener("keydown", e => {
-    if (e.key === "Enter") search();
-  });
-
-  // Alles wählen
-  document.getElementById("all").addEventListener("change", e => {
-    document.querySelectorAll("input.sel").forEach(x => {
-      x.checked = e.target.checked;
-    });
-  });
-
-  function getSelectedIds() {
-    return [...document.querySelectorAll("input.sel:checked")]
-      .map(x => x.dataset.id)
-      .filter(id => id && id.trim().length > 0);
-  }
-
-  document.getElementById("toHtml").onclick = () => {
-    const ids = getSelectedIds();
-    if (!ids.length) { alert("Bitte Mischung(en) auswählen."); return; }
-    window.open(
-      "./mischung_rezepte.html?ids=" + encodeURIComponent(ids.join(",")),
-      "_blank"
-    );
-  };
-
-  document.getElementById("toPdf").onclick = () => {
-    const ids = getSelectedIds();
-    if (!ids.length) { alert("Bitte Mischung(en) auswählen."); return; }
-    window.open(
-      "./mischung_rezepte.html?ids=" + encodeURIComponent(ids.join(",")) + "&print=1",
-      "_blank"
-    );
-  };
-
+  // Erstes Rendering
   render(data);
+
+  // Events
+  document.getElementById('go').onclick = search;
+  document.getElementById('q').addEventListener('keydown', e => {
+    if (e.key === 'Enter') search();
+  });
+
+  // Header-Checkbox "alle"
+  document.getElementById('hd').addEventListener('change', e => {
+    const checked = e.target.checked;
+    document.querySelectorAll('input.sel').forEach(x => x.checked = checked);
+    document.getElementById('all').checked = checked;
+  });
+
+  // "Alles wählen" in der Toolbar
+  document.getElementById('all').addEventListener('change', e => {
+    const checked = e.target.checked;
+    document.querySelectorAll('input.sel').forEach(x => x.checked = checked);
+    document.getElementById('hd').checked = checked;
+  });
+
+  function selectedIds() {
+    return [...document.querySelectorAll('input.sel:checked')]
+      .map(x => x.dataset.id)
+      .filter(id => !!id);
+  }
+
+  document.getElementById('toHtml').onclick = () => {
+    const ids = selectedIds();
+    if (!ids.length) {
+      alert('Bitte Mischung(en) auswählen.');
+      return;
+    }
+    const qs = encodeURIComponent(ids.join(','));
+    window.open(`./mischung_rezepte.html?ids=${qs}`, '_blank');
+  };
+
+  document.getElementById('toPdf').onclick = () => {
+    const ids = selectedIds();
+    if (!ids.length) {
+      alert('Bitte Mischung(en) auswählen.');
+      return;
+    }
+    const qs = encodeURIComponent(ids.join(','));
+    window.open(`./mischung_rezepte.html?ids=${qs}&print=1`, '_blank');
+  };
 })();
 </script>
-
 </body>
 </html>
