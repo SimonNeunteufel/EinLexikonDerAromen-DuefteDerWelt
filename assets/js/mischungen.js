@@ -42,23 +42,24 @@
     const findCol = (candidates) =>
         candidates.find(c => keys.includes(c)) || null;
 
-    // --- PRÄZISIERTE SPALTEN-MAPPING ---
+    // --- FINALE PRÄZISIERTE SPALTEN-MAPPING ---
     const COL = {
-        // ID: Spalte A (MIX_ID)
+        // ID
         id: findCol(['MIX_ID', 'Mix_ID', 'ID_Neu', 'Recipe_ID', 'Rezept_ID', 'id']),
 
-        // Name: Spalte F (Name_deutsch)
-        name: findCol(['Name_deutsch', 'Original_Name', 'Mix_Name', 'Mischungsname', 'Mischung_Name']),
+        // Name (Spalte E)
+        name: findCol(['Name_deutsch', 'Original_Name', 'Mix_Name', 'Mischungsname']),
 
-        // Herkunft / Region: Spalte O (Region_norm)
-        origin: findCol(['Region_norm', 'Original_Region', 'Herkunft', 'Region_Summary', 'Herkunft_Summary']),
+        // Herkunft / Region (Spalte N und P)
+        origin: findCol(['Herkunft', 'Region_norm', 'Original_Region', 'Herkunft_Summary']),
 
-        // Kategorie / Anwendungsbereich: Spalte J (Anwendungsbereich_multi) oder G (Kategorie_multi)
-        category: findCol(['Anwendungsbereich_multi', 'Kategorie_multi', 'Mix_Typ', 'Kategorie', 'Mischungskategorie']),
+        // Kategorie / Anwendungsbereich (Spalte G und J)
+        category: findCol(['Kategorie_multi', 'Anwendungsbereich_multi', 'Mix_Typ', 'Kategorie']),
 
-        // Sensorik: Spalte K (Sensorik_multi)
+        // Sensorik (Spalte M)
         sensorik: findCol(['Sensorik_multi', 'SensorikProfil', 'Sensorik_Profil', 'Sensorik'])
     };
+
 
     // Gewünschte sichtbare Spalten im Array
     const visibleCols = [
