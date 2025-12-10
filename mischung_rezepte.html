@@ -115,9 +115,23 @@
                     </div>
                 </header>
 
-                ${zutaten ? '<h3 class="section-title">Zutaten &amp; Mengen</h3>' + zutaten : ''}
+// Beispiel-Logik in mischungen_rezepte.html:
+// WICHTIG: Die Bedingung muss den gesamten HTML-Block umschließen.
 
-                ${herst ? '<h3 class="section-title">Herstellung / Zubereitung (Anleitung)</h3>' + herst : ''}
+// Vorheriger Code (nur das Feld ist leer, die Tags sind da und erzeugen Abstand):
+// const herst = r[COL.anleitung] ? '<div class="block-text">' + S(r[COL.anleitung]) + '</div>' : ''; 
+// return `... <h3 class="section-title">Anleitung</h3> ${herst} ...` 
+// --> Das erzeugt den Titel und den leeren div-Container (großer Abstand).
+
+// Korrigierte Logik (Abschnittstitel und Inhalt werden nur bei Existenz des Inhalts erzeugt):
+    ${zutaten ? 
+      '<h3 class="section-title">Zutaten &amp; Mengen</h3>' + zutaten : ''}
+
+    ${herst ? 
+      '<h3 class="section-title">Herstellung / Zubereitung (Anleitung)</h3>' + herst : ''}
+    
+    // ... und so weiter für alle Rezeptabschnitte.
+
                 ${proc ? '<h3 class="section-title">Herstellungsprozess</h3>' + proc : ''}
                 ${temp ? '<h3 class="section-title">Temperaturführung</h3>' + temp : ''}
                 ${reife ? '<h3 class="section-title">Reifezeit / Lagerzeit</h3>' + reife : ''}
