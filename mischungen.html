@@ -1,79 +1,4 @@
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Mischungen – Suche</title>
-  <link rel="stylesheet" href="./assets/css/styles.css">
-  <style>
-    /* Kopfzeile beim Scrollen fixieren */
-    .table-wrap {
-      max-height: calc(100vh - 260px);
-      overflow: auto;
-    }
-    .table-wrap thead th {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background: rgba(255,255,255,0.96);
-      backdrop-filter: blur(4px);
-    }
-    /* Zellen etwas luftiger für mobile */
-    #t td, #t th {
-      padding: 0.4rem 0.6rem;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-    #t td:nth-child(1), #t th:nth-child(1) {
-      width: 2.5rem;
-      text-align: center;
-    }
-  </style>
-</head>
-<body class="BG4">
-  <div class="page">
-    <div class="header">
-      <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
-      <div class="brand">Mischungen – Suchtabelle</div>
-      <nav class="nav">
-        <a href="./stoffe.html">Stoffe</a>
-        <a href="./mischungen.html">Mischungen</a>
-        <a href="./baender.html">Bände</a>
-      </nav>
-    </div>
-
-    <p class="sub">Mit Varianten- und Rezeptbezug (aus <code>MasterRecipes.csv</code>).</p>
-
-    <div class="toolbar">
-      <input id="q" placeholder="Suche (Name, Kategorie, Region …)" type="search">
-      <button class="btn" id="go">Suchen</button>
-      <button class="btn" id="toHtml">Rezepte → HTML</button>
-      <button class="btn" id="toPdf">Rezepte → PDF</button>
-      <label style="margin-left:auto">
-        <input type="checkbox" id="all"> Alles wählen
-      </label>
-    </div>
-
-    <div class="table-wrap">
-      <div class="table-body">
-        <table id="t">
-          <thead></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="footer-note">
-      <div>© Lexikon</div>
-      <div><a href="./index.html">Start</a></div>
-    </div>
-  </div>
-
-  <script src="./assets/js/util.js"></script>
-  <script src="./assets/js/bg_loader.js"></script>
-
-  <script>
+<script>
   (async () => {
     let data = [];
     try {
@@ -86,31 +11,37 @@
 
     if (!data.length) return;
 
+    // --- Spalten-Analyse ----------------------------------------------------
     const keys = Object.keys(data[0] || {});
 
     const findCol = (candidates) =>
       candidates.find(c => keys.includes(c)) || null;
 
-    // flexible Spaltenzuordnung (unabhängig von leichten Namensunterschieden)
-    // ID-Spalte robuster erkennen (z.B. MIX_ID, Mix-ID, Mix ID, etc.)
-    function findIdCol() {
-      // alles, was wie "mix id", "mix_id", "mix-id" aussieht
-      const rx = /mix[_\s\-]*id/i;
-      const kRegex = keys.find(k => rx.test(k));
-      if (kRegex) return kRegex;
+    // robuste Erkennung der ID-Spalte (analog mischung_rezepte.html)
+    const MIX_ID_KEY =
+      keys.find(k => /mix[_\s\-]*id/i.test(k)) ||  // z.B. MIX_ID, Mix_ID, Mix ID
+      keys.find(k => /^id$/i.test(k)) ||          // Fallback: Spalte "id"
+      null;
 
-      // Fallbacks wie bisher
-      return findCol(['ID_Neu','Recipe_ID','Rezept_ID','id']);
+    function getId(row) {
+      return (MIX_ID_KEY && row[MIX_ID_KEY]) ||
+             row.MIX_ID ||
+             row.ID_Neu ||
+             row.Recipe_ID ||
+             row.Rezept_ID ||
+             row.id ||
+             '';
     }
 
+    // flexible Spaltenzuordnung (unabhängig von leichten Namensunterschieden)
     const COL = {
-      id:       findIdCol(),
+      // für Anzeige: wenn es eine explizite ID-Spalte gibt, diese verwenden
+      id:       MIX_ID_KEY || findCol(['MIX_ID','Mix_ID','ID_Neu','Recipe_ID','Rezept_ID','id']),
       name:     findCol(['Mix_Name','Mischungsname','Mischung_Name','Name']),
       origin:   findCol(['Herkunft','Region','Region_Summary','Herkunft_Summary']),
       category: findCol(['Mix_Typ','Kategorie','Mix_Kategorie','Mischungskategorie']),
       sensorik: findCol(['Sensorik','SensorikProfil','Sensorik_Profil','Sensorik_Profil_Summary'])
     };
-
 
     const visibleCols = [
       { key: 'name',     label: 'Mischung' },
@@ -119,6 +50,7 @@
       { key: 'sensorik', label: 'Sensorik' }
     ];
 
+    // --- Tabellenkopf -------------------------------------------------------
     const thead = document.querySelector('#t thead');
     thead.innerHTML =
       '<tr><th></th>' +
@@ -128,9 +60,10 @@
     const tbody = document.querySelector('#t tbody');
     const S = $util.safe;
 
+    // --- Render-Funktion ----------------------------------------------------
     function render(rows) {
       tbody.innerHTML = rows.map(r => {
-        const idVal = COL.id ? S(r[COL.id]) : '';
+        const idVal = S(getId(r));   // WICHTIG: ID immer über getId()
         const cells = visibleCols.map(c => {
           const colName = COL[c.key];
           return `<td>${colName ? S(r[colName]) : ''}</td>`;
@@ -142,6 +75,7 @@
       }).join('');
     }
 
+    // --- Suche --------------------------------------------------------------
     function filteredRows() {
       const s = document.getElementById('q').value.trim().toLowerCase();
       if (!s) return data;
@@ -162,6 +96,7 @@
       });
     });
 
+    // --- Auswahl & Navigation -----------------------------------------------
     function selectedIds() {
       return [...document.querySelectorAll('input.sel:checked')]
         .map(x => x.dataset.id)
@@ -197,6 +132,4 @@
     // Initiale Anzeige
     render(data);
   })();
-  </script>
-</body>
-</html>
+</script>
