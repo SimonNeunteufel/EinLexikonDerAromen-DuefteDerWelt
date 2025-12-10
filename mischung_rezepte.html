@@ -1,239 +1,260 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Mischungen – Rezepte</title>
-  <link rel="stylesheet" href="./assets/css/styles.css">
-  <style>
-    .recipe-page {
-      padding: 1.5rem 1.5rem 2rem;
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    .recipe {
-      margin-bottom: 2.5rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-    }
-    .recipe-header {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-      flex-wrap: wrap;
-    }
-    .recipe-header-text {
-      flex: 1 1 260px;
-    }
-    .recipe-title {
-      font-size: 1.6rem;
-      margin: 0 0 0.3rem;
-    }
-    .recipe-meta {
-      font-size: 0.9rem;
-      opacity: 0.85;
-      margin-bottom: 0.4rem;
-    }
-    .recipe-img-wrap {
-      flex: 0 0 220px;
-      max-width: 260px;
-    }
-    .recipe-img {
-      width: 100%;
-      border-radius: 12px;
-      display: block;
-      object-fit: cover;
-    }
-    .section-title {
-      margin-top: 1.2rem;
-      margin-bottom: 0.2rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-    .ingredients-list {
-      margin: 0.2rem 0 0.8rem;
-      padding-left: 1.1rem;
-      font-size: 0.95rem;
-    }
-    .ingredients-list li {
-      margin: 0.1rem 0;
-    }
-    .block-text {
-      font-size: 0.95rem;
-      line-height: 1.4;
-      white-space: pre-wrap;
-      margin: 0.15rem 0 0.7rem;
-    }
-    @media print {
-      body {
-        background: #fff;
-      }
-      .recipe-page {
-        padding: 0.5cm 1cm;
-        max-width: none;
-      }
-      .recipe {
-        page-break-inside: avoid;
-      }
-    }
-  </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Mischungen – Rezepte</title>
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    <style>
+        /* CSS-Stile bleiben unverändert */
+        .recipe-page {
+            padding: 1.5rem 1.5rem 2rem;
+            max-width: 980px;
+            margin: 0 auto;
+        }
+        .recipe {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .recipe:last-child {
+            border-bottom: none; /* Letztes Element ohne Trennlinie */
+        }
+        .recipe-header {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .recipe-header-text {
+            flex: 1 1 260px;
+        }
+        .recipe-title {
+            font-size: 1.6rem;
+            margin: 0 0 0.3rem;
+        }
+        .recipe-meta {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin-bottom: 0.4rem;
+        }
+        .recipe-img-wrap {
+            flex: 0 0 220px;
+            max-width: 260px;
+        }
+        .recipe-img {
+            width: 100%;
+            border-radius: 12px;
+            display: block;
+            object-fit: cover;
+        }
+        .section-title {
+            margin-top: 1.2rem;
+            margin-bottom: 0.2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .ingredients-list {
+            margin: 0.2rem 0 0.8rem;
+            padding-left: 1.1rem;
+            font-size: 0.95rem;
+        }
+        .ingredients-list li {
+            margin: 0.1rem 0;
+        }
+        .block-text {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            /* Behält Zeilenumbrüche bei, wichtig für "Herstellung_Zubereitung" */
+            white-space: pre-wrap; 
+            margin: 0.15rem 0 0.7rem;
+        }
+        @media print {
+            body { background: #fff; }
+            .header, .footer-note { display: none; } /* Header und Footer im Druck ausblenden */
+            .recipe-page { padding: 0.5cm 1cm; max-width: none; }
+            .recipe { page-break-inside: avoid; }
+        }
+    </style>
 </head>
 <body class="BG4">
 <div class="page">
-  <div class="header">
-    <button class="btn" onclick="history.back()">← Zurück</button>
-    <div class="brand">Mischungen – Rezepte</div>
-  </div>
+    <div class="header">
+        <button class="btn" onclick="history.back()">← Zurück</button>
+        <div class="brand">Mischungen – Rezepte</div>
+    </div>
 
-  <div class="recipe-page" id="recipes"></div>
+    <div class="recipe-page" id="recipes"></div>
 
-  <div class="footer-note">
-    <div>© Lexikon</div>
-    <div><a href="./index.html">Start</a></div>
-  </div>
+    <div class="footer-note">
+        <div>© Lexikon</div>
+        <div><a href="./index.html">Start</a></div>
+    </div>
 </div>
 
 <script src="./assets/js/util.js"></script>
 <script src="./assets/js/bg_loader.js"></script>
 <script>
 (async () => {
-  const params = new URLSearchParams(location.search);
-  const idsParam = params.get('ids') || '';
-  const idList = idsParam.split(',').map(s => s.trim()).filter(Boolean);
+    const params = new URLSearchParams(location.search);
+    // Erlaubt sowohl 'id' (Einzelklick) als auch 'ids' (Mehrfachauswahl)
+    const idsParam = params.get('ids') || params.get('id') || ''; 
+    const idList = idsParam.split(',').map(s => s.trim()).filter(Boolean);
 
-  const printMode = params.get('print') === '1';
+    const printMode = params.get('print') === '1';
 
-  if (!idList.length) {
-    document.getElementById('recipes').innerHTML =
-      '<p>Keine Mischungen ausgewählt.</p>';
-    return;
-  }
+    if (!idList.length) {
+        document.getElementById('recipes').innerHTML =
+            '<p>Keine Mischungen ausgewählt.</p>';
+        return;
+    }
 
-  let data = [];
-  try {
-    data = await $util.loadRecipes();
-  } catch (e) {
-    $util.err('Rezepte konnten nicht geladen werden.');
-    return;
-  }
+    let data = [];
+    try {
+        data = await $util.loadRecipes();
+    } catch (e) {
+        $util.err('Rezepte konnten nicht geladen werden.');
+        return;
+    }
 
-  if (!data.length) {
-    document.getElementById('recipes').innerHTML =
-      '<p>Keine Rezepte gefunden.</p>';
-    return;
-  }
+    if (!data.length) {
+        document.getElementById('recipes').innerHTML =
+            '<p>Keine Rezepte gefunden.</p>';
+        return;
+    }
 
-const S = $util.safe;
+    const S = $util.safe;
+    const sample = data[0] || {};
+    const KEYS = Object.keys(sample);
+    
+    // --- ROBUSTES SPALTEN-MAPPING (wie in mischungen.html) ---
+    const findCol = (candidates) =>
+        candidates.find(c => KEYS.includes(c)) || null;
 
-const sample = data[0] || {};
-const KEYS = Object.keys(sample);
+    const COL = {
+        // ID: Spalte A (MIX_ID)
+        id: findCol(['MIX_ID', 'Mix_ID', 'ID_Neu', 'Recipe_ID', 'Rezept_ID', 'id']),
+        
+        // --- Spalten für Header-Meta-Daten ---
+        name: findCol(['Name_deutsch', 'Original_Name', 'Mix_Name', 'Mischungsname', 'Mischung_Name']),
+        category: findCol(['Anwendungsbereich_multi', 'Kategorie_multi', 'Mix_Typ', 'Kategorie', 'Mischungskategorie']),
+        sensorik: findCol(['Sensorik_multi', 'SensorikProfil', 'Sensorik_Profil', 'Sensorik']),
+        region: findCol(['Region_norm', 'Original_Region', 'Region_Summary', 'Region']),
+        land: findCol(['Land', 'Original_Land']), // Optional: wenn Land separat existiert
 
-// wieder robust die ID-Spalte finden
-const MIX_ID_KEY =
-  KEYS.find(k => /mix[_\s\-]*id/i.test(k)) ||
-  KEYS.find(k => /^id$/i.test(k)) ||
-  null;
+        // --- Spalten für Rezeptur-Details (Zutaten, Anleitung, etc.) ---
+        zutaten: findCol(['Zutaten_Mengen_Structured', 'Zutaten_Liste', 'Zutaten']),
+        herstellung: findCol(['Herstellung_Zubereitung', 'Anleitung']),
+        prozess: findCol(['Herstellungsprozess', 'Prozess']),
+        temperatur: findCol(['Temperaturfuehrung', 'Temperatur']),
+        reifezeit: findCol(['Reifezeit_Lagerzeit', 'Lagerzeit']),
+        anwendung: findCol(['Anwendung', 'Anwendungsbereich']),
+        
+        // --- Spalte für Bild (Illustration) ---
+        illu: findCol(['PlH_Illu', 'Illu', 'Bildname']) // Spalte O: PlH_Illu aus Screenshot 1
+    };
 
-function getId(r) {
-  return (MIX_ID_KEY && r[MIX_ID_KEY]) ||
-         r.MIX_ID || r.ID_Neu || r.Recipe_ID || r.Rezept_ID || r.id || '';
-}
+    function getId(r) {
+        return (COL.id && r[COL.id]) || '';
+    }
 
-const byId = new Map(data.map(r => [getId(r), r]));
-const selected = idList.map(id => byId.get(id)).filter(Boolean);
+    const byId = new Map(data.map(r => [getId(r), r]));
+    const selected = idList.map(id => byId.get(id)).filter(Boolean);
 
-const COL_NAME   = 'Mix_Name';
-const COL_CAT    = sample.Mix_Typ       ? 'Mix_Typ'
-                     : sample.Kategorie   ? 'Kategorie'
-                     : '';
-const COL_REGION = sample.Region        ? 'Region' : '';
-const COL_LAND   = sample.Land          ? 'Land'   : '';
-const COL_SENSOR = sample.SensorikProfil ? 'SensorikProfil'
-                     : sample.Sensorik    ? 'Sensorik'
-                     : '';
+    /**
+     * Formatiert den String der strukturierten Zutaten in eine HTML-Liste.
+     * @param {string} txt - Der Roh-String aus der Zutaten-Spalte.
+     */
+    function ingredientList(txt) {
+        if (!txt) return '';
+        
+        // Trennt den String primär nach '|', sekundär nach Zeilenumbrüchen (\n)
+        let items = (txt + '').split('|');
+        if (items.length === 1) {
+            // Wenn kein '|' gefunden, versuchen wir es mit Zeilenumbrüchen
+            items = (txt + '').split('\n');
+        }
 
+        items = items.map(s => s.trim()).filter(Boolean);
 
-  const COL_ZUTATEN   = 'Zutaten_Mengen_Structured';
-  const COL_HERSTELL  = 'Herstellung_Zubereitung';
-  const COL_PROC      = 'Herstellungsprozess';
-  const COL_TEMP      = 'Temperaturfuehrung';
-  const COL_REIFE     = 'Reifezeit_Lagerzeit';
-  const COL_ANW       = 'Anwendung';
-  const COL_ILLU      = 'PlH_Illu';
+        if (!items.length) return '';
+        
+        return '<ul class="ingredients-list">' +
+            items.map(x => '<li>' + S(x) + '</li>').join('') +
+            '</ul>';
+    }
 
-  function originOf(r) {
-    const parts = [];
-    if (COL_REGION && r[COL_REGION]) parts.push(S(r[COL_REGION]));
-    if (COL_LAND   && r[COL_LAND])   parts.push(S(r[COL_LAND]));
-    return parts.join(' – ');
-  }
+    function originOf(r) {
+        const parts = [];
+        if (COL.region && r[COL.region]) parts.push(S(r[COL.region]));
+        if (COL.land && r[COL.land]) parts.push(S(r[COL.land]));
+        return parts.join(' – ');
+    }
 
-  function ingredientList(txt) {
-    if (!txt) return '';
-    // CSV-artige Struktur: mit "|" getrennt → als Liste darstellen
-    const items = (txt + '').split('|').map(s => s.trim()).filter(Boolean);
-    if (!items.length) return '';
-    return '<ul class="ingredients-list">' +
-      items.map(x => '<li>' + S(x) + '</li>').join('') +
-      '</ul>';
-  }
+    const container = document.getElementById('recipes');
 
-  const container = document.getElementById('recipes');
+    if (selected.length === 0) {
+        container.innerHTML = `<p>Die Mischungs-ID(s) ${idsParam} wurden nicht in den Daten gefunden.</p>`;
+        return;
+    }
 
-  container.innerHTML = selected.map(r => {
-    const name   = S(r[COL_NAME] || '');
-    const cat    = COL_CAT    ? S(r[COL_CAT]    || '') : '';
-    const origin = originOf(r);
-    const sens   = COL_SENSOR ? S(r[COL_SENSOR] || '') : '';
-    const id     = getId(r);
+    container.innerHTML = selected.map(r => {
+        const name = S(r[COL.name] || 'Unbekannte Mischung');
+        const cat = COL.category ? S(r[COL.category] || '') : '';
+        const origin = originOf(r);
+        const sens = COL.sensorik ? S(r[COL.sensorik] || '') : '';
+        const id = getId(r);
 
-    const zutaten = ingredientList(r[COL_ZUTATEN]);
-    const herst   = r[COL_HERSTELL] ? '<div class="block-text">' + S(r[COL_HERSTELL]) + '</div>' : '';
-    const proc    = r[COL_PROC]     ? '<div class="block-text">' + S(r[COL_PROC])     + '</div>' : '';
-    const temp    = r[COL_TEMP]     ? '<div class="block-text">' + S(r[COL_TEMP])     + '</div>' : '';
-    const reife   = r[COL_REIFE]    ? '<div class="block-text">' + S(r[COL_REIFE])    + '</div>' : '';
-    const anw     = r[COL_ANW]      ? '<div class="block-text">' + S(r[COL_ANW])      + '</div>' : '';
+        // Rezeptur-Inhalte
+        const zutaten = COL.zutaten ? ingredientList(r[COL.zutaten]) : '';
+        const herst = COL.herstellung && r[COL.herstellung] ? '<div class="block-text">' + S(r[COL.herstellung]) + '</div>' : '';
+        const proc = COL.prozess && r[COL.prozess] ? '<div class="block-text">' + S(r[COL.prozess]) + '</div>' : '';
+        const temp = COL.temperatur && r[COL.temperatur] ? '<div class="block-text">' + S(r[COL.temperatur]) + '</div>' : '';
+        const reife = COL.reifezeit && r[COL.reifezeit] ? '<div class="block-text">' + S(r[COL.reifezeit]) + '</div>' : '';
+        const anw = COL.anwendung && r[COL.anwendung] ? '<div class="block-text">' + S(r[COL.anwendung]) + '</div>' : '';
 
-    const illu    = r[COL_ILLU] ? S(r[COL_ILLU]) : '';
-    const imgHtml = illu
-      ? `<div class="recipe-img-wrap">
-           <img class="recipe-img"
-                src="./assets/img/mischungen/${illu}.jpg"
-                alt="${name}"
-                onerror="this.style.display='none'">
-         </div>`
-      : '';
+        // Bild
+        const illu = COL.illu && r[COL.illu] ? S(r[COL.illu]) : '';
+        const imgHtml = illu
+            ? `<div class="recipe-img-wrap">
+                   <img class="recipe-img"
+                        src="./assets/img/mischungen/${illu}.jpg"
+                        alt="${name}"
+                        onerror="this.style.display='none'">
+               </div>`
+            : '';
 
-    return `
-      <article class="recipe" data-id="${id}">
-        <header class="recipe-header">
-          <div class="recipe-header-text">
-            <h2 class="recipe-title">${name}</h2>
-            <div class="recipe-meta">
-              ${origin ? 'Herkunft: ' + origin + '<br>' : ''}
-              ${cat    ? 'Kategorie: ' + cat + '<br>'     : ''}
-              ${sens   ? 'Sensorik: ' + sens             : ''}
-            </div>
-            <div class="recipe-meta">ID: ${S(id)}</div>
-          </div>
-          ${imgHtml}
-        </header>
+        // Zusammensetzen des Rezepts
+        return `
+            <article class="recipe" data-id="${id}">
+                <header class="recipe-header">
+                    <div class="recipe-header-text">
+                        <h2 class="recipe-title">${name}</h2>
+                        <div class="recipe-meta">
+                            ${origin ? 'Herkunft: ' + origin + '<br>' : ''}
+                            ${cat ? 'Kategorie: ' + cat + '<br>' : ''}
+                            ${sens ? 'Sensorik: ' + sens : ''}
+                        </div>
+                        <div class="recipe-meta">ID: ${S(id)}</div>
+                    </div>
+                    ${imgHtml}
+                </header>
 
-        ${zutaten ? '<h3 class="section-title">Zutaten &amp; Mengen</h3>' + zutaten : ''}
+                ${zutaten ? '<h3 class="section-title">Zutaten &amp; Mengen</h3>' + zutaten : ''}
 
-        ${herst ? '<h3 class="section-title">Herstellung / Zubereitung</h3>' + herst : ''}
-        ${proc  ? '<h3 class="section-title">Herstellungsprozess</h3>'       + proc  : ''}
-        ${temp  ? '<h3 class="section-title">Temperaturführung</h3>'        + temp  : ''}
-        ${reife ? '<h3 class="section-title">Reifezeit / Lagerzeit</h3>'     + reife : ''}
-        ${anw   ? '<h3 class="section-title">Anwendung</h3>'                 + anw   : ''}
-      </article>
-    `;
-  }).join('');
+                ${herst ? '<h3 class="section-title">Herstellung / Zubereitung (Anleitung)</h3>' + herst : ''}
+                ${proc ? '<h3 class="section-title">Herstellungsprozess</h3>' + proc : ''}
+                ${temp ? '<h3 class="section-title">Temperaturführung</h3>' + temp : ''}
+                ${reife ? '<h3 class="section-title">Reifezeit / Lagerzeit</h3>' + reife : ''}
+                ${anw ? '<h3 class="section-title">Anwendung</h3>' + anw : ''}
+            </article>
+        `;
+    }).join('');
 
-  if (printMode) {
     // Druckansicht automatisch öffnen
-    setTimeout(() => window.print(), 500);
-  }
+    if (printMode) {
+        setTimeout(() => window.print(), 500);
+    }
 })();
 </script>
 </body>

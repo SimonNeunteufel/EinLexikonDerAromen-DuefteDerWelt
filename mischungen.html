@@ -1,139 +1,316 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Mischungen – Suche</title>
-  <link rel="stylesheet" href="./assets/css/styles.css">
-  <style>
-    .table-wrap {
-      max-height: calc(100vh - 260px);
-      overflow: auto;
-    }
-    .table-wrap thead th {
-      position: sticky;
-      top: 0;
-      background: rgba(255,255,255,0.9);
-      backdrop-filter: blur(4px);
-      z-index: 1;
-    }
-    #t td, #t th {
-      padding: 0.4rem 0.6rem;
-      white-space: normal;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-    #t td:nth-child(1), #t th:nth-child(1) {
-      width: 2.5rem;
-      text-align: center;
-    }
-  </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Mischungen – Suche</title>
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    <style>
+        /* Spezifische Stile für die Suchtabelle */
+        .table-wrap {
+            max-height: calc(100vh - 260px);
+            overflow: auto;
+        }
+        .table-wrap thead th {
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(4px);
+            z-index: 1;
+        }
+        #t {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #t td, #t th {
+            padding: 0.6rem; 
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis; 
+            max-width: 0; 
+        }
+        /* Spalte für Checkbox */
+        #t td:nth-child(1), #t th:nth-child(1) {
+            width: 2.5rem;
+            min-width: 2.5rem;
+            max-width: 2.5rem;
+            text-align: center;
+        }
+        /* Spaltenbreiten für bessere Übersicht */
+        #t th:nth-child(2) { max-width: 25%; } /* Mischungs Name */
+        #t th:nth-child(3) { max-width: 20%; } /* Herkunft */
+        #t th:nth-child(4) { max-width: 20%; } /* Kategorie */
+        #t th:nth-child(5) { max-width: 35%; } /* Sensorik */
+    </style>
 </head>
 <body class="BG4">
-  <div class="page">
-    <div class="header">
-      <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
-      <div class="brand">Mischungen – Suchtabelle</div>
-      <nav class="nav">
-        <a href="./stoffe.html">Stoffe</a>
-        <a href="./mischungen.html">Mischungen</a>
-        <a href="./baender.html">Bände</a>
-      </nav>
+    <div class="page">
+        <div class="header">
+            <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
+            <div class="brand">Mischungen – Suchtabelle</div>
+            <nav class="nav">
+                <a href="./stoffe.html">Stoffe</a>
+                <a href="./mischungen.html">Mischungen</a>
+                <a href="./baender.html">Bände</a>
+            </nav>
+        </div>
+
+        <p class="sub">Mit Varianten- und Rezeptbezug (aus <code>MasterRecipes.csv</code>).</p>
+
+        <div class="toolbar">
+            <input id="q" placeholder="Suche (Name, Kategorie, Region …)" type="search">
+            <button class="btn" id="go">Suchen</button>
+            <button class="btn" id="toHtml">Ausgewählte Rezepte → HTML</button> 
+            <button class="btn" id="toPdf">Ausgewählte Rezepte → PDF</button>
+            <label style="margin-left:auto">
+                <input type="checkbox" id="all"> Alles wählen
+            </label>
+        </div>
+
+        <div class="table-wrap">
+            <div class="table-body">
+                <table id="t">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <div>© Lexikon</div>
+            <div><a href="./index.html">Start</a></div>
+        </div>
     </div>
 
-    <p class="sub">Mit Varianten- und Rezeptbezug (aus <code>MasterRecipes.csv</code>).</p>
+    <script src="./assets/js/util.js"></script>
+    <script src="./assets/js/bg_loader.js"></script>
 
-    <div class="toolbar">
-      <input id="q" placeholder="Suche (Name, Kategorie, Region …)" type="search">
-      <button class="btn" id="go">Suchen</button>
-      <button class="btn" id="toHtml">Rezepte → HTML</button>
-      <button class="btn" id="toPdf">Rezepte → PDF</button>
-      <label style="margin-left:auto">
-        <input type="checkbox" id="all"> Alles wählen
-      </label>
-    </div>
+    <script>
+        (async () => {
+            let allData = []; 
+            let filteredData = []; 
 
-    <div class="table-wrap">
-      <div class="table-body">
-        <table id="t">
-          <thead></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
+            try {
+                // lädt MasterRecipes.csv / master_recipes.json (siehe util.js)
+                allData = await window.$util.loadRecipes();
+            } catch (e) {
+                window.$util.err(
+                    'Daten konnten nicht geladen werden. ' +
+                    'Lege <code>MasterRecipes.csv</code> oder <code>master_recipes.json</code> ' +
+                    'in <code>/data/</code> oder <code>/assets/data/</code> ab.'
+                );
+                return;
+            }
 
-    <div class="footer-note">
-      <div>© Lexikon</div>
-      <div><a href="./index.html">Start</a></div>
-    </div>
-  </div>
+            if (!allData.length) {
+                window.$util.err('Keine Mischungsdaten gefunden.');
+                return;
+            }
 
-  <script src="./assets/js/util.js"></script>
-  <script src="./assets/js/bg_loader.js"></script>
+            // Initialisierung der Elemente
+            const S = window.$util.safe; 
+            const keys = Object.keys(allData[0] || {});
 
-  <script>
-  (async () => {
-    let data = [];
-    try {
-      // lädt MasterRecipes.csv / master_recipes.json (siehe util.js)
-      data = await window.$util.loadRecipes();
-    } catch (e) {
-      window.$util.err(
-        'Daten konnten nicht geladen werden. ' +
-        'Lege <code>MasterRecipes.csv</code> oder <code>master_recipes.json</code> ' +
-        'in <code>/data/</code> oder <code>/assets/data/</code> ab.'
-      );
-      return;
-    }
+            const findCol = (candidates) =>
+                candidates.find(c => keys.includes(c)) || null;
 
-    if (!data.length) {
-      window.$util.err('Keine Mischungsdaten gefunden.');
-      return;
-    }
+            // --- PRÄZISIERTE SPALTEN-MAPPING BASIEREND AUF MASTERRECIPES.XLSX ---
+            const COL = {
+                // ID: Spalte A (MIX_ID)
+                id: findCol(['MIX_ID', 'Mix_ID', 'ID_Neu', 'Recipe_ID', 'Rezept_ID', 'id']),
 
-    const S = window.$util.safe;
-    const keys = Object.keys(data[0] || {});
+                // Name: Spalte F (Name_deutsch)
+                name: findCol(['Name_deutsch', 'Original_Name', 'Mix_Name', 'Mischungsname', 'Mischung_Name']),
 
-    const findCol = (candidates) =>
-      candidates.find(c => keys.includes(c)) || null;
+                // Herkunft / Region: Spalte O (Region_norm)
+                origin: findCol(['Region_norm', 'Original_Region', 'Herkunft', 'Region_Summary', 'Herkunft_Summary']),
 
-    // robuste ID-Erkennung (MIX_ID, Mix_ID, Mix ID, id, …)
-    const MIX_ID_KEY =
-      keys.find(k => /mix[_\s\-]*id/i.test(k)) ||
-      keys.find(k => /^id$/i.test(k)) ||
-      null;
+                // Kategorie / Anwendungsbereich: Spalte J (Anwendungsbereich_multi) oder G (Kategorie_multi)
+                category: findCol(['Anwendungsbereich_multi', 'Kategorie_multi', 'Mix_Typ', 'Kategorie', 'Mischungskategorie']),
 
-    function getId(row) {
-      return (MIX_ID_KEY && row[MIX_ID_KEY]) ||
-             row.MIX_ID ||
-             row.ID_Neu ||
-             row.Recipe_ID ||
-             row.Rezept_ID ||
-             row.id ||
-             '';
-    }
+                // Sensorik: Spalte K (Sensorik_multi)
+                sensorik: findCol(['Sensorik_multi', 'SensorikProfil', 'Sensorik_Profil', 'Sensorik'])
+            };
 
-    // Mapping an deine MasterRecipes-Spalten angepasst
-    const COL = {
-      id:       MIX_ID_KEY || findCol(['MIX_ID','Mix_ID','ID_Neu','Recipe_ID','Rezept_ID','id']),
-      // Name: neue Struktur hat Name_deutsch / Original_Name
-      name:     findCol(['Mix_Name','Mischungsname','Mischung_Name','Name','Name_deutsch','Original_Name']),
-      // Herkunft / Region
-      origin:   findCol(['Herkunft','Region','Region_norm','Original_Region','Region_Summary','Herkunft_Summary']),
-      // Kategorie / Mix-Typ
-      category: findCol(['Mix_Typ','MIX_Typ','Kategorie','Mix_Kategorie','Mischungskategorie']),
-      // Sensorik
-      sensorik: findCol(['SensorikProfil','Sensorik_Profil','Sensorik','Sensorik_multi','Sensorik_Profil_Summary'])
-    };
+            // Gewünschte sichtbare Spalten im Array
+            const visibleCols = [
+                { key: 'name', label: 'Mischungs Name' },
+                { key: 'origin', label: 'Herkunft' },
+                { key: 'category', label: 'Anwendungsbereich / Kategorie' }, 
+                { key: 'sensorik', label: 'Sensorik' }
+            ];
 
-    const visibleCols = [
-      { key: 'name',     label: 'Mischung' },
-      { key: 'origin',   label: 'Herkunft / Region' },
-      { key: 'category', label: 'Kategorie' },
-      { key: 'sensorik', label: 'Sensorik' }
-    ];
+            const thead = document.querySelector('#t thead');
+            const tbody = document.querySelector('#t tbody');
+            const q = document.getElementById('q');
+            const btnGo = document.getElementById('go');
+            const btnHtml = document.getElementById('toHtml');
+            const btnPdf = document.getElementById('toPdf');
+            const cbAll = document.getElementById('all');
 
-    const thead = document.querySelector('#t thead');
-    const tbody = document.querySelector('#t tbody');
-    const q     = document.getElementById('q');
-    const btnGo   = do
+            // --- FUNKTIONEN ---
+
+            /**
+             * Erstellt den Tabellenkopf (<thead>) mit Checkbox-Spalte und gewünschten Spalten.
+             */
+            function setupTableHeader() {
+                const tr = document.createElement('tr');
+                // Checkbox-Spalte
+                tr.innerHTML = '<th><input type="checkbox" id="header-all"></th>' +
+                    // Gewünschte Spalten
+                    visibleCols.map(col => `<th>${col.label}</th>`).join('');
+                thead.innerHTML = '';
+                thead.appendChild(tr);
+
+                // Event-Listener für Header-Checkbox
+                document.getElementById('header-all').addEventListener('change', (e) => {
+                    const isChecked = e.target.checked;
+                    document.querySelectorAll('#t tbody input[type="checkbox"]').forEach(cb => {
+                        cb.checked = isChecked;
+                    });
+                    cbAll.checked = isChecked;
+                });
+            }
+
+            /**
+             * Rendert die Daten in die Tabelle.
+             * @param {Array} dataToRender - Die zu rendernden Mischungsdaten.
+             */
+            function renderTable(dataToRender) {
+                tbody.innerHTML = ''; 
+                
+                if (!dataToRender.length) {
+                    tbody.innerHTML = '<tr><td colspan="5">Keine Ergebnisse gefunden.</td></tr>';
+                    filteredData = []; 
+                    return;
+                }
+
+                filteredData = dataToRender;
+
+                dataToRender.forEach((row) => {
+                    const tr = document.createElement('tr');
+                    const mixId = row[COL.id];
+                    
+                    // 1. Spalte: Checkbox zur Auswahl
+                    const checkboxCell = document.createElement('td');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'mix-checkbox';
+                    checkbox.value = mixId;
+                    checkboxCell.appendChild(checkbox);
+                    tr.appendChild(checkboxCell);
+
+                    // 2.-5. Spalte: Mischungs-Infos
+                    visibleCols.forEach(colConfig => {
+                        const td = document.createElement('td');
+                        // Werte basierend auf dem Spalten-Mapping abrufen
+                        const value = row[COL[colConfig.key]] || '';
+                        td.textContent = value;
+                        td.title = value; // Vollständigen Text in der Tooltip anzeigen
+                        tr.appendChild(td);
+                    });
+
+                    // Event-Listener für Klick auf die Zeile (öffnet das Rezept)
+                    tr.addEventListener('click', (e) => {
+                        // Verhindert, dass Klick auf die Checkbox das Rezept öffnet
+                        if (e.target.type !== 'checkbox') {
+                             // Öffne das Rezept in einem neuen Fenster/Tab 
+                             // (muss die gesamte Rezeptur anzeigen können, siehe Anforderung)
+                             window.open(`./mischung_rezept.html?id=${mixId}`, '_blank');
+                        }
+                    });
+
+                    tbody.appendChild(tr);
+                });
+            }
+
+            /**
+             * Filtert die Daten basierend auf dem Suchbegriff.
+             */
+            function filterData(searchTerm) {
+                const term = searchTerm.toLowerCase().trim();
+                if (!term) return allData;
+
+                return allData.filter(row => {
+                    // Durchsuche alle relevanten Spalten 
+                    const searchFields = [
+                        row[COL.name],
+                        row[COL.origin],
+                        row[COL.category],
+                        row[COL.sensorik]
+                    ].filter(Boolean).map(v => String(v).toLowerCase());
+
+                    return searchFields.some(field => field.includes(term));
+                });
+            }
+
+            /**
+             * Führt die Suche durch und rendert die gefilterten Daten neu.
+             */
+            function search() {
+                const searchTerm = q.value;
+                const results = filterData(searchTerm);
+                renderTable(results);
+            }
+
+            /**
+             * Ermittelt die IDs der aktuell ausgewählten Mischungen.
+             */
+            function getSelectedMixIds() {
+                const checkboxes = document.querySelectorAll('#t tbody input.mix-checkbox:checked');
+                return Array.from(checkboxes).map(cb => cb.value);
+            }
+
+            /**
+             * Leitet zur Rezeptansicht weiter (HTML oder PDF).
+             */
+            function handleRecipeOutput(format) {
+                const selectedIds = getSelectedMixIds();
+                
+                if (selectedIds.length === 0) {
+                    alert('Bitte wählen Sie zuerst mindestens eine Mischung aus.');
+                    return;
+                }
+
+                if (format === 'html') {
+                    // Übergabe der IDs an die Rezept-Seite (mischung_rezept.html)
+                    const url = `./mischung_rezept.html?ids=${selectedIds.join(',')}`;
+                    window.open(url, '_blank');
+                } else if (format === 'pdf') {
+                    // Dies erfordert serverseitige oder erweiterte clientseitige Logik 
+                    // zur Generierung eines PDF (mit Rezeptur, Anleitung und Bild).
+                    alert(`Generiere PDF für folgende IDs: ${selectedIds.join(', ')}.\n(Dies erfordert eine Backend-Lösung oder eine Client-seitige PDF-Bibliothek.)`);
+                }
+            }
+
+
+            // --- INITIALISIERUNG & EVENT-LISTENER ---
+
+            setupTableHeader(); 
+            renderTable(allData); 
+
+            // Event-Listener
+            btnGo.addEventListener('click', search);
+            q.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    search();
+                }
+            });
+
+            btnHtml.addEventListener('click', () => handleRecipeOutput('html'));
+            btnPdf.addEventListener('click', () => handleRecipeOutput('pdf'));
+
+            cbAll.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                // Setzt alle Checkboxen in der Tabelle und die Header-Checkbox
+                document.querySelectorAll('#t input[type="checkbox"]').forEach(cb => {
+                    cb.checked = isChecked;
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
