@@ -1,103 +1,8 @@
-<!doctype html>
-<html lang="de">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Mischungen – Rezepte</title>
-    <link rel="stylesheet" href="./assets/css/styles.css">
-    <style>
-        /* CSS-Stile bleiben unverändert */
-        .recipe-page {
-            padding: 1.5rem 1.5rem 2rem;
-            max-width: 980px;
-            margin: 0 auto;
-        }
-        .recipe {
-            margin-bottom: 2.5rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-        .recipe:last-child {
-            border-bottom: none; /* Letztes Element ohne Trennlinie */
-        }
-        .recipe-header {
-            display: flex;
-            gap: 1rem;
-            align-items: flex-start;
-            flex-wrap: wrap;
-        }
-        .recipe-header-text {
-            flex: 1 1 260px;
-        }
-        .recipe-title {
-            font-size: 1.6rem;
-            margin: 0 0 0.3rem;
-        }
-        .recipe-meta {
-            font-size: 0.9rem;
-            opacity: 0.85;
-            margin-bottom: 0.4rem;
-        }
-        .recipe-img-wrap {
-            flex: 0 0 220px;
-            max-width: 260px;
-        }
-        .recipe-img {
-            width: 100%;
-            border-radius: 12px;
-            display: block;
-            object-fit: cover;
-        }
-        .section-title {
-            margin-top: 1.2rem;
-            margin-bottom: 0.2rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        .ingredients-list {
-            margin: 0.2rem 0 0.8rem;
-            padding-left: 1.1rem;
-            font-size: 0.95rem;
-        }
-        .ingredients-list li {
-            margin: 0.1rem 0;
-        }
-        .block-text {
-            font-size: 0.95rem;
-            line-height: 1.4;
-            /* Behält Zeilenumbrüche bei, wichtig für "Herstellung_Zubereitung" */
-            white-space: pre-wrap; 
-            margin: 0.15rem 0 0.7rem;
-        }
-        @media print {
-            body { background: #fff; }
-            .header, .footer-note { display: none; } /* Header und Footer im Druck ausblenden */
-            .recipe-page { padding: 0.5cm 1cm; max-width: none; }
-            .recipe { page-break-inside: avoid; }
-        }
-    </style>
-</head>
-<body class="BG4">
-<div class="page">
-    <div class="header">
-        <button class="btn" onclick="history.back()">← Zurück</button>
-        <div class="brand">Mischungen – Rezepte</div>
-    </div>
-
-    <div class="recipe-page" id="recipes"></div>
-
-    <div class="footer-note">
-        <div>© Lexikon</div>
-        <div><a href="./index.html">Start</a></div>
-    </div>
-</div>
-
 <script src="./assets/js/util.js"></script>
 <script src="./assets/js/bg_loader.js"></script>
 <script>
 (async () => {
     const params = new URLSearchParams(location.search);
-    // Erlaubt sowohl 'id' (Einzelklick) als auch 'ids' (Mehrfachauswahl)
     const idsParam = params.get('ids') || params.get('id') || ''; 
     const idList = idsParam.split(',').map(s => s.trim()).filter(Boolean);
 
@@ -111,7 +16,7 @@
 
     let data = [];
     try {
-        data = await $util.loadRecipes();
+        data = await $util.loadRecipes(); // Daten laden
     } catch (e) {
         $util.err('Rezepte konnten nicht geladen werden.');
         return;
@@ -127,33 +32,28 @@
     const sample = data[0] || {};
     const KEYS = Object.keys(sample);
     
-    // --- ROBUSTES SPALTEN-MAPPING (wie in mischungen.html) ---
     const findCol = (candidates) =>
         candidates.find(c => KEYS.includes(c)) || null;
 
+    // --- PRÄZISIERTE SPALTEN-MAPPING (Kopiert aus mischungen.js) ---
     const COL = {
-        // ID: Spalte A (MIX_ID)
+        // IDs & Metadaten (für Header)
         id: findCol(['MIX_ID', 'Mix_ID', 'ID_Neu', 'Recipe_ID', 'Rezept_ID', 'id']),
-        
-        // --- Spalten für Header-Meta-Daten ---
         name: findCol(['Name_deutsch', 'Original_Name', 'Mix_Name', 'Mischungsname', 'Mischung_Name']),
         category: findCol(['Anwendungsbereich_multi', 'Kategorie_multi', 'Mix_Typ', 'Kategorie', 'Mischungskategorie']),
         sensorik: findCol(['Sensorik_multi', 'SensorikProfil', 'Sensorik_Profil', 'Sensorik']),
-        region: findCol(['Region_norm', 'Original_Region', 'Region_Summary', 'Region']),
-        land: findCol(['Land', 'Original_Land']), // Optional: wenn Land separat existiert
-
-        // --- Spalten für Rezeptur-Details (Zutaten, Anleitung, etc.) ---
-        zutaten: findCol(['Zutaten_Mengen_Structured', 'Zutaten_Liste', 'Zutaten']),
-        herstellung: findCol(['Herstellung_Zubereitung', 'Anleitung']),
-        prozess: findCol(['Herstellungsprozess', 'Prozess']),
-        temperatur: findCol(['Temperaturfuehrung', 'Temperatur']),
-        reifezeit: findCol(['Reifezeit_Lagerzeit', 'Lagerzeit']),
-        anwendung: findCol(['Anwendung', 'Anwendungsbereich']),
+        origin: findCol(['Region_norm', 'Original_Region', 'Herkunft', 'Region_Summary']),
+        illu: findCol(['PlH_Illu', 'Illu', 'Bildname']),
         
-        // --- Spalte für Bild (Illustration) ---
-        illu: findCol(['PlH_Illu', 'Illu', 'Bildname']) // Spalte O: PlH_Illu aus Screenshot 1
+        // --- REZEPTUR-DETAIL-SPALTEN (fehlt im Original-Skript) ---
+        zutaten: findCol(['Zutaten_Mengen_Structured', 'Zutaten_Liste']),
+        anleitung: findCol(['Herstellung_Zubereitung', 'Anleitung']),
+        prozess: findCol(['Herstellungsprozess']),
+        temperatur: findCol(['Temperaturfuehrung']),
+        reifezeit: findCol(['Reifezeit_Lagerzeit']),
+        anwendung: findCol(['Anwendung'])
     };
-
+    
     function getId(r) {
         return (COL.id && r[COL.id]) || '';
     }
@@ -161,59 +61,35 @@
     const byId = new Map(data.map(r => [getId(r), r]));
     const selected = idList.map(id => byId.get(id)).filter(Boolean);
 
-    /**
-     * Formatiert den String der strukturierten Zutaten in eine HTML-Liste.
-     * @param {string} txt - Der Roh-String aus der Zutaten-Spalte.
-     */
+    // Hilfsfunktion zur Darstellung der Zutaten (nimmt Pipe | oder \n)
     function ingredientList(txt) {
         if (!txt) return '';
-        
-        // Trennt den String primär nach '|', sekundär nach Zeilenumbrüchen (\n)
-        let items = (txt + '').split('|');
-        if (items.length === 1) {
-            // Wenn kein '|' gefunden, versuchen wir es mit Zeilenumbrüchen
-            items = (txt + '').split('\n');
-        }
-
-        items = items.map(s => s.trim()).filter(Boolean);
-
+        // Hier verwenden wir das Pipe-Trennzeichen | aus der CSV
+        const items = (txt + '').split('|').map(s => s.trim()).filter(Boolean);
         if (!items.length) return '';
-        
         return '<ul class="ingredients-list">' +
             items.map(x => '<li>' + S(x) + '</li>').join('') +
             '</ul>';
     }
 
-    function originOf(r) {
-        const parts = [];
-        if (COL.region && r[COL.region]) parts.push(S(r[COL.region]));
-        if (COL.land && r[COL.land]) parts.push(S(r[COL.land]));
-        return parts.join(' – ');
-    }
-
     const container = document.getElementById('recipes');
-
-    if (selected.length === 0) {
-        container.innerHTML = `<p>Die Mischungs-ID(s) ${idsParam} wurden nicht in den Daten gefunden.</p>`;
-        return;
-    }
 
     container.innerHTML = selected.map(r => {
         const name = S(r[COL.name] || 'Unbekannte Mischung');
         const cat = COL.category ? S(r[COL.category] || '') : '';
-        const origin = originOf(r);
+        const origin = COL.origin ? S(r[COL.origin] || '') : '';
         const sens = COL.sensorik ? S(r[COL.sensorik] || '') : '';
         const id = getId(r);
 
-        // Rezeptur-Inhalte
+        // --- Extrahieren der Details mit neuem Mapping ---
         const zutaten = COL.zutaten ? ingredientList(r[COL.zutaten]) : '';
-        const herst = COL.herstellung && r[COL.herstellung] ? '<div class="block-text">' + S(r[COL.herstellung]) + '</div>' : '';
+        const herst = COL.anleitung && r[COL.anleitung] ? '<div class="block-text">' + S(r[COL.anleitung]) + '</div>' : '';
         const proc = COL.prozess && r[COL.prozess] ? '<div class="block-text">' + S(r[COL.prozess]) + '</div>' : '';
         const temp = COL.temperatur && r[COL.temperatur] ? '<div class="block-text">' + S(r[COL.temperatur]) + '</div>' : '';
         const reife = COL.reifezeit && r[COL.reifezeit] ? '<div class="block-text">' + S(r[COL.reifezeit]) + '</div>' : '';
         const anw = COL.anwendung && r[COL.anwendung] ? '<div class="block-text">' + S(r[COL.anwendung]) + '</div>' : '';
 
-        // Bild
+        // Bild-Pfad (PlH_Illu wird nun über das Mapping gefunden)
         const illu = COL.illu && r[COL.illu] ? S(r[COL.illu]) : '';
         const imgHtml = illu
             ? `<div class="recipe-img-wrap">
@@ -224,10 +100,10 @@
                </div>`
             : '';
 
-        // Zusammensetzen des Rezepts
         return `
             <article class="recipe" data-id="${id}">
                 <header class="recipe-header">
+                    ${imgHtml}
                     <div class="recipe-header-text">
                         <h2 class="recipe-title">${name}</h2>
                         <div class="recipe-meta">
@@ -237,7 +113,6 @@
                         </div>
                         <div class="recipe-meta">ID: ${S(id)}</div>
                     </div>
-                    ${imgHtml}
                 </header>
 
                 ${zutaten ? '<h3 class="section-title">Zutaten &amp; Mengen</h3>' + zutaten : ''}
@@ -251,11 +126,8 @@
         `;
     }).join('');
 
-    // Druckansicht automatisch öffnen
     if (printMode) {
         setTimeout(() => window.print(), 500);
     }
 })();
 </script>
-</body>
-</html>
