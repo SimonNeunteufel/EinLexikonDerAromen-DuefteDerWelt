@@ -1,4 +1,5 @@
 // assets/js/util.js (FINALE Version, lesbar und auf Semikolon (;) optimiert)
+// Ersetzen Sie den GESAMTEN INHALT Ihrer util.js-Datei durch DIESEN BLOCK:
 window.$util = {
     async _f(p) {
         const r = await fetch(p, { cache: 'no-store' });
@@ -6,22 +7,20 @@ window.$util = {
         return r.text()
     },
     
-    // KORRIGIERTE CSV-PARSING-FUNKTION (verwendet Semikolon als Trennzeichen)
+    // KORRIGIERTE CSV-PARSING-FUNKTION (vereinfacht für Semikolon)
     csv(t) {
         const separator = ';'; 
         
-        // RegEx, um Semikolon zu splitten, außer es ist in Anführungszeichen
-        const splitRegex = new RegExp(separator + '(?=(?:[^"]*"[^"]*")*[^"]*$)', 'g');
-        
+        // Split nach Zeilenumbrüchen
         const L = t.split(/\r?\n/).filter(Boolean);
         if (!L.length) return [];
         
-        // Kopfzeile parsen (Headers)
-        const H = L.shift().split(splitRegex).map(h => h.replace(/^"|"$/g, '').trim());
+        // Kopfzeile parsen (Semikolon als Trenner)
+        const H = L.shift().split(separator).map(h => h.replace(/^"|"$/g, '').trim());
         
         return L.map(r => {
             // Datenzeilen parsen
-            const C = r.split(splitRegex).map(c => c.replace(/^"|"$/g, '').trim());
+            const C = r.split(separator).map(c => c.replace(/^"|"$/g, '').trim());
             const o = {};
             // Gehe alle Header durch und weise die Werte zu
             H.forEach((h, i) => o[h] = C[i] || '');
