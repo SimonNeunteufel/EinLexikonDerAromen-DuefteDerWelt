@@ -8,25 +8,30 @@ window.$util = {
     },
     
     // KORRIGIERTE CSV-PARSING-FUNKTION (vereinfacht für Semikolon)
-    csv(t) {
-        const separator = ';'; 
-        
-        // Split nach Zeilenumbrüchen
-        const L = t.split(/\r?\n/).filter(Boolean);
-        if (!L.length) return [];
-        
-        // Kopfzeile parsen (Semikolon als Trenner)
-        const H = L.shift().split(separator).map(h => h.replace(/^"|"$/g, '').trim());
-        
-        return L.map(r => {
-            // Datenzeilen parsen
-            const C = r.split(separator).map(c => c.replace(/^"|"$/g, '').trim());
-            const o = {};
-            // Gehe alle Header durch und weise die Werte zu
-            H.forEach((h, i) => o[h] = C[i] || '');
-            return o
-        })
-    },
+// Ausschnitt aus util.js (Finale, ultra-robuste CSV-Funktion)
+// ACHTUNG: Nur diesen Teil in Ihre funktionierende util.js integrieren!
+csv(t) {
+    const separator = ';'; 
+    
+    // RegEx zur Trennung (ignoriert Semikolon in Anführungszeichen)
+    const splitRegex = new RegExp(separator + '(?=(?:[^"]*"[^"]*")*[^"]*$)', 'g');
+    
+    const L = t.split(/\r?\n/).filter(Boolean);
+    if (!L.length) return [];
+    
+    // Kopfzeile parsen & EXTREM aggressiv trimmen (inkl. unsichtbarer Zeichen)
+    const H = L.shift().split(splitRegex)
+        .map(h => h.replace(/^"|"$/g, '').replace(/[\uFEFF\xA0\s]/g, '').trim()); // <-- HIER DIE KORREKTUR
+    
+    return L.map(r => {
+        // Datenzeilen parsen & EXTREM aggressiv trimmen
+        const C = r.split(splitRegex)
+            .map(c => c.replace(/^"|"$/g, '').replace(/[\uFEFF\xA0\s]/g, '').trim()); // <-- HIER DIE KORREKTUR
+        const o = {};
+        H.forEach((h, i) => o[h] = C[i] || '');
+        return o
+    })
+}
 
     async loadCSV(p) {
         for (const x of p) {
