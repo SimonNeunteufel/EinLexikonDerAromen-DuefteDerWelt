@@ -32,28 +32,33 @@
     const sample = data[0] || {};
     const KEYS = Object.keys(sample);
     
+// Ausschnitt aus mischungen_rezepte.html <script>
+    // ... (vorheriger Code)
+    
     const findCol = (candidates) =>
-        candidates.find(c => KEYS.includes(c)) || null;
+        // Suche in Kleinbuchstaben
+        candidates.find(c => KEYS.includes(c.toLowerCase())) || null; 
 
-    // --- PRÄZISIERTE SPALTEN-MAPPING (Kopiert aus mischungen.js) ---
+    // --- FINALE PRÄZISIERTE SPALTEN-MAPPING (FÜR REZEPTSEITE) ---
     const COL = {
-        // IDs & Metadaten (für Header)
-        id: findCol(['MIX_ID', 'Mix_ID', 'ID_Neu', 'Recipe_ID', 'Rezept_ID', 'id']),
-        name: findCol(['Name_deutsch', 'Original_Name', 'Mix_Name', 'Mischungsname', 'Mischung_Name']),
-        category: findCol(['Anwendungsbereich_multi', 'Kategorie_multi', 'Mix_Typ', 'Kategorie', 'Mischungskategorie']),
-        sensorik: findCol(['Sensorik_multi', 'SensorikProfil', 'Sensorik_Profil', 'Sensorik']),
-        origin: findCol(['Region_norm', 'Original_Region', 'Herkunft', 'Region_Summary']),
-        illu: findCol(['PlH_Illu', 'Illu', 'Bildname']),
+        // IDs & Metadaten
+        id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
+        name: findCol(['name_deutsch', 'mix_name', 'original_name']),
+        category: findCol(['mix_typ', 'kategorie_multi', 'anwendungsbereich_multi']),
+        sensorik: findCol(['sensorik', 'sensorik_multi']),
+        origin: findCol(['region_norm', 'herkunft', 'original_region']),
+        illu: findCol(['plh_illu', 'illu', 'bildname']),
         
-        // --- REZEPTUR-DETAIL-SPALTEN (fehlt im Original-Skript) ---
-        zutaten: findCol(['Zutaten_Mengen_Structured', 'Zutaten_Liste']),
-        anleitung: findCol(['Herstellung_Zubereitung', 'Anleitung']),
-        prozess: findCol(['Herstellungsprozess']),
-        temperatur: findCol(['Temperaturfuehrung']),
-        reifezeit: findCol(['Reifezeit_Lagerzeit']),
-        anwendung: findCol(['Anwendung'])
+        // --- REZEPTUR-DETAIL-SPALTEN (WICHTIG!) ---
+        zutaten: findCol(['zutaten_mengen_structured', 'zutaten_liste']),
+        anleitung: findCol(['herstellung_zubereitung', 'herstellung_zubereitung']), 
+        prozess: findCol(['herstellungsprozess']),
+        temperatur: findCol(['temperaturfuehrung']),
+        reifezeit: findCol(['reifezeit_lagerzeit']),
+        anwendung: findCol(['anwendung'])
     };
     
+    // ... (Rest des Codes bleibt gleich)    
     function getId(r) {
         return (COL.id && r[COL.id]) || '';
     }

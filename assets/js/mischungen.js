@@ -39,26 +39,32 @@
     const S = window.$util.safe;
     const keys = Object.keys(allData[0] || {});
 
+// Ausschnitt aus mischungen.js
+    // ... (vorheriger Code)
+
+    // WICHTIG: Die Keys müssen jetzt in KLEINBUCHSTABEN gesucht werden!
     const findCol = (candidates) =>
-        candidates.find(c => keys.includes(c)) || null;
+        candidates.find(c => keys.includes(c.toLowerCase())) || null;
 
-  // --- FINALE PRÄZISIERTE SPALTEN-MAPPING ---
+    // --- FINALE PRÄZISIERTE SPALTEN-MAPPING (Lowercase-optimiert) ---
     const COL = {
-        // ID & Name (Muss funktionieren)
-        id: findCol(['MIX_ID', 'Mix_ID', 'ID_Neu', 'Recipe_ID', 'Rezept_ID', 'id']),
-        name: findCol(['Name_deutsch', 'Original_Name', 'Mix_Name', 'Mischungsname']),
+        // ID
+        id: findCol(['MIX_ID', 'mix_id', 'id_neu', 'recipe_id']),
 
-        // Herkunft (Nimm die ZUSAMMENFASSUNG, da sie oft gefüllt ist, oder den Hauptort)
-        origin: findCol(['Herkunft', 'Region_norm', 'Original_Region', 'Region_Summary']),
+        // Name (Spalte E)
+        name: findCol(['name_deutsch', 'mix_name', 'original_name', 'name']),
 
-        // Kategorie (Nimm den kurzen MIX_Typ aus Spalte B, der ist immer gefüllt)
-        category: findCol(['MIX_Typ', 'Kategorie_multi', 'Anwendungsbereich_multi', 'Kategorie']),
+        // Herkunft / Region (Spalte N und P)
+        origin: findCol(['herkunft', 'region_norm', 'original_region', 'region_summary']),
 
-        // Sensorik (Nimm Sensorik, da Sensorik_multi oft leer ist)
-        sensorik: findCol(['Sensorik', 'Sensorik_multi', 'SensorikProfil', 'Sensorik_Profil']),
+        // Kategorie / Anwendungsbereich (Spalte G und J, aber MIX_Typ ist Spalte B)
+        category: findCol(['mix_typ', 'kategorie_multi', 'anwendungsbereich_multi', 'kategorie']),
 
-        // Alle weiteren (für die Suche, auch wenn nicht angezeigt)
-        // ...
+        // Sensorik (Spalte L oder M)
+        sensorik: findCol(['sensorik', 'sensorik_multi', 'sensorikprofil'])
+    };
+    
+    // ... (Rest des Codes bleibt gleich)
     };
 
     // Gewünschte sichtbare Spalten im Array
