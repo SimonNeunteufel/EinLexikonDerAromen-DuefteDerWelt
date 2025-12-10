@@ -1,4 +1,4 @@
-// assets/js/util.js (Korrigierte und vollständige, lesbare Version)
+// assets/js/util.js (Vollständige, Semikolon-fähige Version)
 window.$util = {
     async _f(p) {
         const r = await fetch(p, { cache: 'no-store' });
@@ -8,7 +8,7 @@ window.$util = {
     
     // KORRIGIERTE CSV-PARSING-FUNKTION (unterstützt Semikolon als Trennzeichen)
     csv(t) {
-        const separator = ';'; // <-- PRIMÄRES TRENNZEICHEN
+        const separator = ';'; 
         
         const L = t.split(/\r?\n/).filter(Boolean);
         if (!L.length) return [];
@@ -16,7 +16,7 @@ window.$util = {
         // Kopfzeile parsen (Semikolon)
         const H = L.shift().split(new RegExp(separator + '(?=(?:[^"]*"[^"]*")*[^"]*$)', 'g')).map(h => h.replace(/^"|"$/g, ''));
         
-        // Fallback-Logik (wenn Semikolon fehlschlägt und Komma vorhanden ist)
+        // Fallback-Logik (wenn Semikolon nur eine Spalte liefert, versuchen wir Komma)
         let effectiveSeparator = separator;
         if (H.length <= 1 && t.includes(',')) {
             effectiveSeparator = ',';
@@ -24,8 +24,8 @@ window.$util = {
             const tempH = (t.split(/\r?\n/)[0] || '').split(new RegExp(effectiveSeparator + '(?=(?:[^"]*"[^"]*")*[^"]*$)', 'g')).map(h => h.replace(/^"|"$/g, ''));
             if (tempH.length > 1) {
                 H.splice(0, H.length, ...tempH);
-                // Wenn wir den Separator wechseln, müssen wir die Datenzeilen neu laden (wird hier vereinfacht)
-                const originalLines = t.split(/\r?\n/).slice(1).filter(Boolean);
+                // Wenn wir den Separator wechseln, müssen wir die Datenzeilen neu laden (vereinfachte Behandlung)
+                const originalLines = t.split(/\r?\n').slice(1).filter(Boolean);
                 L.splice(0, L.length, ...originalLines);
             }
         }
@@ -39,8 +39,6 @@ window.$util = {
         })
     },
 
-    // --- KRITISCHE FUNKTIONEN, DIE IN IHREM CODE FEHLTEN ---
-
     async loadCSV(p) {
         for (const x of p) {
             try { return this.csv(await this._f(x)) } catch (_) { }
@@ -53,13 +51,13 @@ window.$util = {
         }
         throw 0
     },
-    // Wird von mischungen.js aufgerufen:
+    // WICHTIG: Die Funktion, die von mischungen.js aufgerufen wird:
     async loadRecipes() {
         try { return await this.loadCSV(['./assets/data/MasterRecipes.csv', './data/MasterRecipes.csv']) }
         catch (_) { return await this.loadJSON(['./assets/data/master_recipes.json', './data/master_recipes.json']) }
     },
     
-    // Die sichere Ausgabefunktion, die im HTML verwendet wird:
+    // Die sichere Ausgabefunktion:
     safe: v => v == null ? '' : v, 
     
     // Die Fehleranzeige-Funktion:
