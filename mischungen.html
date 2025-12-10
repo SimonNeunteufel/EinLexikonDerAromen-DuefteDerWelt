@@ -6,7 +6,6 @@
   <title>Mischungen – Suche</title>
   <link rel="stylesheet" href="./assets/css/styles.css">
   <style>
-    /* Kopfzeile beim Scrollen fixieren */
     .table-wrap {
       max-height: calc(100vh - 260px);
       overflow: auto;
@@ -18,10 +17,9 @@
       backdrop-filter: blur(4px);
       z-index: 1;
     }
-    /* Zellen etwas luftiger für mobile */
     #t td, #t th {
       padding: 0.4rem 0.6rem;
-      white-space: nowrap;
+      white-space: normal;
       text-overflow: ellipsis;
       overflow: hidden;
     }
@@ -72,6 +70,70 @@
 
   <script src="./assets/js/util.js"></script>
   <script src="./assets/js/bg_loader.js"></script>
-  <script src="./assets/js/mischungen.js"></script>
-</body>
-</html>
+
+  <script>
+  (async () => {
+    let data = [];
+    try {
+      // lädt MasterRecipes.csv / master_recipes.json (siehe util.js)
+      data = await window.$util.loadRecipes();
+    } catch (e) {
+      window.$util.err(
+        'Daten konnten nicht geladen werden. ' +
+        'Lege <code>MasterRecipes.csv</code> oder <code>master_recipes.json</code> ' +
+        'in <code>/data/</code> oder <code>/assets/data/</code> ab.'
+      );
+      return;
+    }
+
+    if (!data.length) {
+      window.$util.err('Keine Mischungsdaten gefunden.');
+      return;
+    }
+
+    const S = window.$util.safe;
+    const keys = Object.keys(data[0] || {});
+
+    const findCol = (candidates) =>
+      candidates.find(c => keys.includes(c)) || null;
+
+    // robuste ID-Erkennung (MIX_ID, Mix_ID, Mix ID, id, …)
+    const MIX_ID_KEY =
+      keys.find(k => /mix[_\s\-]*id/i.test(k)) ||
+      keys.find(k => /^id$/i.test(k)) ||
+      null;
+
+    function getId(row) {
+      return (MIX_ID_KEY && row[MIX_ID_KEY]) ||
+             row.MIX_ID ||
+             row.ID_Neu ||
+             row.Recipe_ID ||
+             row.Rezept_ID ||
+             row.id ||
+             '';
+    }
+
+    // Mapping an deine MasterRecipes-Spalten angepasst
+    const COL = {
+      id:       MIX_ID_KEY || findCol(['MIX_ID','Mix_ID','ID_Neu','Recipe_ID','Rezept_ID','id']),
+      // Name: neue Struktur hat Name_deutsch / Original_Name
+      name:     findCol(['Mix_Name','Mischungsname','Mischung_Name','Name','Name_deutsch','Original_Name']),
+      // Herkunft / Region
+      origin:   findCol(['Herkunft','Region','Region_norm','Original_Region','Region_Summary','Herkunft_Summary']),
+      // Kategorie / Mix-Typ
+      category: findCol(['Mix_Typ','MIX_Typ','Kategorie','Mix_Kategorie','Mischungskategorie']),
+      // Sensorik
+      sensorik: findCol(['SensorikProfil','Sensorik_Profil','Sensorik','Sensorik_multi','Sensorik_Profil_Summary'])
+    };
+
+    const visibleCols = [
+      { key: 'name',     label: 'Mischung' },
+      { key: 'origin',   label: 'Herkunft / Region' },
+      { key: 'category', label: 'Kategorie' },
+      { key: 'sensorik', label: 'Sensorik' }
+    ];
+
+    const thead = document.querySelector('#t thead');
+    const tbody = document.querySelector('#t tbody');
+    const q     = document.getElementById('q');
+    const btnGo   = do
