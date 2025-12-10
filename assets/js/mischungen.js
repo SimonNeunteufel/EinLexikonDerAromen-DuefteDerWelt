@@ -7,7 +7,15 @@
   const thead=document.querySelector("#tbl thead");
   thead.innerHTML="<tr><th><input type='checkbox' id='headSelect'></th>"+show.map(c=>`<th>${c}</th>`).join("")+"</tr>";
   const tbody=document.querySelector("#tbl tbody");
-  function rowId(r){return r.ID_Neu||r.Recipe_ID||r.Rezept_ID||r.id||""}
+  function rowId(r){
+  return r.MIX_ID       // neue Haupt-ID aus MasterRecipes
+      || r.ID_Neu
+      || r.Recipe_ID
+      || r.Rezept_ID
+      || r.id
+      || "";
+}
+
   const mapS={S1:"sauer",S2:"süß",S3:"bitter",S4:"scharf",S5:"neutral/umami"};
   const mapP={P1:"Pulver",P2:"Paste",P3:"Öl/Infusion",P4:"Harz/Granulat",P5:"Hybrid"};
   function mapM(v){const m=String(v||"").match(/^M(\d{1,2})/i);if(!m)return v||"";const n=+m[1];const names={1:"Gewürzmischungen",2:"Kräuter-/Würzsalze",3:"Öl/Essig/Fett-Infusionen",4:"Süß-/Dessert-Mischungen",5:"Fermentierte Mischungen & Pasten",6:"Räucher-/Harzmischungen",7:"Spirituosen & Bar",8:"Parfüm & Sensorik",9:"Hybrid-Mischungen",10:"Rituell & ethnobotanisch",11:"Bar-/Pharma-Aromen & Bitterstoffe",12:"Technisch/regulatorisch",13:"Experimentell/interdisziplinär"};return names[n]?`M${n} – ${names[n]}`:v}
