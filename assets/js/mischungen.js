@@ -1,4 +1,4 @@
-// assets/js/mischungen.js (Vollständig und Link-korrigiert)
+// assets/js/mischungen.js (Vollständig und an Lowercase-Header angepasst)
 
 (async () => {
     let allData = []; 
@@ -19,7 +19,6 @@
     }
 
     try {
-        // Daten laden (benötigt korrigierte util.js)
         allData = await window.$util.loadRecipes();
     } catch (e) {
         window.$util.err(
@@ -35,36 +34,30 @@
         return;
     }
 
-    // Initialisierung der Elemente
     const S = window.$util.safe;
     const keys = Object.keys(allData[0] || {});
 
-// Ausschnitt aus mischungen.js
-    // ... (vorheriger Code)
-
-    // WICHTIG: Die Keys müssen jetzt in KLEINBUCHSTABEN gesucht werden!
+    // ACHTUNG: Die Suche muss jetzt IMMER in Kleinbuchstaben erfolgen!
     const findCol = (candidates) =>
         candidates.find(c => keys.includes(c.toLowerCase())) || null;
+
 
     // --- FINALE PRÄZISIERTE SPALTEN-MAPPING (Lowercase-optimiert) ---
     const COL = {
         // ID
-        id: findCol(['MIX_ID', 'mix_id', 'id_neu', 'recipe_id']),
+        id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
 
         // Name (Spalte E)
-        name: findCol(['name_deutsch', 'mix_name', 'original_name', 'name']),
+        name: findCol(['name_deutsch', 'original_name', 'mix_name', 'mischungsname']),
 
         // Herkunft / Region (Spalte N und P)
         origin: findCol(['herkunft', 'region_norm', 'original_region', 'region_summary']),
 
-        // Kategorie / Anwendungsbereich (Spalte G und J, aber MIX_Typ ist Spalte B)
+        // Kategorie / Anwendungsbereich (Spalte G, J oder B)
         category: findCol(['mix_typ', 'kategorie_multi', 'anwendungsbereich_multi', 'kategorie']),
 
         // Sensorik (Spalte L oder M)
         sensorik: findCol(['sensorik', 'sensorik_multi', 'sensorikprofil'])
-    };
-    
-    // ... (Rest des Codes bleibt gleich)
     };
 
     // Gewünschte sichtbare Spalten im Array
@@ -77,9 +70,6 @@
 
     // --- FUNKTIONEN ---
 
-    /**
-     * Erstellt den Tabellenkopf (<thead>) mit Checkbox-Spalte und gewünschten Spalten.
-     */
     function setupTableHeader() {
         const tr = document.createElement('tr');
         const headerAllCheckbox = document.createElement('input');
@@ -103,9 +93,6 @@
         });
     }
 
-    /**
-     * Rendert die Daten in die Tabelle.
-     */
     function renderTable(dataToRender) {
         tbody.innerHTML = '';
         
@@ -122,7 +109,8 @@
 
         dataToRender.forEach((row) => {
             const tr = document.createElement('tr');
-            const mixId = row[COL.id];
+            // ID wird über den korrigierten COL-Key gefunden
+            const mixId = row[COL.id]; 
             
             // Checkbox zur Auswahl
             const checkboxCell = document.createElement('td');
@@ -133,10 +121,10 @@
             checkboxCell.appendChild(checkbox);
             tr.appendChild(checkboxCell);
 
-            // Mischungs-Infos
+            // Mischungs-Infos (Sucht die Metadaten über die COL-Keys)
             visibleCols.forEach(colConfig => {
                 const td = document.createElement('td');
-                const value = row[COL[colConfig.key]] || '';
+                const value = row[COL[colConfig.key]] || ''; // Wenn Key leer ist, wird "" angezeigt
                 td.textContent = value;
                 td.title = value; 
                 tr.appendChild(td);
@@ -145,7 +133,7 @@
             // Event-Listener für Klick auf die Zeile 
             tr.addEventListener('click', (e) => {
                 if (e.target.type !== 'checkbox') {
-                     // *** KORRIGIERTER LINK ***
+                     // KORRIGIERTER LINK auf die Mehrzahl-Datei
                      window.open(`./mischung_rezepte.html?id=${mixId}`, '_blank');
                 }
             });
@@ -154,9 +142,6 @@
         });
     }
 
-    /**
-     * Filtert die Daten basierend auf dem Suchbegriff.
-     */
     function filterData(searchTerm) {
         const term = searchTerm.toLowerCase().trim();
         if (!term) return allData;
@@ -173,26 +158,17 @@
         });
     }
 
-    /**
-     * Führt die Suche durch und rendert die gefilterten Daten neu.
-     */
     function search() {
         const searchTerm = q.value;
         const results = filterData(searchTerm);
         renderTable(results);
     }
 
-    /**
-     * Ermittelt die IDs der aktuell ausgewählten Mischungen.
-     */
     function getSelectedMixIds() {
         const checkboxes = document.querySelectorAll('#t tbody input.mix-checkbox:checked'); 
         return Array.from(checkboxes).map(cb => cb.value);
     }
 
-    /**
-     * Leitet zur Rezeptansicht weiter (HTML oder PDF).
-     */
     function handleRecipeOutput(format) {
         const selectedIds = getSelectedMixIds();
         
@@ -204,11 +180,11 @@
         const idsParam = encodeURIComponent(selectedIds.join(','));
 
         if (format === 'html') {
-            // *** KORRIGIERTER LINK ***
+            // KORRIGIERTER LINK
             const url = `./mischung_rezepte.html?ids=${idsParam}`;
             window.open(url, '_blank');
         } else if (format === 'pdf') {
-            // *** KORRIGIERTER LINK ***
+            // KORRIGIERTER LINK
             const url = `./mischung_rezepte.html?ids=${idsParam}&print=1`;
             window.open(url, '_blank');
         }
@@ -220,7 +196,6 @@
     setupTableHeader(); 
     renderTable(allData); 
 
-    // Event-Listener für Buttons
     if (btnGo) btnGo.addEventListener('click', search);
     
     if (q) q.addEventListener('keyup', (e) => {

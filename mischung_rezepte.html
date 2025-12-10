@@ -32,34 +32,32 @@
     const sample = data[0] || {};
     const KEYS = Object.keys(sample);
     
-// Ausschnitt aus mischungen_rezepte.html <script>
-    // ... (vorheriger Code)
-    
+    // ACHTUNG: Die Suche muss IMMER in Kleinbuchstaben erfolgen!
     const findCol = (candidates) =>
-        // Suche in Kleinbuchstaben
-        candidates.find(c => KEYS.includes(c.toLowerCase())) || null; 
+        candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
+
 
     // --- FINALE PRÄZISIERTE SPALTEN-MAPPING (FÜR REZEPTSEITE) ---
     const COL = {
-        // IDs & Metadaten
+        // IDs & Metadaten (für Header der Rezeptseite)
         id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
-        name: findCol(['name_deutsch', 'mix_name', 'original_name']),
+        name: findCol(['name_deutsch', 'original_name', 'mix_name']),
         category: findCol(['mix_typ', 'kategorie_multi', 'anwendungsbereich_multi']),
         sensorik: findCol(['sensorik', 'sensorik_multi']),
         origin: findCol(['region_norm', 'herkunft', 'original_region']),
         illu: findCol(['plh_illu', 'illu', 'bildname']),
         
-        // --- REZEPTUR-DETAIL-SPALTEN (WICHTIG!) ---
+        // --- REZEPTUR-DETAIL-SPALTEN (WICHTIG FÜR DIE FÜLLUNG) ---
         zutaten: findCol(['zutaten_mengen_structured', 'zutaten_liste']),
-        anleitung: findCol(['herstellung_zubereitung', 'herstellung_zubereitung']), 
+        anleitung: findCol(['herstellung_zubereitung']), 
         prozess: findCol(['herstellungsprozess']),
         temperatur: findCol(['temperaturfuehrung']),
         reifezeit: findCol(['reifezeit_lagerzeit']),
         anwendung: findCol(['anwendung'])
     };
     
-    // ... (Rest des Codes bleibt gleich)    
     function getId(r) {
+        // Gibt den Wert des normalisierten Schlüssels zurück
         return (COL.id && r[COL.id]) || '';
     }
 
@@ -69,7 +67,6 @@
     // Hilfsfunktion zur Darstellung der Zutaten (nimmt Pipe | oder \n)
     function ingredientList(txt) {
         if (!txt) return '';
-        // Hier verwenden wir das Pipe-Trennzeichen | aus der CSV
         const items = (txt + '').split('|').map(s => s.trim()).filter(Boolean);
         if (!items.length) return '';
         return '<ul class="ingredients-list">' +
@@ -80,13 +77,14 @@
     const container = document.getElementById('recipes');
 
     container.innerHTML = selected.map(r => {
+        // Metadaten-Mapping
         const name = S(r[COL.name] || 'Unbekannte Mischung');
         const cat = COL.category ? S(r[COL.category] || '') : '';
         const origin = COL.origin ? S(r[COL.origin] || '') : '';
         const sens = COL.sensorik ? S(r[COL.sensorik] || '') : '';
         const id = getId(r);
 
-        // --- Extrahieren der Details mit neuem Mapping ---
+        // Rezeptur-Details
         const zutaten = COL.zutaten ? ingredientList(r[COL.zutaten]) : '';
         const herst = COL.anleitung && r[COL.anleitung] ? '<div class="block-text">' + S(r[COL.anleitung]) + '</div>' : '';
         const proc = COL.prozess && r[COL.prozess] ? '<div class="block-text">' + S(r[COL.prozess]) + '</div>' : '';
@@ -94,7 +92,7 @@
         const reife = COL.reifezeit && r[COL.reifezeit] ? '<div class="block-text">' + S(r[COL.reifezeit]) + '</div>' : '';
         const anw = COL.anwendung && r[COL.anwendung] ? '<div class="block-text">' + S(r[COL.anwendung]) + '</div>' : '';
 
-        // Bild-Pfad (PlH_Illu wird nun über das Mapping gefunden)
+        // Bild-Pfad
         const illu = COL.illu && r[COL.illu] ? S(r[COL.illu]) : '';
         const imgHtml = illu
             ? `<div class="recipe-img-wrap">
@@ -120,23 +118,9 @@
                     </div>
                 </header>
 
-// Beispiel-Logik in mischungen_rezepte.html:
-// WICHTIG: Die Bedingung muss den gesamten HTML-Block umschließen.
+                ${zutaten ? '<h3 class="section-title">Zutaten &amp; Mengen</h3>' + zutaten : ''}
 
-// Vorheriger Code (nur das Feld ist leer, die Tags sind da und erzeugen Abstand):
-// const herst = r[COL.anleitung] ? '<div class="block-text">' + S(r[COL.anleitung]) + '</div>' : ''; 
-// return `... <h3 class="section-title">Anleitung</h3> ${herst} ...` 
-// --> Das erzeugt den Titel und den leeren div-Container (großer Abstand).
-
-// Korrigierte Logik (Abschnittstitel und Inhalt werden nur bei Existenz des Inhalts erzeugt):
-    ${zutaten ? 
-      '<h3 class="section-title">Zutaten &amp; Mengen</h3>' + zutaten : ''}
-
-    ${herst ? 
-      '<h3 class="section-title">Herstellung / Zubereitung (Anleitung)</h3>' + herst : ''}
-    
-    // ... und so weiter für alle Rezeptabschnitte.
-
+                ${herst ? '<h3 class="section-title">Herstellung / Zubereitung (Anleitung)</h3>' + herst : ''}
                 ${proc ? '<h3 class="section-title">Herstellungsprozess</h3>' + proc : ''}
                 ${temp ? '<h3 class="section-title">Temperaturführung</h3>' + temp : ''}
                 ${reife ? '<h3 class="section-title">Reifezeit / Lagerzeit</h3>' + reife : ''}

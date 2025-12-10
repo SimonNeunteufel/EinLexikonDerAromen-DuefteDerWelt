@@ -1,4 +1,4 @@
-// assets/js/util.js (FINALE Version, lesbar und extrem robust gegen Header-Fehler)
+// assets/js/util.js (FINALE Version: Aggressives Header-Normalizing)
 window.$util = {
     async _f(p) {
         const r = await fetch(p, { cache: 'no-store' });
@@ -6,7 +6,7 @@ window.$util = {
         return r.text()
     },
     
-    // FINALE CSV-PARSING-FUNKTION (aggressives Trimmen + Normalisierung auf Lowercase)
+    // FINALE CSV-PARSING-FUNKTION (Aggressives Trimmen + Normalisierung auf Lowercase)
     csv(t) {
         const separator = ';'; 
         const splitRegex = new RegExp(separator + '(?=(?:[^"]*"[^"]*")*[^"]*$)', 'g');
@@ -14,15 +14,15 @@ window.$util = {
         const L = t.split(/\r?\n/).filter(Boolean);
         if (!L.length) return [];
         
-        // Header-Parsing: EXTREM aggressiv trimmen und in Lowercase umwandeln
+        // 1. Header-Parsing: EXTREM aggressiv trimmen und in Lowercase umwandeln
         const H = L.shift().split(splitRegex)
-            .map(h => h.replace(/^"|"$/g, '') // Anführungszeichen entfernen
-                       .replace(/[\uFEFF\xA0\s]/g, '') // Unicode-Whitespace entfernen
+            .map(h => h.replace(/^"|"$/g, '')
+                       .replace(/[\uFEFF\xA0\s]/g, '') // Entfernt hartnäckige Unicode-Leerzeichen
                        .trim()
-                       .toLowerCase()); // ALLES in Kleinbuchstaben
+                       .toLowerCase()); // WICHTIG: ALLES in Kleinbuchstaben
         
         return L.map(r => {
-            // Datenzeilen: Nur trimmen und parsen
+            // 2. Datenzeilen parsen (Daten selbst bleiben im Original-Case)
             const C = r.split(splitRegex)
                 .map(c => c.replace(/^"|"$/g, '').trim());
             const o = {};
