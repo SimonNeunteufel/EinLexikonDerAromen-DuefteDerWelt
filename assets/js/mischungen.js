@@ -1,40 +1,146 @@
-
-(async()=>{
-  const {loadJSON,safe,debounce}=window.$util;
-  const data=await loadJSON("../data/master_recipes.json");
-  const keys=Object.keys(data[0]||{});
-  const show=["Mix_Name","Kategorie","Mix_Typ","SensorikProfil","PhysikalischeForm","Region","Land","Quelle","Source"].filter(c=>keys.includes(c));
-  const thead=document.querySelector("#tbl thead");
-  thead.innerHTML="<tr><th><input type='checkbox' id='headSelect'></th>"+show.map(c=>`<th>${c}</th>`).join("")+"</tr>";
-  const tbody=document.querySelector("#tbl tbody");
-  function rowId(r){
-  return r.MIX_ID       // neue Haupt-ID aus MasterRecipes
-      || r.ID_Neu
-      || r.Recipe_ID
-      || r.Rezept_ID
-      || r.id
-      || "";
-}
-
-  const mapS={S1:"sauer",S2:"süß",S3:"bitter",S4:"scharf",S5:"neutral/umami"};
-  const mapP={P1:"Pulver",P2:"Paste",P3:"Öl/Infusion",P4:"Harz/Granulat",P5:"Hybrid"};
-  function mapM(v){const m=String(v||"").match(/^M(\d{1,2})/i);if(!m)return v||"";const n=+m[1];const names={1:"Gewürzmischungen",2:"Kräuter-/Würzsalze",3:"Öl/Essig/Fett-Infusionen",4:"Süß-/Dessert-Mischungen",5:"Fermentierte Mischungen & Pasten",6:"Räucher-/Harzmischungen",7:"Spirituosen & Bar",8:"Parfüm & Sensorik",9:"Hybrid-Mischungen",10:"Rituell & ethnobotanisch",11:"Bar-/Pharma-Aromen & Bitterstoffe",12:"Technisch/regulatorisch",13:"Experimentell/interdisziplinär"};return names[n]?`M${n} – ${names[n]}`:v}
-  function render(rows){
-    tbody.innerHTML=rows.map(r=>{
-      const rid=rowId(r);
-      const cells=show.map(c=>{let val=safe(r[c]); if(c==="SensorikProfil"&&mapS[val]) val=mapS[val]; if(c==="PhysikalischeForm"&&mapP[val]) val=mapP[val]; if(c==="Mix_Typ") val=mapM(val); return `<td>${val}</td>`;}).join("");
-      return `<tr data-id="${rid}"><td><input class="sel" type="checkbox" data-id="${rid}"></td>${cells}</tr>`;
-    }).join("");
+// assets/js/mischungen.js
+(async () => {
+  // --- Daten laden ---------------------------------------------------------
+  let data = [];
+  try {
+    // zentrale Loader-Funktion aus util.js
+    data = await window.$util.loadRecipes();
+  } catch (e) {
+    window.$util.err(
+      'Daten konnten nicht geladen werden. ' +
+      'Lege <code>MasterRecipes.csv</code> oder <code>master_recipes.json</code> ' +
+      'in <code>/data/</code> oder <code>/assets/data/</code> ab.'
+    );
+    return;
   }
+
+  if (!data.length) {
+    window.$util.err('Keine Mischungsdaten gefunden.');
+    return;
+  }
+
+  const S = window.$util.safe;
+
+  // --- Spaltenanalyse ------------------------------------------------------
+  const keys = Object.keys(data[0] || {});
+
+  const findCol = (candidates) =>
+    candidates.find(c => keys.includes(c)) || null;
+
+  // robuste ID-Erkennung (MIX_ID, Mix_ID, Mix ID, id, …)
+  const MIX_ID_KEY =
+    keys.find(k => /mix[_\s\-]*id/i.test(k)) ||   // MIX_ID, Mix_ID, MIX ID
+    keys.find(k => /^id$/i.test(k)) ||            // Fallback: id
+    null;
+
+  // ID aus Datensatz extrahieren
+  function getId(row) {
+    return (MIX_ID_KEY && row[MIX_ID_KEY]) ||
+           row.MIX_ID ||
+           row.ID_Neu ||
+           row.Recipe_ID ||
+           row.Rezept_ID ||
+           row.id ||
+           '';
+  }
+
+  // Anzeige-Spalten
+  const COL = {
+    id:       MIX_ID_KEY || findCol(['MIX_ID','Mix_ID','ID_Neu','Recipe_ID','Rezept_ID','id']),
+    name:     findCol(['Mix_Name','Mischungsname','Mischung_Name','Name']),
+    origin:   findCol(['Herkunft','Region','Region_Summary','Herkunft_Summary']),
+    category: findCol(['Mix_Typ','Kategorie','Mix_Kategorie','Mischungskategorie']),
+    sensorik: findCol(['SensorikProfil','Sensorik_Profil','Sensorik','Sensorik_Profil_Summary'])
+  };
+
+  const visibleCols = [
+    { key: 'name',     label: 'Mischung' },
+    { key: 'origin',   label: 'Herkunft' },
+    { key: 'category', label: 'Kategorie' },
+    { key: 'sensorik', label: 'Sensorik' }
+  ];
+
+  // --- DOM-Elemente --------------------------------------------------------
+  const thead = document.querySelector('#t thead');
+  const tbody = document.querySelector('#t tbody');
+  const q     = document.getElementById('q');
+  const btnGo    = document.getElementById('go');
+  const btnHtml  = document.getElementById('toHtml');
+  const btnPdf   = document.getElementById('toPdf');
+  const chkAll   = document.getElementById('all');
+
+  if (!thead || !tbody) {
+    console.error('Tabelle #t nicht gefunden.');
+    return;
+  }
+
+  // --- Tabellenkopf bauen ---------------------------------------------------
+  thead.innerHTML =
+    '<tr><th></th>' +
+    visibleCols.map(c => `<th>${c.label}</th>`).join('') +
+    '</tr>';
+
+  // --- Tabelle rendern ------------------------------------------------------
+  function render(rows) {
+    tbody.innerHTML = rows.map(r => {
+      const idVal = S(getId(r));
+      const cells = visibleCols.map(c => {
+        const colName = COL[c.key];
+        return `<td>${colName ? S(r[colName]) : ''}</td>`;
+      }).join('');
+      return `<tr>
+        <td><input class="sel" type="checkbox" data-id="${idVal}"></td>
+        ${cells}
+      </tr>`;
+    }).join('');
+  }
+
+  // initial laden
   render(data);
-  const q=document.getElementById("q"), sF=document.getElementById("sFilter"), pF=document.getElementById("pFilter");
-  function apply(){const s=q.value.trim().toLowerCase(); const sCode=sF.value; const pCode=pF.value;
-    const f=data.filter(r=>{const okT=!s||Object.values(r).some(v=>(safe(v)+"").toLowerCase().includes(s)); const okS=!sCode||r["SensorikProfil"]===sCode; const okP=!pCode||r["PhysikalischeForm"]===pCode; return okT&&okS&&okP;}); render(f);}
-  q.addEventListener("input",debounce(apply,200)); sF.addEventListener("change",apply); pF.addEventListener("change",apply);
-  function setAll(c){ document.querySelectorAll("input.sel").forEach(x=>x.checked=c); }
-  const head=document.getElementById("headSelect"), all=document.getElementById("selectAll");
-  head&&head.addEventListener("change",e=>setAll(e.target.checked)); all&&all.addEventListener("change",e=>setAll(e.target.checked));
-  function selected(){ const a=[]; document.querySelectorAll("input.sel:checked").forEach(ch=>a.push(ch.getAttribute("data-id"))); return a.filter(Boolean); }
-  document.getElementById("btnHtml").addEventListener("click",()=>{ const ids=selected(); if(!ids.length){ alert('Bitte mindestens eine Mischung auswählen.'); return; } window.open(`./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(","))}`,"_blank"); });
-  document.getElementById("btnPdf").addEventListener("click",()=>{ const ids=selected(); if(!ids.length){ alert('Bitte mindestens eine Mischung auswählen.'); return; } window.open(`./mischung_rezepte.html?ids=${encodeURIComponent(ids.join(","))}&print=1`,"_blank"); });
-})();
+
+  // --- Suche ---------------------------------------------------------------
+  function filteredRows() {
+    const s = (q?.value || '').trim().toLowerCase();
+    if (!s) return data;
+    return data.filter(r =>
+      Object.values(r).some(v => (S(v) + '').toLowerCase().includes(s))
+    );
+  }
+
+  btnGo?.addEventListener('click', () => render(filteredRows()));
+
+  q?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') render(filteredRows());
+  });
+
+  // --- Alles wählen ---------------------------------------------------------
+  chkAll?.addEventListener('change', e => {
+    const checked = e.target.checked;
+    document.querySelectorAll('input.sel').forEach(x => {
+      x.checked = checked;
+    });
+  });
+
+  function selectedIds() {
+    return [...document.querySelectorAll('input.sel:checked')]
+      .map(x => x.dataset.id)
+      .filter(Boolean);
+  }
+
+  // --- Buttons Rezepte ------------------------------------------------------
+  btnHtml?.addEventListener('click', () => {
+    const ids = selectedIds();
+    if (!ids.length) {
+      alert('Bitte Mischung(en) auswählen.');
+      return;
+    }
+    window.open(
+      './mischung_rezepte.html?ids=' + encodeURIComponent(ids.join(',')),
+      '_blank'
+    );
+  });
+
+  btnPdf?.addEventListener('click', () => {
+    const ids = selectedIds();
+    if (!ids.length) {
+      alert('Bitte Mischung(en
