@@ -1,4 +1,4 @@
-// assets/js/mischungen.js (FINAL: Checkbox-Fix und Kategorie-Priorisierung)
+// assets/js/mischungen.js (FINAL: Checkbox- und Multi-Selektions-Fix)
 
 (async () => {
     let allData = []; 
@@ -36,7 +36,6 @@
     const S = window.$util.safe;
     const keys = Object.keys(allData[0] || {});
 
-    // ACHTUNG: Die Suche muss IMMER in Kleinbuchstaben erfolgen!
     const findCol = (candidates) =>
         candidates.find(c => keys.includes(c.toLowerCase())) || null;
 
@@ -45,7 +44,7 @@
         id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
         name: findCol(['name_deutsch', 'original_name', 'mix_name', 'mischungsname']),
         origin: findCol(['herkunft', 'region_norm', 'original_region', 'region_summary']),
-        // FIX: Priorisiert inhaltsreiche Spalten (kategorie_multi) vor dem simplen Typ (mix_typ)
+        // FIX: Priorisiert inhaltsreiche Spalten
         category: findCol(['kategorie_multi', 'anwendungsbereich_multi', 'kategorie', 'mix_typ']),
         sensorik: findCol(['sensorik', 'sensorik_multi', 'sensorikprofil'])
     };
@@ -116,12 +115,12 @@
 
             tr.addEventListener('click', (e) => {
                 // FIX: Stoppt die Propagation, wenn Checkbox oder Button geklickt wird
-                if (e.target.type === 'checkbox' || e.target.tagName === 'BUTTON') {
+                if (e.target.type === 'checkbox' || e.target.tagName === 'BUTTON' || e.target === checkbox) {
                     e.stopPropagation(); 
                     return;
                 }
                 
-                // Öffne das Einzelrezept
+                // Einzelklick öffnet Einzelrezept
                 window.open(`./mischung_rezepte.html?id=${mixId}`, '_blank');
             });
 
@@ -152,7 +151,7 @@
     }
 
     function getSelectedMixIds() {
-        // Wird nur für die Buttons benötigt
+        // Wird für die "Ausgewählte Rezepte" Buttons benötigt
         const checkboxes = document.querySelectorAll('#t tbody input.mix-checkbox:checked'); 
         return Array.from(checkboxes).map(cb => cb.value).filter(Boolean);
     }
@@ -168,6 +167,7 @@
         const idsParam = encodeURIComponent(selectedIds.join(','));
 
         if (format === 'html') {
+            // Nutzt die ids-Liste für Multi-Auswahl
             const url = `./mischung_rezepte.html?ids=${idsParam}`;
             window.open(url, '_blank');
         } else if (format === 'pdf') {
@@ -195,8 +195,12 @@
 
     if (cbAll) cbAll.addEventListener('change', (e) => {
         const isChecked = e.target.checked;
-        document.querySelectorAll('#t input[type="checkbox"]').forEach(cb => {
-            cb.checked = isChecked;
+        // Wählt alle Checkboxen (im Header und im Footer) ab/an
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+             // Wählt nur die Checkboxen der sichtbaren Tabelle an, um Konflikte zu vermeiden
+             if (cb.id === 'header-all' || cb.classList.contains('mix-checkbox')) {
+                cb.checked = isChecked;
+             }
         });
     });
 

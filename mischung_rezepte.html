@@ -2,7 +2,7 @@
 <script src="./assets/js/bg_loader.js"></script>
 <script>
 (async () => {
-    // Fängt sowohl 'id' (Einzelklick) als auch 'ids' (Multi-Auswahl)
+    // Fängt sowohl 'id' (Einzelklick) als auch 'ids' (Multi-Auswahl von Checkboxen)
     const params = new URLSearchParams(location.search);
     const idsParam = params.get('ids') || params.get('id') || ''; 
     const idList = idsParam.split(',').map(s => s.trim()).filter(Boolean);
@@ -12,7 +12,7 @@
 
     // Sicherheit 1: Keine ID gefunden
     if (!idList.length) {
-        container.innerHTML = '<p>Keine Mischungen zur Anzeige ausgewählt (Fehler: Leere ID-Liste).<br>Bitte wählen Sie eine Mischung in der Suchtabelle aus.</p>';
+        container.innerHTML = '<p>Keine Mischungen zur Anzeige ausgewählt (Fehler: Leere ID-Liste).<br>Bitte wähle eine Mischung in der Suchtabelle aus.</p>';
         return;
     }
 
@@ -20,7 +20,7 @@
     try {
         data = await $util.loadRecipes(); 
     } catch (e) {
-        container.innerHTML = `<p>FEHLER: Daten konnten nicht geladen werden. Bitte prüfen Sie die Konsolen-Logs. (${e})</p>`;
+        container.innerHTML = `<p>FEHLER: Daten konnten nicht geladen werden. Bitte prüfe die Konsolen-Logs. (${e})</p>`;
         return;
     }
 
@@ -43,7 +43,7 @@
         // IDs & Metadaten
         id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
         name: findCol(['name_deutsch', 'original_name', 'mix_name']),
-        category: findCol(['mix_typ', 'kategorie_multi', 'anwendungsbereich_multi']),
+        category: findCol(['kategorie_multi', 'anwendungsbereich_multi', 'mix_typ']),
         sensorik: findCol(['sensorik', 'sensorik_multi']),
         origin: findCol(['region_norm', 'herkunft', 'original_region']),
         illu: findCol(['plh_illu', 'illu', 'bildname']),
@@ -75,7 +75,7 @@
 
     // Sicherheit 4: ID konnte nicht gematcht werden
     if (selected.length === 0) {
-        container.innerHTML = `<p>Die ausgewählte Mischung (ID: ${idList.join(', ')}) konnte in den geladenen Rezepten nicht gefunden werden. Bitte prüfen Sie, ob die ID in der CSV-Datei korrekt ist.</p>`;
+        container.innerHTML = `<p>Die ausgewählte Mischung (ID: ${idList.join(', ')}) konnte in den geladenen Rezepten nicht gefunden werden. Bitte prüfe, ob die ID in der CSV-Datei korrekt ist.</p>`;
         return;
     }
     
@@ -93,13 +93,13 @@
     container.innerHTML = selected.map(r => {
         // Metadaten-Mapping
         const name = S(r[COL.name] || 'Unbekannte Mischung');
-        // FIX: Sicherstellung, dass S() aufgerufen wird, falls der COL-Key null ist
         const cat = COL.category ? S(r[COL.category] || '') : '';
         const origin = COL.origin ? S(r[COL.origin] || '') : '';
         const sens = COL.sensorik ? S(r[COL.sensorik] || '') : '';
         const id = getId(r);
 
         // Rezeptur-Details
+        // FIX: Doppelte Absicherung der Feldwerte mit S()
         const zutaten = COL.zutaten ? ingredientList(S(r[COL.zutaten])) : '';
         const herst = COL.anleitung && S(r[COL.anleitung]) ? '<div class="block-text">' + S(r[COL.anleitung]) + '</div>' : '';
         const proc = COL.prozess && S(r[COL.prozess]) ? '<div class="block-text">' + S(r[COL.prozess]) + '</div>' : '';
