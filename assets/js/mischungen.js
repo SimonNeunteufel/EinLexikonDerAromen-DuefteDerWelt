@@ -73,7 +73,7 @@ const cb = document.createElement('input');
 cb.type = 'checkbox';
 cb.className = 'mix-checkbox';
 cb.value = mixId;
-cb.title = "Diese Mischung auswählen"; // Behebt den Console-Error
+cb.title = "Diesen Eintrag auswählen"; // Fügt das notwendige Label-Ersatz-Attribut hinzu
 tdCb.appendChild(cb);            tr.appendChild(tdCb);
 
             visibleCols.forEach(col => {
