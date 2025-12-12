@@ -1,4 +1,4 @@
-// assets/js/util.js (FINALE Version: Nur Korrekter Pfad und Robuster Header-Normalizer)
+// assets/js/util.js (FINALE VERSION: Korrigiert Anführungszeichen im Header)
 window.$util = {
     async _f(p) {
         const r = await fetch(p, { cache: 'no-store' });
@@ -9,7 +9,7 @@ window.$util = {
         return r.text()
     },
     
-    // FINALE CSV-PARSING-FUNKTION (Aggressives Trimmen + Normalisierung auf Lowercase)
+    // FINALE CSV-PARSING-FUNKTION (Robuste Spaltennormalisierung)
     csv(t) {
         const separator = ';'; 
         const splitRegex = new RegExp(separator + '(?=(?:[^"]*"[^"]*")*[^"]*$)', 'g');
@@ -19,10 +19,9 @@ window.$util = {
         
         // 1. Header-Parsing: Normalisierung auf Lowercase
         const H = L.shift().split(splitRegex)
-            .map(h => h.replace(/^"|"$/g, '')
-                        .replace(/[\uFEFF\xA0\s]/g, '')
+            .map(h => h.replace(/[\uFEFF\xA0\s]/g, '') // Entfernt Unicode-Leerzeichen
                         .trim()
-                        .toLowerCase());
+                        .toLowerCase()); // ALLES in Kleinbuchstaben
         
         if (H.some(h => !h) || H.length < 5) {
             console.error("Kritischer Header-Fehler: Header-Spalten nach Parsen ungültig oder zu kurz.");
@@ -30,8 +29,10 @@ window.$util = {
         }
 
         return L.map(r => {
+            // Die Datenfelder (C) müssen die äußeren Anführungszeichen entfernen, falls sie da sind
             const C = r.split(splitRegex)
-                .map(c => c.replace(/^"|"$/g, '').trim());
+                .map(c => c.replace(/^"|"$/g, '').trim()); // Entfernt äußere Anführungszeichen nur an den Enden
+
             const o = {};
             H.forEach((h, i) => o[h] = C[i] || '');
             return o
@@ -42,7 +43,7 @@ window.$util = {
         for (const x of p) {
             try { return this.csv(await this._f(x)) } catch (e) { 
                 console.error("Fehler beim Laden oder Parsen von CSV:", x, e); 
-                throw e; // Werfen, damit loadRecipes auf die Fallback-Liste zugreifen kann
+                throw e; 
             }
         }
         throw "Ladefehler: Alle CSV-Pfade fehlgeschlagen.";
@@ -62,12 +63,11 @@ window.$util = {
 
     async loadRecipes() {
         try { 
-            // FIX: NUR den korrekten Pfad versuchen (wie besprochen)
+            // Nur der korrekte Pfad
             return await this.loadCSV(['./assets/data/MasterRecipes.csv']);
         }
         catch (e) { 
             console.warn("CSV-Laden fehlgeschlagen. Versuche JSON Fallback...", e);
-            // Fallback auf JSON
             return await this.loadJSON(['./assets/data/master_recipes.json', './data/master_recipes.json']);
         }
     },

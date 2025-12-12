@@ -3,191 +3,66 @@
 <script>
 (async () => {
     let allData = [];
-    let currentData = [];
-    let currentIndex = -1;
-    
     const container = document.getElementById('recipes');
-    const navContainer = document.getElementById('recipe-navigation');
     const S = window.$util.safe;
-    let COL = {};
 
-    // --- DATENLADUNG UND INITIALISIERUNG ---
-
+    // --- DATENLADUNG ---
     try {
-        allData = await $util.loadRecipes(); 
-        if (!allData.length) {
-            container.innerHTML = '<p>Keine Rezepte in der Datenquelle gefunden.</p>';
-            return;
-        }
-
-        const sample = allData[0] || {};
-        const KEYS = Object.keys(sample);
-        const findCol = (candidates) =>
-            candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
-
-        // --- SPALTEN-MAPPING (MUSS ZUM CSV-HEADER PASSEN!) ---
-        COL = {
-            id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
-            name: findCol(['name_deutsch', 'original_name', 'mix_name']),
-            category: findCol(['kategorie_multi', 'anwendungsbereich_multi', 'mix_typ']),
-            sensorik: findCol(['sensorik', 'sensorik_multi']),
-            origin: findCol(['region_norm', 'herkunft', 'original_region']),
-            illu: findCol(['plh_illu', 'illu', 'bildname']),
-            
-            // --- REZEPTUR-DETAIL-SPALTEN ---
-            zutaten: findCol(['zutaten_mengen_structured', 'zutaten_liste']),
-            anleitung: findCol(['herstellung_zubereitung']), 
-            prozess: findCol(['herstellungsprozess']),
-            temperatur: findCol(['temperaturfuehrung']),
-            reifezeit: findCol(['reifezeit_lagerzeit']),
-            anwendung: findCol(['anwendung'])
-        };
-        
-        if (!COL.id) {
-            container.innerHTML = `<p>FEHLER: Die Spalte für die Mischungs-ID (MIX_ID) wurde in der Datei nicht gefunden.</p>`;
-            return;
-        }
-
+        allData = await window.$util.loadRecipes(); 
     } catch (e) {
-        // Kritischer Fehler abgefangen, um leere Seite zu verhindern
-        container.innerHTML = `<p>FEHLER: Daten konnten nicht geladen werden. Bitte prüfe die Konsolen-Logs. (${e})</p>`;
+        container.innerHTML = `<p>KRITISCHER FEHLER beim Laden der Daten (loadRecipes): ${e}</p>`;
         return;
     }
-    
-    // --- HILFSFUNKTIONEN ---
-    function getId(r) {
-        return (COL.id && r[COL.id]) || '';
+
+    if (!allData || allData.length === 0) {
+        container.innerHTML = '<p>Daten geladen, aber keine Rezepte in der Datei gefunden.</p>';
+        return;
     }
 
+    // --- MAPPING (Minimal) ---
+    const r = allData[0]; // Nur das erste Rezept laden
+    const KEYS = Object.keys(r);
+    const findCol = (candidates) => candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
+
+    const COL_NAME = findCol(['name_deutsch', 'mix_name']);
+    const COL_ID = findCol(['mix_id', 'id']);
+    const COL_ZUTATEN = findCol(['zutaten_mengen_structured', 'zutaten_liste']);
+
+    if (!COL_ID || !COL_NAME) {
+         container.innerHTML = `<p>FEHLER: Spalten 'MIX_ID' und/oder 'NAME_DEUTSCH' wurden in der CSV nicht gefunden. Gefundene Header: ${KEYS.join(', ')}</p>`;
+         return;
+    }
+
+    // --- ZUTATEN HELPER ---
     function ingredientList(txt) {
         if (!txt) return '';
+        // Sucht nach Pipe (|) oder Semikolon (;)
         const items = (txt + '').split(/\||;/).map(s => s.trim()).filter(Boolean); 
         if (!items.length) return '';
-        return '<ul class="ingredients-list">' +
+        return '<ul style="list-style: disc inside; padding-left: 20px;">' +
             items.map(x => '<li>' + S(x) + '</li>').join('') +
             '</ul>';
     }
 
-    // --- NAVIGATION UND RENDERING LOGIK ---
+    // --- RENDERING DES ERSTEN REZEPTS OHNE URL-CHECK ---
+    const name = S(r[COL_NAME] || 'Unbekannt');
+    const id = S(r[COL_ID] || 'N/A');
+    const zutaten = COL_ZUTATEN ? ingredientList(S(r[COL_ZUTATEN])) : 'Zutaten-Spalte nicht gefunden.';
 
-    function updateNavigation() {
-        if (!navContainer || currentData.length <= 1) {
-            navContainer.style.display = 'none';
-            return;
-        }
-        navContainer.style.display = 'flex';
+    container.innerHTML = `
+        <article style="border: 2px solid green; padding: 20px;">
+            <p style="color: green;"><strong>✅ TEST ERFOLGREICH:</strong> Daten wurden geladen!</p>
+            <h2 style="color: #333;">${name}</h2>
+            <p><strong>ID:</strong> ${id}</p>
+            <p><strong>Zutaten (Test):</strong></p>
+            ${zutaten}
+            <p style="margin-top: 15px;">Wenn du diesen Text siehst, liegt der Fehler nur noch in der <strong>URL-Analyse (Navigation)</strong>.</p>
+        </article>
+    `;
+    
+    // Deaktiviere das Navigationselement, da wir nur ein Element anzeigen
+    const navContainer = document.getElementById('recipe-navigation');
+    if(navContainer) navContainer.style.display = 'none';
 
-        const prevButton = `<button id="prev-recipe" ${currentIndex <= 0 ? 'disabled' : ''}>&larr; Vorheriges Rezept</button>`;
-        const nextButton = `<button id="next-recipe" ${currentIndex >= currentData.length - 1 ? 'disabled' : ''}>Nächstes Rezept &rarr;</button>`;
-        const status = `<span>${currentIndex + 1} von ${currentData.length}</span>`;
-
-        navContainer.innerHTML = `${prevButton} ${status} ${nextButton}`;
-
-        if (currentIndex > 0) {
-            document.getElementById('prev-recipe').onclick = () => loadSelectedRecipe(currentIndex - 1);
-        }
-        if (currentIndex < currentData.length - 1) {
-            document.getElementById('next-recipe').onclick = () => loadSelectedRecipe(currentIndex + 1);
-        }
-    }
-
-    function renderRecipe(r) {
-        const name = S(r[COL.name] || 'Unbekannte Mischung');
-        const cat = COL.category ? S(r[COL.category] || '') : '';
-        const origin = COL.origin ? S(r[COL.origin] || '') : '';
-        const sens = COL.sensorik ? S(r[COL.sensorik] || '') : '';
-        const id = getId(r);
-        
-        // Rezeptur-Details
-        const zutaten = COL.zutaten ? ingredientList(S(r[COL.zutaten])) : '';
-        const herst = COL.anleitung && S(r[COL.anleitung]) ? '<div class="block-text">' + S(r[COL.anleitung]) + '</div>' : '';
-        const proc = COL.prozess && S(r[COL.prozess]) ? '<div class="block-text">' + S(r[COL.prozess]) + '</div>' : '';
-        const temp = COL.temperatur && S(r[COL.temperatur]) ? '<div class="block-text">' + S(r[COL.temperatur]) + '</div>' : '';
-        const reife = COL.reifezeit && S(r[COL.reifezeit]) ? '<div class="block-text">' + S(r[COL.reifezeit]) + '</div>' : '';
-        const anw = COL.anwendung && S(r[COL.anwendung]) ? '<div class="block-text">' + S(r[COL.anwendung]) + '</div>' : '';
-
-        // Bild-Pfad
-        const illuId = COL.illu && S(r[COL.illu]) ? S(r[COL.illu]) : id; 
-        const imgHtml = illuId
-            ? `<div class="recipe-img-wrap">
-                   <img class="recipe-img"
-                        src="./assets/img/mischungen/${illuId}.jpg"
-                        alt="${name}"
-                        onerror="this.style.display='none'">
-               </div>`
-            : '';
-
-        container.innerHTML = `
-            <article class="recipe" data-id="${id}">
-                <header class="recipe-header">
-                    ${imgHtml}
-                    <div class="recipe-header-text">
-                        <h2 class="recipe-title">${name}</h2>
-                        <div class="recipe-meta">
-                            ${origin ? 'Herkunft: ' + origin + '<br>' : ''}
-                            ${cat ? 'Kategorie: ' + cat + '<br>' : ''}
-                            ${sens ? 'Sensorik: ' + sens : ''}
-                        </div>
-                        <div class="recipe-meta">ID: ${S(id)}</div>
-                    </div>
-                </header>
-
-                ${zutaten ? '<h3 class="section-title">Zutaten &amp; Mengen</h3>' + zutaten : ''}
-
-                ${herst ? '<h3 class="section-title">Herstellung / Zubereitung (Anleitung)</h3>' + herst : ''}
-                ${proc ? '<h3 class="section-title">Herstellungsprozess</h3>' + proc : ''}
-                ${temp ? '<h3 class="section-title">Temperaturführung</h3>' + temp : ''}
-                ${reife ? '<h3 class="section-title">Reifezeit / Lagerzeit</h3>' + reife : ''}
-                ${anw ? '<h3 class="section-title">Anwendung</h3>' + anw : ''}
-            </article>
-        `;
-    }
-
-    function loadSelectedRecipe(index) {
-        if (index < 0 || index >= currentData.length) return;
-        currentIndex = index;
-        const recipe = currentData[currentIndex];
-        renderRecipe(recipe);
-        updateNavigation();
-        
-        // URL-Update für den Startpunkt (wichtig bei Multi-Auswahl)
-        const allIds = currentData.map(r => getId(r)).join(',');
-        const newUrl = currentData.length > 1 
-            ? `?ids=${allIds}&id=${getId(recipe)}`
-            : `?id=${getId(recipe)}`;
-            
-        history.replaceState(null, '', newUrl);
-    }
-
-    // --- STARTPUNKT ---
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialIdList = (urlParams.get('ids') || urlParams.get('id') || '').split(',').map(s => s.trim()).filter(Boolean);
-    const initialSingleId = urlParams.get('id');
-
-    const byId = new Map(allData.map(r => [getId(r), r]));
-
-    if (initialIdList.length > 0) {
-        // 1. Multi-Auswahl oder Einzelklick (filtert die gesamte allData)
-        currentData = initialIdList.map(id => byId.get(id)).filter(Boolean);
-
-        if (currentData.length === 0) {
-            container.innerHTML = `<p>Die ausgewählte Mischung (ID: ${initialIdList.join(', ')}) konnte nicht gefunden werden.</p>`;
-            return;
-        }
-
-        // Finde den Start-Index
-        const startIndex = initialSingleId ? currentData.findIndex(r => getId(r) === initialSingleId) : 0;
-        currentIndex = (startIndex !== -1) ? startIndex : 0; 
-        
-        loadSelectedRecipe(currentIndex);
-
-    } else {
-        // 2. KEINE ID in der URL: Lade das ALLERERSTE Rezept als Fallback
-        currentData = allData;
-        currentIndex = 0; 
-        loadSelectedRecipe(currentIndex); 
-        navContainer.style.display = 'none';
-        container.innerHTML += `<p style="font-size: 0.8em; color: #999; margin-top: 20px;">(Zeigt das erste Rezept der Master-Liste, da keine ID in der URL gefunden wurde.)</p>`;
-    }
 })();
 </script>
