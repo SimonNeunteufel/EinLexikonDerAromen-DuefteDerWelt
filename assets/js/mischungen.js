@@ -1,10 +1,5 @@
-// assets/js/mischungen.js (FINAL: Echte Checkboxen und korrigierte Spaltenpriorität)
-
 (async () => {
     let allData = []; 
-    let filteredData = []; 
-
-    // --- DOM-Elemente abrufen ---
     const thead = document.querySelector('#t thead');
     const tbody = document.querySelector('#t tbody');
     const q = document.getElementById('q');
@@ -13,40 +8,24 @@
     const btnPdf = document.getElementById('toPdf');
     const cbAll = document.getElementById('all');
 
-    if (!thead || !tbody) {
-        console.error("Tabellen-Elemente (#t thead / #t tbody) nicht gefunden.");
-        return; 
-    }
-
     try {
         allData = await window.$util.loadRecipes();
     } catch (e) {
-        window.$util.err(
-            'Daten konnten nicht geladen werden. ' +
-            'Prüfe, ob MasterRecipes.csv korrekt formatiert ist. (Fehler: ' + e + ')'
-        );
-        return;
-    }
-
-    if (!allData.length) {
-        window.$util.err('Keine Mischungsdaten in der geladenen Datei gefunden.');
+        window.$util.err('Fehler beim Laden: ' + e);
         return;
     }
 
     const S = window.$util.safe;
     const keys = Object.keys(allData[0] || {});
+    const findCol = (candidates) => candidates.find(c => keys.includes(c.toLowerCase())) || null;
 
-    const findCol = (candidates) =>
-        candidates.find(c => keys.includes(c.toLowerCase())) || null;
-
-    // --- FINALE PRÄZISIERTE SPALTEN-MAPPING ---
     const COL = {
-        id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
-        name: findCol(['name_deutsch', 'original_name', 'mix_name', 'mischungsname']),
-        origin: findCol(['herkunft', 'region_norm', 'original_region', 'region_summary']),
-        // FIX: Priorisiert inhaltsreiche Spalten (kategorie_multi) vor dem simplen Typ (mix_typ)
-        category: findCol(['kategorie_multi', 'anwendungsbereich_multi', 'kategorie', 'mix_typ']),
-        sensorik: findCol(['sensorik', 'sensorik_multi', 'sensorikprofil'])
+        id: findCol(['mix_id', 'id_neu']),
+        name: findCol(['name_deutsch', 'mix_name']),
+        origin: findCol(['region_norm', 'herkunft']),
+        // FIX: kategorie_multi bevorzugen für vollen Text statt nur "G/V"
+        category: findCol(['kategorie_multi', 'anwendungsbereich_multi', 'mix_typ']),
+        sensorik: findCol(['sensorik', 'sensorik_multi'])
     };
 
     const visibleCols = [
@@ -58,150 +37,79 @@
 
     function setupTableHeader() {
         const tr = document.createElement('tr');
-// In der Funktion setupTableHeader() in mischungen.js
-const headerAllCheckbox = document.createElement('input');
-headerAllCheckbox.type = 'checkbox';
-headerAllCheckbox.id = 'header-all';
-headerAllCheckbox.title = "Alle Mischungen auswählen"; // Behebt den Konsolen-Fehler        
-        tr.innerHTML = '<th></th>' + 
-            visibleCols.map(col => `<th>${col.label}</th>`).join('');
-        
+        const thCb = document.createElement('th');
+        const headerAllCheckbox = document.createElement('input');
+        headerAllCheckbox.type = 'checkbox';
+        headerAllCheckbox.id = 'header-all';
+        // Accessibility Fix
+        headerAllCheckbox.title = "Alle Mischungen auswählen"; 
+        thCb.appendChild(headerAllCheckbox);
+        tr.appendChild(thCb);
+
+        visibleCols.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col.label;
+            tr.appendChild(th);
+        });
         thead.innerHTML = '';
         thead.appendChild(tr);
-        
-        tr.querySelector('th').appendChild(headerAllCheckbox); 
 
         headerAllCheckbox.addEventListener('change', (e) => {
             const isChecked = e.target.checked;
-            document.querySelectorAll('#t tbody input.mix-checkbox').forEach(cb => {
-                cb.checked = isChecked;
-            });
+            document.querySelectorAll('.mix-checkbox').forEach(cb => cb.checked = isChecked);
             if(cbAll) cbAll.checked = isChecked;
         });
     }
 
-    function renderTable(dataToRender) {
+    function renderTable(data) {
         tbody.innerHTML = '';
-        
-        if (!dataToRender.length) {
-            tbody.innerHTML = '<tr><td colspan="5">Keine Ergebnisse gefunden.</td></tr>';
-            filteredData = [];
-            const headerAll = document.getElementById('header-all');
-            if(headerAll) headerAll.checked = false;
-            if(cbAll) cbAll.checked = false;
-            return;
-        }
-
-        filteredData = dataToRender;
-
-        dataToRender.forEach((row) => {
+        data.forEach((row) => {
             const tr = document.createElement('tr');
             const mixId = row[COL.id]; 
             
-            const checkboxCell = document.createElement('td');
-const checkbox = document.createElement('input');
-checkbox.type = 'checkbox';
-checkbox.className = 'mix-checkbox';
-checkbox.title = "Diese Mischung auswählen"; // Behebt den Konsolen-Fehler
-checkbox.value = mixId;            checkboxCell.appendChild(checkbox);
-            tr.appendChild(checkboxCell);
+            const tdCb = document.createElement('td');
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.className = 'mix-checkbox';
+            cb.value = mixId;
+            // Accessibility Fix
+            cb.title = "Diese Mischung auswählen"; 
+            tdCb.appendChild(cb);
+            tr.appendChild(tdCb);
 
-            visibleCols.forEach(colConfig => {
+            visibleCols.forEach(col => {
                 const td = document.createElement('td');
-                const value = row[COL[colConfig.key]] || ''; 
-                td.textContent = value;
-                td.title = value; 
+                td.textContent = row[COL[col.key]] || '';
                 tr.appendChild(td);
             });
 
-            // WICHTIG: Row Click (öffnet das Einzelrezept)
             tr.addEventListener('click', (e) => {
-                // FIX: Stoppt die Propagation, wenn Checkbox oder Button geklickt wird
-                // e.target.type === 'checkbox' FÄNGT die Checkbox ab, sodass sie angeklickt werden kann
-                if (e.target.type === 'checkbox' || e.target.tagName === 'BUTTON') {
-                    e.stopPropagation(); 
-                    return;
+                if (e.target.type !== 'checkbox') {
+                    window.open(`./mischung_rezepte.html?id=${mixId}`, '_blank');
                 }
-                
-                // Einzelklick öffnet Einzelrezept
-                window.open(`./mischung_rezepte.html?id=${mixId}`, '_blank');
             });
-
             tbody.appendChild(tr);
         });
     }
-    
-    function filterData(searchTerm) {
-        const term = searchTerm.toLowerCase().trim();
-        if (!term) return allData;
 
-        return allData.filter(row => {
-            const searchFields = [
-                row[COL.name],
-                row[COL.origin],
-                row[COL.category],
-                row[COL.sensorik]
-            ].filter(Boolean).map(v => String(v).toLowerCase());
+    setupTableHeader();
+    renderTable(allData);
 
-            return searchFields.some(field => field.includes(term));
-        });
-    }
+    const search = () => {
+        const term = q.value.toLowerCase();
+        const filtered = allData.filter(r => 
+            Object.values(r).some(v => String(v).toLowerCase().includes(term))
+        );
+        renderTable(filtered);
+    };
 
-    function search() {
-        const searchTerm = q.value;
-        const results = filterData(searchTerm);
-        renderTable(results);
-    }
-
-    function getSelectedMixIds() {
-        // Wird für die "Ausgewählte Rezepte" Buttons benötigt
-        const checkboxes = document.querySelectorAll('#t tbody input.mix-checkbox:checked'); 
-        return Array.from(checkboxes).map(cb => cb.value).filter(Boolean);
-    }
-
-    function handleRecipeOutput(format) {
-        const selectedIds = getSelectedMixIds();
-        
-        if (selectedIds.length === 0) {
-            alert('Bitte wählen Sie zuerst mindestens eine Mischung aus.');
-            return;
-        }
-
-        const idsParam = encodeURIComponent(selectedIds.join(','));
-
-        if (format === 'html') {
-            // Nutzt die ids-Liste für Multi-Auswahl
-            const url = `./mischung_rezepte.html?ids=${idsParam}`;
-            window.open(url, '_blank');
-        } else if (format === 'pdf') {
-            const url = `./mischung_rezepte.html?ids=${idsParam}&print=1`;
-            window.open(url, '_blank');
-        }
-    }
-
-
-    // --- INITIALISIERUNG & EVENT-LISTENER ---
-
-    setupTableHeader(); 
-    renderTable(allData); 
-
-    if (btnGo) btnGo.addEventListener('click', search);
-    
-    if (q) q.addEventListener('keyup', (e) => {
-        if (e.key === 'Enter') {
-            search();
-        }
-    });
-
-    if (btnHtml) btnHtml.addEventListener('click', () => handleRecipeOutput('html'));
-    if (btnPdf) btnPdf.addEventListener('click', () => handleRecipeOutput('pdf'));
-
-    if (cbAll) cbAll.addEventListener('change', (e) => {
-        const isChecked = e.target.checked;
-        // Wählt alle Checkboxen der sichtbaren Tabelle an
-        document.querySelectorAll('#t input.mix-checkbox').forEach(cb => {
-            cb.checked = isChecked;
-        });
-    });
-
+    if (btnGo) btnGo.onclick = search;
+    if (btnHtml) btnHtml.onclick = () => {
+        const ids = Array.from(document.querySelectorAll('.mix-checkbox:checked')).map(cb => cb.value);
+        if (ids.length) window.open(`./mischung_rezepte.html?ids=${ids.join(',')}`, '_blank');
+    };
+    if (cbAll) cbAll.onchange = (e) => {
+        document.getElementById('header-all').checked = e.target.checked;
+        document.querySelectorAll('.mix-checkbox').forEach(cb => cb.checked = e.target.checked);
+    };
 })();
