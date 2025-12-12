@@ -2,105 +2,139 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Rezeptansicht</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1"> 
+    <title>Mischungs Rezepte</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; background: #f4f4f4; color: #333; line-height: 1.5; }
-        .page { max-width: 850px; margin: 20px auto; background: white; padding: 40px; border-radius: 8px; position: relative; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        /* Eigenständiges Design, um Konflikte mit der styles.css zu vermeiden */
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; line-height: 1.5; }
+        .page { max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative; }
         
-        /* ID oben rechts positionieren */
-        .rid { position: absolute; top: 30px; right: 30px; font-size: 0.85em; color: #999; font-family: monospace; font-weight: bold; }
+        /* FIX: ID oben rechts positionieren */
+        .recipe-id-top { position: absolute; top: 20px; right: 20px; font-size: 0.9em; color: #999; font-family: monospace; }
         
-        .header { display: flex; gap: 25px; margin-bottom: 30px; align-items: flex-start; }
+        .recipe { margin-bottom: 30px; }
+        .recipe-header { display: flex; align-items: flex-start; margin-bottom: 30px; gap: 20px; }
         
-        /* Bild-Box Pfad-Logik */
-        .img-box { width: 180px; height: 180px; background: #eee; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 1px solid #ddd; }
-        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        /* Bild-Container wie in der funktionierenden Version */
+        .recipe-img-wrap { width: 180px; height: 180px; flex-shrink: 0; background-color: #eee; border-radius: 12px; overflow: hidden; border: 1px solid #ddd; }
+        .recipe-img { width: 100%; height: 100%; object-fit: cover; display: block; }
         
-        .title { margin: 0; font-size: 2.2em; color: #000; padding-right: 140px; }
-        .sec { border-bottom: 2px solid #eee; margin: 30px 0 15px; font-weight: bold; font-size: 1.2em; }
+        .recipe-header-text { flex-grow: 1; padding-right: 100px; }
+        .recipe-title { margin: 0 0 10px 0; font-size: 2.2em; color: #000; }
+        .recipe-meta { font-size: 0.95em; color: #666; }
         
-        /* Zutaten mit Spiegelstrich "-" */
-        .ing { list-style: none; padding: 0; margin: 0; }
-        .ing li { padding: 4px 0; border-bottom: 1px solid #f9f9f9; }
+        .section-title { border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 30px; margin-bottom: 15px; color: #000; font-weight: bold; }
         
-        /* Textblöcke mit Zeilenumbrüchen statt Pipes */
-        .txt { white-space: pre-wrap; background: #f9f9f9; padding: 15px; border-left: 4px solid #ccc; border-radius: 4px; margin-top: 5px; }
-
-        @media print { .no-print { display: none; } .page { box-shadow: none; width: 100%; page-break-after: always; margin: 0; } }
+        /* FIX: Zutaten-Liste mit "-" anstelle von Bullets */
+        .ingredients-list { list-style: none; padding: 0; margin: 0; }
+        .ingredients-list li { margin-bottom: 5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 2px; }
+        
+        /* FIX: Box für Textblöcke mit Zeilenumbrüchen */
+        .block-text { white-space: pre-wrap; padding: 15px; background: #f9f9f9; border-left: 4px solid #ccc; border-radius: 4px; margin: 10px 0; }
+        
+        .nav-link { text-decoration: none; color: #007bff; font-weight: bold; display: inline-block; margin-bottom: 20px; }
+        #recipe-navigation button { padding: 8px 16px; border: 1px solid #ccc; background: #fff; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        #recipe-navigation button:disabled { opacity: 0.3; cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <div id="recipes-wrapper"></div>
 
-    <script src="./assets/js/util.js"></script>
-    <script>
-    (async () => {
-        const container = document.getElementById('recipes-wrapper');
-        try {
-            const allData = await window.$util.loadRecipes();
-            const params = new URLSearchParams(location.search);
-            const ids = (params.get('ids') || params.get('id') || "").split(',').filter(Boolean);
-            
-            const keys = Object.keys(allData[0] || {});
-            const find = (cands) => cands.find(c => keys.some(k => k.toLowerCase() === c.toLowerCase())) || keys[0];
+<div class="page">
+    <a href="./mischungen.html" class="nav-link">&larr; Zurück zur Suche</a>
+    
+    <div id="recipe-navigation" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        </div>
+    
+    <div id="recipes">
+        <p>Daten werden geladen...</p>
+    </div>
+</div>
 
-            // Priorisierte Spalten
+<script src="./assets/js/util.js"></script>
+<script>
+(async () => {
+    let allData = [];
+    let currentData = [];
+    let currentIndex = -1;
+    
+    const container = document.getElementById('recipes');
+    const navContainer = document.getElementById('recipe-navigation');
+    const S = window.$util.safe;
+
+    try {
+        allData = await window.$util.loadRecipes(); 
+        if (!allData.length) throw "Keine Daten gefunden";
+
+        const params = new URLSearchParams(window.location.search);
+        const ids = (params.get('ids') || params.get('id') || '').split(',').filter(Boolean);
+        
+        const byId = new Map(allData.map(r => [r.mix_id || r.id_neu, r]));
+        currentData = ids.length ? ids.map(id => byId.get(id)).filter(Boolean) : [allData[0]];
+
+        window.render = (index) => {
+            currentIndex = index;
+            const r = currentData[index];
+            const keys = Object.keys(r);
+            const find = (c) => c.find(k => keys.includes(k.toLowerCase())) || null;
+
             const COL = {
-                id: find(['mix_id', 'id_neu', 'id']),
+                id: find(['mix_id', 'id_neu']),
                 name: find(['name_deutsch', 'mix_name']),
                 origin: find(['region_norm', 'herkunft']),
-                sens: find(['sensorik_multi', 'sensorik']),
+                sensorik: find(['sensorik', 'sensorik_multi']),
                 zutaten: find(['zutaten_mengen_structured', 'zutaten_liste']),
-                anleitung: find(['herstellung_zubereitung', 'anleitung'])
+                anleitung: find(['herstellung_zubereitung', 'anleitung']),
+                prozess: find(['herstellungsprozess'])
             };
 
-            const byId = new Map(allData.map(r => [String(r[COL.id]).trim(), r]));
-            const selected = ids.map(id => byId.get(id.trim())).filter(Boolean);
+            const mid = S(r[COL.id]);
+            
+            // FIX: Zeilenumbrüche anstelle von "|"
+            const formatBlock = (val) => val ? `<div class="block-text">${S(val).replace(/\|/g, '\n')}</div>` : '';
+            
+            // FIX: "-" anstelle von Bullets
+            const zutaten = r[COL.zutaten] ? 
+                `<ul class="ingredients-list">${S(r[COL.zutaten]).split('|').map(z => `<li>- ${z.trim()}</li>`).join('')}</ul>` : '';
 
-            if (!selected.length) { container.innerHTML = "<div class='page'>Rezept nicht gefunden.</div>"; return; }
-
-            container.innerHTML = selected.map(r => {
-                const mid = String(r[COL.id]).trim();
-                const imagePath = `./assets/img/mischungen/${mid}.jpg`; // Erprobter Pfad
-                
-                // Zutaten von "|" zu "-" umwandeln
-                const ingHtml = r[COL.zutaten] ? 
-                    `<ul class="ing">${String(r[COL.zutaten]).split('|').map(z => `<li>- ${z.trim()}</li>`).join('')}</ul>` : '';
-                
-                // Textblöcke von "|" zu Umbruch umwandeln
-                const fmt = (v) => v ? `<div class="txt">${String(v).replace(/\|/g, '\n')}</div>` : '';
-
-                return `
-                    <div class="page">
-                        <div class="rid">ID: ${mid}</div>
-                        <a href="./mischungen.html" class="no-print" style="color:#007bff; text-decoration:none;">&larr; Zur Suche</a>
-                        
-                        <div class="header" style="margin-top:20px;">
-                            <div class="img-box">
-                                <img src="${imagePath}" onerror="this.src='https://via.placeholder.com/180?text=Bild+fehlt';">
-                            </div>
-                            <div>
-                                <h1 class="title">${r[COL.name] || 'Unbenannt'}</h1>
-                                <div style="color:#666; margin-top:10px;">
-                                    <strong>Herkunft:</strong> ${r[COL.origin] || '-'}<br>
-                                    <strong>Sensorik:</strong> ${r[COL.sens] || '-'}
-                                </div>
+            container.innerHTML = `
+                <article class="recipe">
+                    <div class="recipe-id-top">ID: ${mid}</div>
+                    <header class="recipe-header">
+                        <div class="recipe-img-wrap">
+                            <img class="recipe-img" src="./assets/img/mischungen/${mid}.jpg" 
+                                 onerror="this.onerror=null; this.src='https://via.placeholder.com/180?text=Kein+Bild';">
+                        </div>
+                        <div class="recipe-header-text">
+                            <h2 class="recipe-title">${S(r[COL.name])}</h2>
+                            <div class="recipe-meta">
+                                <strong>Herkunft:</strong> ${S(r[COL.origin])}<br>
+                                <strong>Sensorik:</strong> ${S(r[COL.sensorik])}
                             </div>
                         </div>
+                    </header>
 
-                        <div class="sec">Zutaten & Mengen</div> ${ingHtml}
-                        
-                        ${r[COL.anleitung] ? `<div class="sec">Herstellung / Zubereitung</div> ${fmt(r[COL.anleitung])}` : ''}
-                    </div>
+                    <h3 class="section-title">Zutaten & Mengen</h3>
+                    ${zutaten}
+
+                    ${r[COL.anleitung] ? `<h3 class="section-title">Herstellung / Zubereitung (Anleitung)</h3>${formatBlock(r[COL.anleitung])}` : ''}
+                    ${r[COL.prozess] ? `<h3 class="section-title">Herstellungsprozess</h3>${formatBlock(r[COL.prozess])}` : ''}
+                </article>
+            `;
+
+            if (currentData.length > 1) {
+                navContainer.innerHTML = `
+                    <button onclick="render(${index-1})" ${index === 0 ? 'disabled' : ''}>&larr; Zurück</button>
+                    <span>Rezept ${index+1} von ${currentData.length}</span>
+                    <button onclick="render(${index+1})" ${index === currentData.length-1 ? 'disabled' : ''}>Weiter &rarr;</button>
                 `;
-            }).join('');
+            } else {
+                navContainer.innerHTML = '';
+            }
+        };
 
-            // PDF-Autostart bei Parameter &print=1
-            if (params.get('print') === '1') setTimeout(() => window.print(), 1000);
-
-        } catch (e) { container.innerHTML = "Fehler: " + e; }
-    })();
-    </script>
+        render(0);
+    } catch (e) { container.innerHTML = `<p>Fehler: ${e}</p>`; }
+})();
+</script>
 </body>
 </html>
