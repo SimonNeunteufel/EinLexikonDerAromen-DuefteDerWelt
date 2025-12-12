@@ -65,7 +65,7 @@
         const findCol = (candidates) =>
             candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
 
-        // --- SPALTEN-MAPPING (MUSS ZUM CSV-HEADER PASSEN!) ---
+        // --- SPALTEN-MAPPING ---
         COL = {
             id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
             name: findCol(['name_deutsch', 'original_name', 'mix_name']),
@@ -90,7 +90,7 @@
 
     } catch (e) {
         // Kritischer Fehler abgefangen, um leere Seite zu verhindern
-        container.innerHTML = `<p>FEHLER: Daten konnten nicht geladen werden. Bitte prüfe die Konsolen-Logs. (${e})</p>`;
+        container.innerHTML = `<p>FEHLER: Daten konnten nicht geladen werden. Bitte prüfen Sie die Konsolen-Logs. (${e})</p>`;
         return;
     }
     
