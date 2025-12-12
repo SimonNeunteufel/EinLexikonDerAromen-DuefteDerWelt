@@ -58,10 +58,11 @@
 
     function setupTableHeader() {
         const tr = document.createElement('tr');
-        const headerAllCheckbox = document.createElement('input');
-        headerAllCheckbox.type = 'checkbox';
-        headerAllCheckbox.id = 'header-all';
-        
+// In der Funktion setupTableHeader() in mischungen.js
+const headerAllCheckbox = document.createElement('input');
+headerAllCheckbox.type = 'checkbox';
+headerAllCheckbox.id = 'header-all';
+headerAllCheckbox.title = "Alle Mischungen auswählen"; // Behebt den Konsolen-Fehler        
         tr.innerHTML = '<th></th>' + 
             visibleCols.map(col => `<th>${col.label}</th>`).join('');
         
@@ -98,11 +99,11 @@
             const mixId = row[COL.id]; 
             
             const checkboxCell = document.createElement('td');
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'mix-checkbox';
-            checkbox.value = mixId;
-            checkboxCell.appendChild(checkbox);
+const checkbox = document.createElement('input');
+checkbox.type = 'checkbox';
+checkbox.className = 'mix-checkbox';
+checkbox.title = "Diese Mischung auswählen"; // Behebt den Konsolen-Fehler
+checkbox.value = mixId;            checkboxCell.appendChild(checkbox);
             tr.appendChild(checkboxCell);
 
             visibleCols.forEach(colConfig => {
