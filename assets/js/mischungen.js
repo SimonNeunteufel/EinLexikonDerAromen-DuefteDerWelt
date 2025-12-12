@@ -1,4 +1,4 @@
-// assets/js/mischungen.js (FINAL: Checkbox- und Multi-Selektions-Fix)
+// assets/js/mischungen.js (FINAL: Echte Checkboxen und korrigierte Spaltenpriorität)
 
 (async () => {
     let allData = []; 
@@ -39,12 +39,12 @@
     const findCol = (candidates) =>
         candidates.find(c => keys.includes(c.toLowerCase())) || null;
 
-    // --- FINALE PRÄZISIERTE SPALTEN-MAPPING (KATEGORIE KORREKTUR) ---
+    // --- FINALE PRÄZISIERTE SPALTEN-MAPPING ---
     const COL = {
         id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
         name: findCol(['name_deutsch', 'original_name', 'mix_name', 'mischungsname']),
         origin: findCol(['herkunft', 'region_norm', 'original_region', 'region_summary']),
-        // FIX: Priorisiert inhaltsreiche Spalten
+        // FIX: Priorisiert inhaltsreiche Spalten (kategorie_multi) vor dem simplen Typ (mix_typ)
         category: findCol(['kategorie_multi', 'anwendungsbereich_multi', 'kategorie', 'mix_typ']),
         sensorik: findCol(['sensorik', 'sensorik_multi', 'sensorikprofil'])
     };
@@ -113,9 +113,11 @@
                 tr.appendChild(td);
             });
 
+            // WICHTIG: Row Click (öffnet das Einzelrezept)
             tr.addEventListener('click', (e) => {
                 // FIX: Stoppt die Propagation, wenn Checkbox oder Button geklickt wird
-                if (e.target.type === 'checkbox' || e.target.tagName === 'BUTTON' || e.target === checkbox) {
+                // e.target.type === 'checkbox' FÄNGT die Checkbox ab, sodass sie angeklickt werden kann
+                if (e.target.type === 'checkbox' || e.target.tagName === 'BUTTON') {
                     e.stopPropagation(); 
                     return;
                 }
@@ -195,12 +197,9 @@
 
     if (cbAll) cbAll.addEventListener('change', (e) => {
         const isChecked = e.target.checked;
-        // Wählt alle Checkboxen (im Header und im Footer) ab/an
-        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-             // Wählt nur die Checkboxen der sichtbaren Tabelle an, um Konflikte zu vermeiden
-             if (cb.id === 'header-all' || cb.classList.contains('mix-checkbox')) {
-                cb.checked = isChecked;
-             }
+        // Wählt alle Checkboxen der sichtbaren Tabelle an
+        document.querySelectorAll('#t input.mix-checkbox').forEach(cb => {
+            cb.checked = isChecked;
         });
     });
 
