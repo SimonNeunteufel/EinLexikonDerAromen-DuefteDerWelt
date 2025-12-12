@@ -26,7 +26,6 @@ window.$util = {
         
         if (H.some(h => !h) || H.length < 5) {
             console.error("Kritischer Header-Fehler: Header-Spalten nach Parsen ungültig oder zu kurz.");
-            // Kritischer Fehler werfen, damit der Try-Catch-Block in loadRecipes reagiert
             throw new Error(`Kritischer Header-Fehler: Ungültige oder zu kurze Header-Liste (${H.length} Spalten gefunden).`);
         }
 
@@ -63,12 +62,12 @@ window.$util = {
 
     async loadRecipes() {
         try { 
-            // FIX: NUR den korrekten Pfad versuchen
+            // FIX: NUR den korrekten Pfad versuchen (wie besprochen)
             return await this.loadCSV(['./assets/data/MasterRecipes.csv']);
         }
         catch (e) { 
             console.warn("CSV-Laden fehlgeschlagen. Versuche JSON Fallback...", e);
-            // Fallback auf JSON, falls CSV trotz korrektem Pfad fehlschlägt
+            // Fallback auf JSON
             return await this.loadJSON(['./assets/data/master_recipes.json', './data/master_recipes.json']);
         }
     },
