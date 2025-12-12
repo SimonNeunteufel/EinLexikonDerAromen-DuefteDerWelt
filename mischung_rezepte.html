@@ -1,3 +1,5 @@
+// Ausschnitt aus mischungen_rezepte.html <script>
+// --- ACHTUNG: Der gesamte Script-Block muss ersetzt werden ---
 <script src="./assets/js/util.js"></script>
 <script src="./assets/js/bg_loader.js"></script>
 <script>
@@ -7,24 +9,23 @@
     const idList = idsParam.split(',').map(s => s.trim()).filter(Boolean);
 
     const printMode = params.get('print') === '1';
+    const container = document.getElementById('recipes');
 
     if (!idList.length) {
-        document.getElementById('recipes').innerHTML =
-            '<p>Keine Mischungen ausgewählt.</p>';
+        container.innerHTML = '<p>Keine Mischungen zur Anzeige ausgewählt (Fehler: Leere ID-Liste).</p>';
         return;
     }
 
     let data = [];
     try {
-        data = await $util.loadRecipes(); // Daten laden
+        data = await $util.loadRecipes(); 
     } catch (e) {
-        $util.err('Rezepte konnten nicht geladen werden.');
+        container.innerHTML = '<p>Fehler beim Laden der Rezeptdaten.</p>';
         return;
     }
 
     if (!data.length) {
-        document.getElementById('recipes').innerHTML =
-            '<p>Keine Rezepte gefunden.</p>';
+        container.innerHTML = '<p>Keine Rezepte in der Datenquelle gefunden.</p>';
         return;
     }
 
@@ -32,14 +33,13 @@
     const sample = data[0] || {};
     const KEYS = Object.keys(sample);
     
-    // ACHTUNG: Die Suche muss IMMER in Kleinbuchstaben erfolgen!
+    // ACHTUNG: Die Suche muss IMMER in Kleinbuchstaben erfolgen (wg. util.js Normalisierung)!
     const findCol = (candidates) =>
         candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
 
-
-    // --- FINALE PRÄZISIERTE SPALTEN-MAPPING (FÜR REZEPTSEITE) ---
+    // --- PRÄZISIERTE SPALTEN-MAPPING (Lowercase-optimiert) ---
     const COL = {
-        // IDs & Metadaten (für Header der Rezeptseite)
+        // IDs & Metadaten
         id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
         name: findCol(['name_deutsch', 'original_name', 'mix_name']),
         category: findCol(['mix_typ', 'kategorie_multi', 'anwendungsbereich_multi']),
@@ -47,7 +47,7 @@
         origin: findCol(['region_norm', 'herkunft', 'original_region']),
         illu: findCol(['plh_illu', 'illu', 'bildname']),
         
-        // --- REZEPTUR-DETAIL-SPALTEN (WICHTIG FÜR DIE FÜLLUNG) ---
+        // --- REZEPTUR-DETAIL-SPALTEN (WICHTIG!) ---
         zutaten: findCol(['zutaten_mengen_structured', 'zutaten_liste']),
         anleitung: findCol(['herstellung_zubereitung']), 
         prozess: findCol(['herstellungsprozess']),
@@ -56,25 +56,37 @@
         anwendung: findCol(['anwendung'])
     };
     
+    // Zwingend erforderlich: MIX_ID Spalte muss gefunden werden!
+    if (!COL.id) {
+        container.innerHTML = `<p>FEHLER: Die Spalte für die Mischungs-ID (MIX_ID) wurde in der Datei nicht gefunden. Gefundene Schlüssel: ${KEYS.join(', ')}</p>`;
+        return;
+    }
+
     function getId(r) {
-        // Gibt den Wert des normalisierten Schlüssels zurück
         return (COL.id && r[COL.id]) || '';
     }
 
+    // Sicherstellen, dass die MIX_IDs als Schlüssel in der Map verwendet werden
     const byId = new Map(data.map(r => [getId(r), r]));
+    
+    // FILTERN: Hier muss die ID aus der Datenquelle gefunden werden
     const selected = idList.map(id => byId.get(id)).filter(Boolean);
 
+    if (selected.length === 0) {
+        container.innerHTML = `<p>Die ausgewählte Mischung (ID: ${idList.join(', ')}) konnte in den geladenen Rezepten nicht gefunden werden. Bitte prüfen Sie, ob die ID in der CSV-Datei korrekt ist.</p>`;
+        return;
+    }
+    
     // Hilfsfunktion zur Darstellung der Zutaten (nimmt Pipe | oder \n)
     function ingredientList(txt) {
         if (!txt) return '';
-        const items = (txt + '').split('|').map(s => s.trim()).filter(Boolean);
+        // Sucht nach Pipe (|) oder Semikolon (;) als Trenner
+        const items = (txt + '').split(/\||;/).map(s => s.trim()).filter(Boolean); 
         if (!items.length) return '';
         return '<ul class="ingredients-list">' +
             items.map(x => '<li>' + S(x) + '</li>').join('') +
             '</ul>';
     }
-
-    const container = document.getElementById('recipes');
 
     container.innerHTML = selected.map(r => {
         // Metadaten-Mapping
@@ -92,12 +104,12 @@
         const reife = COL.reifezeit && r[COL.reifezeit] ? '<div class="block-text">' + S(r[COL.reifezeit]) + '</div>' : '';
         const anw = COL.anwendung && r[COL.anwendung] ? '<div class="block-text">' + S(r[COL.anwendung]) + '</div>' : '';
 
-        // Bild-Pfad
-        const illu = COL.illu && r[COL.illu] ? S(r[COL.illu]) : '';
-        const imgHtml = illu
+        // Bild-Pfad (Verwendung der korrekten ID)
+        const illuId = COL.illu && r[COL.illu] ? S(r[COL.illu]) : id; 
+        const imgHtml = illuId
             ? `<div class="recipe-img-wrap">
                    <img class="recipe-img"
-                        src="./assets/img/mischungen/${illu}.jpg"
+                        src="./assets/img/mischungen/${illuId}.jpg"
                         alt="${name}"
                         onerror="this.style.display='none'">
                </div>`
