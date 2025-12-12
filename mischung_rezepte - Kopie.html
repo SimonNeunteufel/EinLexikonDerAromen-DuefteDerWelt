@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"> 
     <title>Mischungs Rezepte</title>
     <style>
+        /* Diese Styles sind notwendig, damit die Rezept-Seite ordentlich aussieht */
         body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; }
         .page { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .recipe { border-bottom: 2px solid #ccc; padding-bottom: 20px; margin-bottom: 30px; }
@@ -16,7 +17,8 @@
         .recipe-meta { font-size: 0.9em; color: #666; margin-bottom: 5px; }
         .section-title { border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 20px; margin-bottom: 10px; color: #444; }
         .ingredients-list { list-style: disc inside; padding-left: 20px; }
-        .block-text { white-space: pre-wrap; margin-left: 10px; padding: 5px; background: #f9f9f9; border-left: 3px solid #ccc; }
+        /* WICHTIG: Die Definition des block-text für die abgesetzten Textblöcke */
+        .block-text { white-space: pre-wrap; margin-left: 10px; padding: 5px; background: #f9f9f9; border-left: 3px solid #ccc; border-radius: 4px; }
         #errorBanner { background:#fee; border:1px solid #f99; color:#600; padding:10px; border-radius:5px; margin:15px 0; }
         #recipe-navigation button { padding: 8px 15px; border: 1px solid #ccc; background: #f0f0f0; cursor: pointer; border-radius: 5px; }
         #recipe-navigation button:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -52,7 +54,6 @@
     let COL = {};
 
     // --- DATENLADUNG UND INITIALISIERUNG ---
-
     try {
         allData = await $util.loadRecipes(); 
         if (!allData.length) {
@@ -65,9 +66,9 @@
         const findCol = (candidates) =>
             candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
 
-        // --- SPALTEN-MAPPING ---
+        // --- SPALTEN-MAPPING (Breiteres Spektrum für Robustheit) ---
         COL = {
-            id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
+            id: findCol(['mix_id', 'id_neu', 'recipe_id']),
             name: findCol(['name_deutsch', 'original_name', 'mix_name']),
             category: findCol(['kategorie_multi', 'anwendungsbereich_multi', 'mix_typ']),
             sensorik: findCol(['sensorik', 'sensorik_multi']),
@@ -89,7 +90,7 @@
         }
 
     } catch (e) {
-        // Kritischer Fehler abgefangen, um leere Seite zu verhindern
+        // Kritischer Fehler abgefangen
         container.innerHTML = `<p>FEHLER: Daten konnten nicht geladen werden. Bitte prüfen Sie die Konsolen-Logs. (${e})</p>`;
         return;
     }
@@ -101,6 +102,7 @@
 
     function ingredientList(txt) {
         if (!txt) return '';
+        // Erlaubt sowohl Pipe (|) als auch Semikolon (;) als Trenner
         const items = (txt + '').split(/\||;/).map(s => s.trim()).filter(Boolean); 
         if (!items.length) return '';
         return '<ul class="ingredients-list">' +
@@ -112,7 +114,7 @@
 
     function updateNavigation() {
         if (!navContainer || currentData.length <= 1) {
-            navContainer.style.display = 'none';
+            if(navContainer) navContainer.style.display = 'none';
             return;
         }
         navContainer.style.display = 'flex';
@@ -140,11 +142,13 @@
         
         // Rezeptur-Details
         const zutaten = COL.zutaten ? ingredientList(S(r[COL.zutaten])) : '';
-        const herst = COL.anleitung && S(r[COL.anleitung]) ? '<div class="block-text">' + S(r[COL.anleitung]) + '</div>' : '';
-        const proc = COL.prozess && S(r[COL.prozess]) ? '<div class="block-text">' + S(r[COL.prozess]) + '</div>' : '';
-        const temp = COL.temperatur && S(r[COL.temperatur]) ? '<div class="block-text">' + S(r[COL.temperatur]) + '</div>' : '';
-        const reife = COL.reifezeit && S(r[COL.reifezeit]) ? '<div class="block-text">' + S(r[COL.reifezeit]) + '</div>' : '';
-        const anw = COL.anwendung && S(r[COL.anwendung]) ? '<div class="block-text">' + S(r[COL.anwendung]) + '</div>' : '';
+        
+        // FIX: Die Textblöcke werden jetzt über die CSS-Klasse .block-text korrekt formatiert
+        const herst = COL.anleitung && S(r[COL.anleitung]) ? '<h3 class="section-title">Herstellung / Zubereitung (Anleitung)</h3><div class="block-text">' + S(r[COL.anleitung]) + '</div>' : '';
+        const proc = COL.prozess && S(r[COL.prozess]) ? '<h3 class="section-title">Herstellungsprozess</h3><div class="block-text">' + S(r[COL.prozess]) + '</div>' : '';
+        const temp = COL.temperatur && S(r[COL.temperatur]) ? '<h3 class="section-title">Temperaturführung</h3><div class="block-text">' + S(r[COL.temperatur]) + '</div>' : '';
+        const reife = COL.reifezeit && S(r[COL.reifezeit]) ? '<h3 class="section-title">Reifezeit / Lagerzeit</h3><div class="block-text">' + S(r[COL.reifezeit]) + '</div>' : '';
+        const anw = COL.anwendung && S(r[COL.anwendung]) ? '<h3 class="section-title">Anwendung</h3><div class="block-text">' + S(r[COL.anwendung]) + '</div>' : '';
 
         // Bild-Pfad
         const illuId = COL.illu && S(r[COL.illu]) ? S(r[COL.illu]) : id; 
@@ -174,11 +178,11 @@
 
                 ${zutaten ? '<h3 class="section-title">Zutaten &amp; Mengen</h3>' + zutaten : ''}
 
-                ${herst ? '<h3 class="section-title">Herstellung / Zubereitung (Anleitung)</h3>' + herst : ''}
-                ${proc ? '<h3 class="section-title">Herstellungsprozess</h3>' + proc : ''}
-                ${temp ? '<h3 class="section-title">Temperaturführung</h3>' + temp : ''}
-                ${reife ? '<h3 class="section-title">Reifezeit / Lagerzeit</h3>' + reife : ''}
-                ${anw ? '<h3 class="section-title">Anwendung</h3>' + anw : ''}
+                ${herst}
+                ${proc}
+                ${temp}
+                ${reife}
+                ${anw}
             </article>
         `;
     }
@@ -201,6 +205,7 @@
 
     // --- STARTPUNKT ---
     const urlParams = new URLSearchParams(window.location.search);
+    // Behandelt ids=... und id=...
     const initialIdList = (urlParams.get('ids') || urlParams.get('id') || '').split(',').map(s => s.trim()).filter(Boolean);
     const initialSingleId = urlParams.get('id');
 
@@ -226,7 +231,8 @@
         currentData = allData;
         currentIndex = 0; 
         loadSelectedRecipe(currentIndex); 
-        navContainer.style.display = 'none';
+        // Falls nur ein Rezept da ist, Navigation ausblenden
+        if(navContainer) navContainer.style.display = 'none';
         container.innerHTML += `<p style="font-size: 0.8em; color: #999; margin-top: 20px;">(Zeigt das erste Rezept der Master-Liste, da keine ID in der URL gefunden wurde.)</p>`;
     }
 })();
