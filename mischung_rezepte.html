@@ -2,127 +2,127 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexikon – Rezeptansicht</title>
     <style>
-        :root { --t: #f7fafc; --bg: rgba(255, 255, 255, 1); --b: #00000020; --accent: #007bff; }
+        :root { --t: #f7fafc; --bg: rgba(15, 18, 22, .95); --b: #ffffff30; --accent: #fff; }
         * { box-sizing: border-box; }
-        body { margin: 0; font-family: system-ui, sans-serif; color: #333; background: #f4f4f4; line-height: 1.5; }
-        .page { max-width: 900px; margin: 20px auto; padding: 40px; background: var(--bg); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: relative; }
+        body { margin: 0; font-family: system-ui, sans-serif; color: var(--t); background: #0f1216; line-height: 1.5; }
+        .page { max-width: 900px; margin: 20px auto; padding: 30px; border: 1px solid var(--b); border-radius: 12px; background: var(--bg); position: relative; }
         
-        /* Navigation & Header */
-        .btn-back { display: block; margin-bottom: 20px; color: var(--accent); text-decoration: none; }
-        .recipe-header { display: flex; gap: 30px; margin-bottom: 40px; position: relative; }
-        .recipe-title-group { flex-grow: 1; }
-        .recipe-title { margin: 0; font-size: 2.5rem; color: #000; }
+        /* ID oben rechts positionieren */
+        .recipe-id-top { position: absolute; top: 20px; right: 20px; font-size: 0.8rem; opacity: 0.6; font-family: monospace; }
         
-        /* FIX: ID oben rechts */
-        .recipe-id { position: absolute; top: 0; right: 0; font-size: 0.9rem; color: #888; font-family: monospace; }
-        
-        .recipe-img-wrap { width: 180px; height: 180px; border-radius: 12px; overflow: hidden; border: 1px solid var(--b); flex-shrink: 0; }
+        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--b); }
+        .btn-back { color: var(--t); text-decoration: none; opacity: 0.8; }
+        .nav-controls { display: flex; gap: 10px; align-items: center; }
+        .btn-nav { background: var(--accent); color: #0b0f14; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .recipe-header { display: flex; gap: 20px; margin-bottom: 30px; align-items: start; }
+        /* Fix für das Flackern: Feste Größe für den Bildcontainer */
+        .recipe-img-wrap { width: 200px; height: 200px; border-radius: 12px; overflow: hidden; border: 1px solid var(--b); background: #000; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .recipe-img { width: 100%; height: 100%; object-fit: cover; }
-        .meta-info { opacity: 0.7; margin-top: 10px; }
+        .recipe-title { margin: 0 0 10px 0; font-size: 2rem; padding-right: 100px; }
+        .meta-info { font-style: italic; opacity: 0.8; margin-bottom: 5px; }
 
-        /* Inhalts-Blöcke */
-        .section-title { font-size: 1.2rem; border-bottom: 2px solid #eee; padding-bottom: 8px; margin: 30px 0 15px 0; color: #000; font-weight: bold; }
-        .block-text { background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 4px solid #ddd; white-space: pre-wrap; }
+        .section-title { font-size: 1.1rem; border-left: 4px solid var(--accent); padding-left: 12px; margin: 25px 0 10px 0; text-transform: uppercase; }
+        /* Behebt die Trenner-Anzeige durch white-space */
+        .block-text { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid var(--b); white-space: pre-wrap; }
         .ingredients-list { list-style: none; padding: 0; margin: 0; }
-        .ingredients-list li { padding: 5px 0; border-bottom: 1px solid #eee; }
-
-        @media print { .btn-back, #recipe-navigation { display: none; } .page { box-shadow: none; margin: 0; width: 100%; } }
+        .ingredients-list li { padding: 4px 0; border-bottom: 1px solid #ffffff10; }
     </style>
 </head>
 <body>
 
 <div class="page">
-    <a href="./mischungen.html" class="btn-back">← Zurück zur Suche</a>
-    <div id="recipe-navigation" style="margin-bottom: 20px; display: flex; gap: 10px;"></div>
-    <div id="recipes">Lade Daten...</div>
+    <div id="recipe-navigation-top" class="recipe-id-top"></div>
+    <div class="nav-header">
+        <a href="./mischungen.html" class="btn-back">← Zurück zur Suche</a>
+        <div id="recipe-navigation" class="nav-controls"></div>
+    </div>
+    <div id="recipes">Lade Rezeptdaten...</div>
 </div>
 
 <script src="./assets/js/util.js"></script>
 <script>
 (async () => {
+    let allData = [];
+    let currentData = [];
+    let currentIndex = 0;
     const container = document.getElementById('recipes');
     const navContainer = document.getElementById('recipe-navigation');
+    const idDisplay = document.getElementById('recipe-navigation-top');
     const S = window.$util.safe;
 
     try {
-        const allData = await window.$util.loadRecipes();
+        allData = await window.$util.loadRecipes();
         const params = new URLSearchParams(location.search);
         const ids = (params.get('ids') || params.get('id') || "").split(',').filter(Boolean);
-
         const byId = new Map(allData.map(r => [r.mix_id || r.id_neu, r]));
-        const currentData = ids.length > 0 ? ids.map(id => byId.get(id)).filter(Boolean) : [allData[0]];
-
-        function render(index) {
-            const r = currentData[index];
-            const keys = Object.keys(r);
-            const find = (c) => c.find(k => keys.includes(k.toLowerCase())) || null;
-
-            const COL = {
-                name: find(['name_deutsch', 'mix_name']),
-                origin: find(['region_norm', 'herkunft']),
-                sensorik: find(['sensorik', 'sensorik_multi']),
-                zutaten: find(['zutaten_mengen_structured', 'zutaten_liste']),
-                anleitung: find(['herstellung_zubereitung', 'anleitung']),
-                prozess: find(['herstellungsprozess']),
-                temp: find(['temperaturfuehrung']),
-                reife: find(['reifezeit_lagerzeit']),
-                anwendung: find(['anwendung']),
-                id: find(['mix_id', 'id_neu'])
-            };
-
-            // FIX: Zutaten-Trenner "|" zu "-"
-            const zutatenHtml = r[COL.zutaten] ? 
-                `<ul class="ingredients-list">${r[COL.zutaten].split('|').map(z => `<li>- ${S(z)}</li>`).join('')}</ul>` : '';
-
-            // FIX: Blöcke Trenner "|" zu Zeilenumbruch
-            const formatBlock = (val) => val ? `<div class="block-text">${S(val).replace(/\|/g, '\n')}</div>` : '';
-
-            container.innerHTML = `
-                <article class="recipe">
-                    <div class="recipe-id">ID: ${S(r[COL.id])}</div>
-                    <div class="recipe-header">
-                        <div class="recipe-img-wrap">
-                            <img class="recipe-img" src="./assets/img/mischungen/${r[COL.id]}.jpg" 
-                                 onerror="this.src='https://via.placeholder.com/200?text=Kein+Bild'">
-                        </div>
-                        <div class="recipe-title-group">
-                            <h1 class="recipe-title">${S(r[COL.name])}</h1>
-                            <div class="meta-info">
-                                <strong>Herkunft:</strong> ${S(r[COL.origin])}<br>
-                                <strong>Sensorik:</strong> ${S(r[COL.sensorik])}
-                            </div>
-                        </div>
-                    </div>
-
-                    <h3 class="section-title">Zutaten & Mengen</h3>
-                    ${zutatenHtml}
-                    
-                    ${r[COL.anleitung] ? `<h3 class="section-title">Herstellung / Zubereitung (Anleitung)</h3>${formatBlock(r[COL.anleitung])}` : ''}
-                    ${r[COL.prozess] ? `<h3 class="section-title">Herstellungsprozess</h3>${formatBlock(r[COL.prozess])}` : ''}
-                    ${r[COL.temp] ? `<h3 class="section-title">Temperaturführung</h3>${formatBlock(r[COL.temp])}` : ''}
-                    ${r[COL.reife] ? `<h3 class="section-title">Reifezeit / Lagerzeit</h3>${formatBlock(r[COL.reife])}` : ''}
-                    ${r[COL.anwendung] ? `<h3 class="section-title">Anwendung</h3>${formatBlock(r[COL.anwendung])}` : ''}
-                </article>
-            `;
-
-            // Nav-Update
-            if (currentData.length > 1) {
-                navContainer.innerHTML = `
-                    <button onclick="window.renderRecipe(${index-1})" ${index===0?'disabled':''}>← Zurück</button>
-                    <span>${index+1} / ${currentData.length}</span>
-                    <button onclick="window.renderRecipe(${index+1})" ${index===currentData.length-1?'disabled':''}>Weiter →</button>
-                `;
-            }
-        }
-
-        window.renderRecipe = render;
+        currentData = ids.length > 0 ? ids.map(id => byId.get(id)).filter(Boolean) : [allData[0]];
+        if (!currentData.length) throw "Keine Rezepte gefunden.";
         render(0);
+    } catch (e) { container.innerHTML = `<p>Fehler: ${e}</p>`; }
 
-    } catch (e) {
-        container.innerHTML = `<p>Fehler: ${e}</p>`;
+    function render(index) {
+        currentIndex = index;
+        const r = currentData[index];
+        const keys = Object.keys(r);
+        const find = (c) => c.find(k => keys.includes(k.toLowerCase())) || null;
+
+        const COL = {
+            name: find(['name_deutsch', 'mix_name']),
+            origin: find(['region_norm', 'herkunft']),
+            zutaten: find(['zutaten_mengen_structured', 'zutaten_liste']),
+            anleitung: find(['herstellung_zubereitung', 'anleitung']),
+            id: find(['mix_id', 'id_neu']),
+            sens: find(['sensorik', 'sensorik_multi'])
+        };
+
+        updateNav();
+        idDisplay.textContent = `ID: ${S(r[COL.id])}`; // ID oben rechts
+
+        // Fix für Zutaten: Trenner "|" durch "-" ersetzen
+        const zutatenHtml = r[COL.zutaten] ? 
+            `<ul class="ingredients-list">${r[COL.zutaten].split('|').map(z => `<li>- ${S(z)}</li>`).join('')}</ul>` : '';
+
+        // Fix für Bilder: Verhindert Flackern durch Abbruch des Error-Handlers nach einem Versuch
+        const imgUrl = `./assets/img/mischungen/${r[COL.id]}.jpg`;
+
+        container.innerHTML = `
+            <article class="recipe">
+                <div class="recipe-header">
+                    <div class="recipe-img-wrap">
+                        <img class="recipe-img" src="${imgUrl}" 
+                             onerror="this.onerror=null; this.src='data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'><rect width=\'100%\' height=\'100%\' fill=\'%23222\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'14\' fill=\'%23555\' text-anchor=\'middle\'>Kein Bild</text></svg>';">
+                    </div>
+                    <div class="recipe-header-text">
+                        <h1 class="recipe-title">${S(r[COL.name])}</h1>
+                        <p class="meta-info">Herkunft: ${S(r[COL.origin])}</p>
+                        <p class="meta-info">Sensorik: ${S(r[COL.sens])}</p>
+                    </div>
+                </div>
+
+                ${zutatenHtml ? `<h3 class="section-title">Zutaten & Mengen</h3>${zutatenHtml}` : ''}
+                
+                ${r[COL.anleitung] ? `
+                    <h3 class="section-title">Herstellung & Zubereitung</h3>
+                    <div class="block-text">${S(r[COL.anleitung]).replace(/\|/g, '\n')}</div>
+                ` : ''}
+            </article>
+        `;
+    }
+
+    function updateNav() {
+        if (currentData.length <= 1) { navContainer.innerHTML = ''; return; }
+        navContainer.innerHTML = `
+            <button class="btn-nav" id="prev" ${currentIndex === 0 ? 'disabled' : ''}>←</button>
+            <span>${currentIndex + 1} / ${currentData.length}</span>
+            <button class="btn-nav" id="next" ${currentIndex === currentData.length - 1 ? 'disabled' : ''}>→</button>
+        `;
+        document.getElementById('prev').onclick = () => render(currentIndex - 1);
+        document.getElementById('next').onclick = () => render(currentIndex + 1);
     }
 })();
 </script>

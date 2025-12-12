@@ -68,13 +68,14 @@
             const mixId = row[COL.id]; 
             
             const tdCb = document.createElement('td');
-// In mischungen.js innerhalb der renderTable Schleife:
-const cb = document.createElement('input');
-cb.type = 'checkbox';
-cb.className = 'mix-checkbox';
-cb.value = mixId;
-cb.title = "Diese Mischung auswählen"; // Behebt den Console-Error
-tdCb.appendChild(cb);            tr.appendChild(tdCb);
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.className = 'mix-checkbox';
+            cb.value = mixId;
+            // Accessibility Fix
+            cb.title = "Diese Mischung auswählen"; 
+            tdCb.appendChild(cb);
+            tr.appendChild(tdCb);
 
             visibleCols.forEach(col => {
                 const td = document.createElement('td');
