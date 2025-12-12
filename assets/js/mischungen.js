@@ -50,8 +50,6 @@
         sensorik: findCol(['sensorik', 'sensorik_multi', 'sensorikprofil'])
     };
 
-    // ... (visibleCols und setupTableHeader bleiben gleich)
-
     const visibleCols = [
         { key: 'name', label: 'Mischungs Name' },
         { key: 'origin', label: 'Herkunft' },
