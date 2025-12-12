@@ -121,7 +121,7 @@
                     return;
                 }
                 
-                // Öffne das Einzelrezept (wenn nicht Checkbox)
+                // Öffne das Einzelrezept
                 window.open(`./mischung_rezepte.html?id=${mixId}`, '_blank');
             });
 
@@ -152,8 +152,7 @@
     }
 
     function getSelectedMixIds() {
-        // Wir ignorieren die Checkboxen, wenn nur die Einzelauswahl über Klick gewünscht ist.
-        // Wenn Multi-Auswahl gewünscht ist:
+        // Wird nur für die Buttons benötigt
         const checkboxes = document.querySelectorAll('#t tbody input.mix-checkbox:checked'); 
         return Array.from(checkboxes).map(cb => cb.value).filter(Boolean);
     }
@@ -169,7 +168,6 @@
         const idsParam = encodeURIComponent(selectedIds.join(','));
 
         if (format === 'html') {
-            // WICHTIG: Nutzt die ids-Liste für Multi-Auswahl
             const url = `./mischung_rezepte.html?ids=${idsParam}`;
             window.open(url, '_blank');
         } else if (format === 'pdf') {
