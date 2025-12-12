@@ -1,5 +1,3 @@
-// Ausschnitt aus mischungen_rezepte.html <script>
-// --- ACHTUNG: Der gesamte Script-Block muss ersetzt werden ---
 <script src="./assets/js/util.js"></script>
 <script src="./assets/js/bg_loader.js"></script>
 <script>
@@ -12,7 +10,7 @@
     const container = document.getElementById('recipes');
 
     if (!idList.length) {
-        container.innerHTML = '<p>Keine Mischungen zur Anzeige ausgewählt (Fehler: Leere ID-Liste).</p>';
+        container.innerHTML = '<p>Keine Mischungen zur Anzeige ausgewählt (Fehler: Leere ID-Liste).<br>Bitte wählen Sie eine Mischung in der Suchtabelle aus.</p>';
         return;
     }
 
@@ -20,7 +18,7 @@
     try {
         data = await $util.loadRecipes(); 
     } catch (e) {
-        container.innerHTML = '<p>Fehler beim Laden der Rezeptdaten.</p>';
+        container.innerHTML = `<p>FEHLER: Daten konnten nicht geladen werden. Bitte prüfen Sie die Konsolen-Logs. (${e})</p>`;
         return;
     }
 
@@ -35,7 +33,7 @@
     
     // ACHTUNG: Die Suche muss IMMER in Kleinbuchstaben erfolgen (wg. util.js Normalisierung)!
     const findCol = (candidates) =>
-        candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
+        candidates.find(c => keys.includes(c.toLowerCase())) || null;
 
     // --- PRÄZISIERTE SPALTEN-MAPPING (Lowercase-optimiert) ---
     const COL = {
