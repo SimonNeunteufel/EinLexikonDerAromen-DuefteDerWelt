@@ -2,6 +2,7 @@
 <script src="./assets/js/bg_loader.js"></script>
 <script>
 (async () => {
+    // Fängt sowohl 'id' (Einzelklick) als auch 'ids' (Multi-Auswahl)
     const params = new URLSearchParams(location.search);
     const idsParam = params.get('ids') || params.get('id') || ''; 
     const idList = idsParam.split(',').map(s => s.trim()).filter(Boolean);
@@ -9,6 +10,7 @@
     const printMode = params.get('print') === '1';
     const container = document.getElementById('recipes');
 
+    // Sicherheit 1: Keine ID gefunden
     if (!idList.length) {
         container.innerHTML = '<p>Keine Mischungen zur Anzeige ausgewählt (Fehler: Leere ID-Liste).<br>Bitte wählen Sie eine Mischung in der Suchtabelle aus.</p>';
         return;
@@ -22,18 +24,19 @@
         return;
     }
 
+    // Sicherheit 2: Keine Daten in der CSV
     if (!data.length) {
         container.innerHTML = '<p>Keine Rezepte in der Datenquelle gefunden.</p>';
         return;
     }
 
-    const S = $util.safe;
+    // $util.safe (S) ist der Schlüssel für die Null-Prüfung im Rendering
+    const S = window.$util.safe; 
     const sample = data[0] || {};
     const KEYS = Object.keys(sample);
     
-    // ACHTUNG: Die Suche muss IMMER in Kleinbuchstaben erfolgen (wg. util.js Normalisierung)!
     const findCol = (candidates) =>
-        candidates.find(c => keys.includes(c.toLowerCase())) || null;
+        candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
 
     // --- PRÄZISIERTE SPALTEN-MAPPING (Lowercase-optimiert) ---
     const COL = {
@@ -54,7 +57,7 @@
         anwendung: findCol(['anwendung'])
     };
     
-    // Zwingend erforderlich: MIX_ID Spalte muss gefunden werden!
+    // Sicherheit 3: MIX_ID Spalte muss gefunden werden!
     if (!COL.id) {
         container.innerHTML = `<p>FEHLER: Die Spalte für die Mischungs-ID (MIX_ID) wurde in der Datei nicht gefunden. Gefundene Schlüssel: ${KEYS.join(', ')}</p>`;
         return;
@@ -64,21 +67,21 @@
         return (COL.id && r[COL.id]) || '';
     }
 
-    // Sicherstellen, dass die MIX_IDs als Schlüssel in der Map verwendet werden
+    // Erstellt die Map für schnellen Zugriff auf die Datensätze
     const byId = new Map(data.map(r => [getId(r), r]));
     
-    // FILTERN: Hier muss die ID aus der Datenquelle gefunden werden
+    // Filtert die ausgewählten Datensätze
     const selected = idList.map(id => byId.get(id)).filter(Boolean);
 
+    // Sicherheit 4: ID konnte nicht gematcht werden
     if (selected.length === 0) {
         container.innerHTML = `<p>Die ausgewählte Mischung (ID: ${idList.join(', ')}) konnte in den geladenen Rezepten nicht gefunden werden. Bitte prüfen Sie, ob die ID in der CSV-Datei korrekt ist.</p>`;
         return;
     }
     
-    // Hilfsfunktion zur Darstellung der Zutaten (nimmt Pipe | oder \n)
+    // Hilfsfunktion zur Darstellung der Zutaten (nimmt Pipe | oder Semikolon ;)
     function ingredientList(txt) {
         if (!txt) return '';
-        // Sucht nach Pipe (|) oder Semikolon (;) als Trenner
         const items = (txt + '').split(/\||;/).map(s => s.trim()).filter(Boolean); 
         if (!items.length) return '';
         return '<ul class="ingredients-list">' +
@@ -86,24 +89,26 @@
             '</ul>';
     }
 
+    // --- RENDERING ---
     container.innerHTML = selected.map(r => {
         // Metadaten-Mapping
         const name = S(r[COL.name] || 'Unbekannte Mischung');
+        // FIX: Sicherstellung, dass S() aufgerufen wird, falls der COL-Key null ist
         const cat = COL.category ? S(r[COL.category] || '') : '';
         const origin = COL.origin ? S(r[COL.origin] || '') : '';
         const sens = COL.sensorik ? S(r[COL.sensorik] || '') : '';
         const id = getId(r);
 
         // Rezeptur-Details
-        const zutaten = COL.zutaten ? ingredientList(r[COL.zutaten]) : '';
-        const herst = COL.anleitung && r[COL.anleitung] ? '<div class="block-text">' + S(r[COL.anleitung]) + '</div>' : '';
-        const proc = COL.prozess && r[COL.prozess] ? '<div class="block-text">' + S(r[COL.prozess]) + '</div>' : '';
-        const temp = COL.temperatur && r[COL.temperatur] ? '<div class="block-text">' + S(r[COL.temperatur]) + '</div>' : '';
-        const reife = COL.reifezeit && r[COL.reifezeit] ? '<div class="block-text">' + S(r[COL.reifezeit]) + '</div>' : '';
-        const anw = COL.anwendung && r[COL.anwendung] ? '<div class="block-text">' + S(r[COL.anwendung]) + '</div>' : '';
+        const zutaten = COL.zutaten ? ingredientList(S(r[COL.zutaten])) : '';
+        const herst = COL.anleitung && S(r[COL.anleitung]) ? '<div class="block-text">' + S(r[COL.anleitung]) + '</div>' : '';
+        const proc = COL.prozess && S(r[COL.prozess]) ? '<div class="block-text">' + S(r[COL.prozess]) + '</div>' : '';
+        const temp = COL.temperatur && S(r[COL.temperatur]) ? '<div class="block-text">' + S(r[COL.temperatur]) + '</div>' : '';
+        const reife = COL.reifezeit && S(r[COL.reifezeit]) ? '<div class="block-text">' + S(r[COL.reifezeit]) + '</div>' : '';
+        const anw = COL.anwendung && S(r[COL.anwendung]) ? '<div class="block-text">' + S(r[COL.anwendung]) + '</div>' : '';
 
-        // Bild-Pfad (Verwendung der korrekten ID)
-        const illuId = COL.illu && r[COL.illu] ? S(r[COL.illu]) : id; 
+        // Bild-Pfad
+        const illuId = COL.illu && S(r[COL.illu]) ? S(r[COL.illu]) : id; 
         const imgHtml = illuId
             ? `<div class="recipe-img-wrap">
                    <img class="recipe-img"
