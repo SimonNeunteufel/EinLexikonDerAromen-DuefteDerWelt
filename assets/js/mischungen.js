@@ -5,7 +5,7 @@
     const q = document.getElementById('q');
     const btnGo = document.getElementById('go');
     const btnHtml = document.getElementById('toHtml');
-    const btnPdf = document.getElementById('toPdf');
+    const btnPdf = document.getElementById('toPdf'); // Verknüpfung zum Button
     const cbAll = document.getElementById('all');
 
     try {
@@ -23,43 +23,9 @@
         id: findCol(['mix_id', 'id_neu']),
         name: findCol(['name_deutsch', 'mix_name']),
         origin: findCol(['region_norm', 'herkunft']),
-        // FIX: kategorie_multi bevorzugen für vollen Text statt nur "G/V"
-        category: findCol(['kategorie_multi', 'anwendungsbereich_multi', 'mix_typ']),
+        category: findCol(['kategorie_multi', 'anwendungsbereich_multi']),
         sensorik: findCol(['sensorik', 'sensorik_multi'])
     };
-
-    const visibleCols = [
-        { key: 'name', label: 'Mischungs Name' },
-        { key: 'origin', label: 'Herkunft' },
-        { key: 'category', label: 'Anwendungsbereich / Kategorie' },
-        { key: 'sensorik', label: 'Sensorik' }
-    ];
-
-    function setupTableHeader() {
-        const tr = document.createElement('tr');
-        const thCb = document.createElement('th');
-        const headerAllCheckbox = document.createElement('input');
-        headerAllCheckbox.type = 'checkbox';
-        headerAllCheckbox.id = 'header-all';
-        // Accessibility Fix
-        headerAllCheckbox.title = "Alle Mischungen auswählen"; 
-        thCb.appendChild(headerAllCheckbox);
-        tr.appendChild(thCb);
-
-        visibleCols.forEach(col => {
-            const th = document.createElement('th');
-            th.textContent = col.label;
-            tr.appendChild(th);
-        });
-        thead.innerHTML = '';
-        thead.appendChild(tr);
-
-        headerAllCheckbox.addEventListener('change', (e) => {
-            const isChecked = e.target.checked;
-            document.querySelectorAll('.mix-checkbox').forEach(cb => cb.checked = isChecked);
-            if(cbAll) cbAll.checked = isChecked;
-        });
-    }
 
     function renderTable(data) {
         tbody.innerHTML = '';
@@ -68,17 +34,18 @@
             const mixId = row[COL.id]; 
             
             const tdCb = document.createElement('td');
-// In mischungen.js innerhalb der renderTable Schleife:
-const cb = document.createElement('input');
-cb.type = 'checkbox';
-cb.className = 'mix-checkbox';
-cb.value = mixId;
-cb.title = "Diesen Eintrag auswählen"; // Fügt das notwendige Label-Ersatz-Attribut hinzu
-tdCb.appendChild(cb);            tr.appendChild(tdCb);
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.className = 'mix-checkbox';
+            cb.value = mixId;
+            cb.title = "Diese Mischung auswählen"; // Accessibility Fix
+            tdCb.appendChild(cb);
+            tr.appendChild(tdCb);
 
-            visibleCols.forEach(col => {
+            const visibleCols = ['name', 'origin', 'category', 'sensorik'];
+            visibleCols.forEach(key => {
                 const td = document.createElement('td');
-                td.textContent = row[COL[col.key]] || '';
+                td.textContent = row[COL[key]] || '';
                 tr.appendChild(td);
             });
 
@@ -91,24 +58,33 @@ tdCb.appendChild(cb);            tr.appendChild(tdCb);
         });
     }
 
-    setupTableHeader();
-    renderTable(allData);
+    // --- PDF & HTML LOGIK ---
+    
+    function getSelectedIds() {
+        const checked = document.querySelectorAll('.mix-checkbox:checked');
+        return Array.from(checked).map(cb => cb.value);
+    }
 
-    const search = () => {
+    function openRecipes(isPdf) {
+        const ids = getSelectedIds();
+        if (ids.length === 0) {
+            alert("Bitte wählen Sie zuerst mindestens ein Rezept über die Checkboxen aus.");
+            return;
+        }
+        
+        // Erzeugt die URL: ids=1,2,3 und optional &print=1 für den Auto-Druck
+        const url = `./mischung_rezepte.html?ids=${ids.join(',')}${isPdf ? '&print=1' : ''}`;
+        window.open(url, '_blank');
+    }
+
+    // Event-Listener zuweisen
+    if (btnHtml) btnHtml.onclick = () => openRecipes(false);
+    if (btnPdf) btnPdf.onclick = () => openRecipes(true); // Hier wird die PDF-Funktion aktiviert
+
+    if (btnGo) btnGo.onclick = () => {
         const term = q.value.toLowerCase();
-        const filtered = allData.filter(r => 
-            Object.values(r).some(v => String(v).toLowerCase().includes(term))
-        );
-        renderTable(filtered);
+        renderTable(allData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(term))));
     };
 
-    if (btnGo) btnGo.onclick = search;
-    if (btnHtml) btnHtml.onclick = () => {
-        const ids = Array.from(document.querySelectorAll('.mix-checkbox:checked')).map(cb => cb.value);
-        if (ids.length) window.open(`./mischung_rezepte.html?ids=${ids.join(',')}`, '_blank');
-    };
-    if (cbAll) cbAll.onchange = (e) => {
-        document.getElementById('header-all').checked = e.target.checked;
-        document.querySelectorAll('.mix-checkbox').forEach(cb => cb.checked = e.target.checked);
-    };
+    renderTable(allData);
 })();
