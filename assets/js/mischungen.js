@@ -1,4 +1,4 @@
-// assets/js/mischungen.js (Vollständig und an Lowercase-Header angepasst)
+// assets/js/mischungen.js (FINAL: Checkbox- und Einzelseiten-Fix)
 
 (async () => {
     let allData = []; 
@@ -19,12 +19,12 @@
     }
 
     try {
+        // Lädt Daten über die robuste util.js
         allData = await window.$util.loadRecipes();
     } catch (e) {
         window.$util.err(
             'Daten konnten nicht geladen werden. ' +
-            'Lege <code>MasterRecipes.csv</code> oder <code>master_recipes.json</code> ' +
-            'in <code>/data/</code> oder <code>/assets/data/</code> ab. (Fehler: ' + e + ')'
+            'Prüfe, ob MasterRecipes.csv korrekt formatiert ist. (Fehler: ' + e + ')'
         );
         return;
     }
@@ -37,38 +37,27 @@
     const S = window.$util.safe;
     const keys = Object.keys(allData[0] || {});
 
-    // ACHTUNG: Die Suche muss jetzt IMMER in Kleinbuchstaben erfolgen!
+    // ACHTUNG: Die Suche muss IMMER in Kleinbuchstaben erfolgen!
     const findCol = (candidates) =>
         candidates.find(c => keys.includes(c.toLowerCase())) || null;
 
-
     // --- FINALE PRÄZISIERTE SPALTEN-MAPPING (Lowercase-optimiert) ---
     const COL = {
-        // ID
         id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
-
-        // Name (Spalte E)
         name: findCol(['name_deutsch', 'original_name', 'mix_name', 'mischungsname']),
-
-        // Herkunft / Region (Spalte N und P)
         origin: findCol(['herkunft', 'region_norm', 'original_region', 'region_summary']),
-
-        // Kategorie / Anwendungsbereich (Spalte G, J oder B)
         category: findCol(['mix_typ', 'kategorie_multi', 'anwendungsbereich_multi', 'kategorie']),
-
-        // Sensorik (Spalte L oder M)
         sensorik: findCol(['sensorik', 'sensorik_multi', 'sensorikprofil'])
     };
 
-    // Gewünschte sichtbare Spalten im Array
+    // ... (visibleCols und setupTableHeader bleiben gleich)
+
     const visibleCols = [
         { key: 'name', label: 'Mischungs Name' },
         { key: 'origin', label: 'Herkunft' },
         { key: 'category', label: 'Anwendungsbereich / Kategorie' },
         { key: 'sensorik', label: 'Sensorik' }
     ];
-
-    // --- FUNKTIONEN ---
 
     function setupTableHeader() {
         const tr = document.createElement('tr');
@@ -109,10 +98,8 @@
 
         dataToRender.forEach((row) => {
             const tr = document.createElement('tr');
-            // ID wird über den korrigierten COL-Key gefunden
             const mixId = row[COL.id]; 
             
-            // Checkbox zur Auswahl
             const checkboxCell = document.createElement('td');
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -121,26 +108,31 @@
             checkboxCell.appendChild(checkbox);
             tr.appendChild(checkboxCell);
 
-            // Mischungs-Infos (Sucht die Metadaten über die COL-Keys)
             visibleCols.forEach(colConfig => {
                 const td = document.createElement('td');
-                const value = row[COL[colConfig.key]] || ''; // Wenn Key leer ist, wird "" angezeigt
+                const value = row[COL[colConfig.key]] || ''; 
                 td.textContent = value;
                 td.title = value; 
                 tr.appendChild(td);
             });
 
-            // Event-Listener für Klick auf die Zeile 
+            // FIX FÜR CHECKBOX-FUNKTIONALITÄT AUF DEM DESKTOP
             tr.addEventListener('click', (e) => {
-                if (e.target.type !== 'checkbox') {
-                     // KORRIGIERTER LINK auf die Mehrzahl-Datei
-                     window.open(`./mischung_rezepte.html?id=${mixId}`, '_blank');
+                // Wenn das Ziel die Checkbox oder ein Button ist, NICHTS tun.
+                if (e.target.type === 'checkbox' || e.target.tagName === 'BUTTON') {
+                    e.stopPropagation(); 
+                    return;
                 }
+                
+                // Wenn auf die Zeile geklickt wird (aber nicht auf die Checkbox), öffne das Einzelrezept.
+                window.open(`./mischung_rezepte.html?id=${mixId}`, '_blank');
             });
 
             tbody.appendChild(tr);
         });
     }
+    
+    // (filterData, search, getSelectedMixIds, handleRecipeOutput, setupTableHeader, renderTable, und Event-Listener bleiben gleich)
 
     function filterData(searchTerm) {
         const term = searchTerm.toLowerCase().trim();
@@ -166,7 +158,7 @@
 
     function getSelectedMixIds() {
         const checkboxes = document.querySelectorAll('#t tbody input.mix-checkbox:checked'); 
-        return Array.from(checkboxes).map(cb => cb.value);
+        return Array.from(checkboxes).map(cb => cb.value).filter(Boolean);
     }
 
     function handleRecipeOutput(format) {
@@ -180,11 +172,9 @@
         const idsParam = encodeURIComponent(selectedIds.join(','));
 
         if (format === 'html') {
-            // KORRIGIERTER LINK
             const url = `./mischung_rezepte.html?ids=${idsParam}`;
             window.open(url, '_blank');
         } else if (format === 'pdf') {
-            // KORRIGIERTER LINK
             const url = `./mischung_rezepte.html?ids=${idsParam}&print=1`;
             window.open(url, '_blank');
         }
