@@ -1,5 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mischungs Rezepte</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .page { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .recipe { border-bottom: 2px solid #ccc; padding-bottom: 20px; margin-bottom: 30px; }
+        .recipe-header { display: flex; align-items: flex-start; margin-bottom: 20px; }
+        .recipe-img-wrap { width: 150px; height: 150px; margin-right: 20px; flex-shrink: 0; background-color: #eee; border-radius: 8px; overflow: hidden; }
+        .recipe-img { width: 100%; height: 100%; object-fit: cover; }
+        .recipe-header-text { flex-grow: 1; }
+        .recipe-title { margin-top: 0; color: #333; }
+        .recipe-meta { font-size: 0.9em; color: #666; margin-bottom: 5px; }
+        .section-title { border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 20px; margin-bottom: 10px; color: #444; }
+        .ingredients-list { list-style: disc inside; padding-left: 20px; }
+        .block-text { white-space: pre-wrap; margin-left: 10px; padding: 5px; background: #f9f9f9; border-left: 3px solid #ccc; }
+        #errorBanner { background:#fee; border:1px solid #f99; color:#600; padding:10px; border-radius:5px; margin:15px 0; }
+        #recipe-navigation button { padding: 8px 15px; border: 1px solid #ccc; background: #f0f0f0; cursor: pointer; border-radius: 5px; }
+        #recipe-navigation button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <a href="./mischungen.html" style="text-decoration: none; color: #007bff;">&larr; Zurück zur Suche</a>
+    <h1>Ausgewählte Mischungen / Rezepte</h1>
+    
+    <div id="recipe-navigation" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        </div>
+    
+    <div id="recipes">
+        <p>Wird geladen...</p>
+    </div>
+    
+</div>
+
 <script src="./assets/js/util.js"></script>
 <script src="./assets/js/bg_loader.js"></script>
+
 <script>
 (async () => {
     let allData = [];
@@ -8,7 +48,7 @@
     
     // Globale DOM-Elemente
     const container = document.getElementById('recipes');
-    const navContainer = document.getElementById('recipe-navigation'); // Wird im HTML-Body benötigt
+    const navContainer = document.getElementById('recipe-navigation');
     const S = window.$util.safe;
     let COL = {}; // Spalten-Mapping
 
@@ -26,7 +66,7 @@
         const findCol = (candidates) =>
             candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
 
-        // --- SPALTEN-MAPPING (wie zuletzt vereinbart) ---
+        // --- SPALTEN-MAPPING (MUSS ZUM CSV-HEADER PASSEN!) ---
         COL = {
             id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
             name: findCol(['name_deutsch', 'original_name', 'mix_name']),
@@ -34,6 +74,8 @@
             sensorik: findCol(['sensorik', 'sensorik_multi']),
             origin: findCol(['region_norm', 'herkunft', 'original_region']),
             illu: findCol(['plh_illu', 'illu', 'bildname']),
+            
+            // --- REZEPTUR-DETAIL-SPALTEN ---
             zutaten: findCol(['zutaten_mengen_structured', 'zutaten_liste']),
             anleitung: findCol(['herstellung_zubereitung']), 
             prozess: findCol(['herstellungsprozess']),
@@ -53,6 +95,9 @@
     }
     
     // --- HILFSFUNKTIONEN ---
+    function getId(r) {
+        return (COL.id && r[COL.id]) || '';
+    }
 
     function ingredientList(txt) {
         if (!txt) return '';
@@ -66,7 +111,12 @@
     // --- NAVIGATION UND RENDERING LOGIK ---
 
     function updateNavigation() {
-        if (!navContainer) return;
+        if (!navContainer || currentData.length <= 1) {
+            // Navigation ausblenden, wenn nur ein oder kein Rezept angezeigt wird
+            navContainer.style.display = 'none';
+            return;
+        }
+        navContainer.style.display = 'flex';
 
         const prevButton = `<button id="prev-recipe" ${currentIndex <= 0 ? 'disabled' : ''}>&larr; Vorheriges Rezept</button>`;
         const nextButton = `<button id="next-recipe" ${currentIndex >= currentData.length - 1 ? 'disabled' : ''}>Nächstes Rezept &rarr;</button>`;
@@ -87,7 +137,7 @@
         const cat = COL.category ? S(r[COL.category] || '') : '';
         const origin = COL.origin ? S(r[COL.origin] || '') : '';
         const sens = COL.sensorik ? S(r[COL.sensorik] || '') : '';
-        const id = S(r[COL.id] || '');
+        const id = getId(r);
         
         // Rezeptur-Details
         const zutaten = COL.zutaten ? ingredientList(S(r[COL.zutaten])) : '';
@@ -143,16 +193,25 @@
         
         // Optional: URL-Update, um den aktuellen Zustand zu speichern
         history.replaceState(null, '', `?id=${S(recipe[COL.id])}`);
+        
+        // Wenn es nur ein Rezept ist, URL ohne Navigations-Index halten
+        if (currentData.length > 1) {
+             const allIds = currentData.map(r => S(r[COL.id])).join(',');
+             history.replaceState(null, '', `?ids=${allIds}&id=${S(recipe[COL.id])}`);
+        } else {
+             history.replaceState(null, '', `?id=${S(recipe[COL.id])}`);
+        }
     }
 
     // --- STARTPUNKT ---
     const urlParams = new URLSearchParams(window.location.search);
-    const idsParam = urlParams.get('ids') || urlParams.get('id') || ''; 
-    const initialIdList = idsParam.split(',').map(s => s.trim()).filter(Boolean);
+    const initialIdList = (urlParams.get('ids') || urlParams.get('id') || '').split(',').map(s => s.trim()).filter(Boolean);
+    const initialSingleId = urlParams.get('id');
+
+    const byId = new Map(allData.map(r => [getId(r), r]));
 
     if (initialIdList.length > 0) {
-        // Multi-Auswahl oder Einzelklick (filtert die gesamte allData)
-        const byId = new Map(allData.map(r => [S(r[COL.id]), r]));
+        // Multi-Auswahl (von Button) oder Einzelklick (von Tabelle)
         currentData = initialIdList.map(id => byId.get(id)).filter(Boolean);
 
         if (currentData.length === 0) {
@@ -160,8 +219,10 @@
             return;
         }
 
-        // Finde den Index des ersten ausgewählten Rezepts
-        currentIndex = 0; 
+        // Finde den Index des Rezepts, das in der URL als 'id' angegeben ist (für korrekten Startpunkt bei Multi-Auswahl)
+        const startIndex = initialSingleId ? currentData.findIndex(r => getId(r) === initialSingleId) : 0;
+        currentIndex = (startIndex !== -1) ? startIndex : 0; 
+        
         loadSelectedRecipe(currentIndex);
 
     } else {
