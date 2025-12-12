@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Lexikon – Rezeptansicht</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background: #f4f4f4; color: #333; line-height: 1.5; }
+        .page { max-width: 850px; margin: auto; background: white; padding: 40px; border-radius: 8px; position: relative; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        
+        /* ID oben rechts wie gewünscht */
+        .rid { position: absolute; top: 20px; right: 20px; font-size: 0.8em; color: #999; font-family: monospace; }
+        
+        .header { display: flex; gap: 25px; margin-bottom: 30px; }
+        .img-box { width: 180px; height: 180px; background: #eee; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 1px solid #ddd; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .title { margin: 0; font-size: 2.2em; color: #000; }
+        .meta { color: #666; margin-top: 8px; }
+        .sec { border-bottom: 2px solid #eee; margin: 30px 0 15px; font-weight: bold; font-size: 1.2em; }
+        
+        .ing { list-style: none; padding: 0; }
+        .ing li { padding: 4px 0; border-bottom: 1px solid #f9f9f9; }
+        
+        .txt { white-space: pre-wrap; background: #f9f9f9; padding: 15px; border-left: 4px solid #ccc; border-radius: 4px; }
+
+        @media print {
+            .no-print { display: none; }
+            .page { box-shadow: none; width: 100%; page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div id="rid" class="rid"></div>
+        <a href="./mischungen.html" class="no-print" style="color:#007bff; text-decoration:none;">&larr; Zur Suche</a>
+        <div id="content">Lade Daten...</div>
+    </div>
+
+    <script src="./assets/js/util.js"></script>
+    <script>
+    (async () => {
+        const container = document.getElementById('content');
+        const ridBox = document.getElementById('rid');
+        
+        try {
+            const allData = await window.$util.loadRecipes();
+            const params = new URLSearchParams(location.search);
+            const ids = (params.get('ids') || params.get('id') || "").split(',').filter(Boolean);
+            
+            // Flexibles Spalten-Mapping
+            const keys = Object.keys(allData[0] || {});
+            const find = (c) => c.find(k => keys.some(key => key.toLowerCase() === k.toLowerCase())) || null;
+            
+            const COL_ID = find(['mix_id', 'id_neu', 'id', 'recipe_id']);
+            const COL_NAME = find(['name_deutsch', 'mix_name', 'name']);
+
+            const byId = new Map(allData.map(r => [String(r[COL_ID]).trim(), r]));
+            const selected = ids.map(id => byId.get(id.trim())).filter(Boolean);
+
+            if (!selected.length) { container.innerHTML = "Rezept nicht gefunden."; return; }
+
+            container.innerHTML = selected.map((r, index) => {
+                const id = String(r[COL_ID]).trim();
+                
+                // Nur beim ersten Element die ID oben rechts anzeigen (für Einzelansicht)
+                if (index === 0) ridBox.textContent = "ID: " + id; 
+                
+                // Zutaten: | zu -
+                const ingKey = find(['zutaten_mengen_structured', 'zutaten_liste']);
+                const ing = r[ingKey] || '';
+                const ingHtml = ing ? `<ul class="ing">${ing.split('|').map(z => `<li>- ${z.trim()}</li>`).join('')}</ul>` : '';
+                
+                // Textblöcke: | zu Umbruch
+                const fmt = (v) => v ? `<div class="txt">${String(v).replace(/\|/g, '\n')}</div>` : '';
+                
+                // Pfad-Konstruktion
+                const imgPath = `./assets/img/mischungen/${id}.jpg`;
+
+                return `
+                    <div style="margin-bottom: 50px;">
+                        <div class="header">
+                            <div class="img-box">
+                                <img src="${imgPath}" onerror="this.onerror=null; this.src='https://via.placeholder.com/180?text=Kein+Bild';">
+                            </div>
+                            <div>
+                                <h1 class="title">${S(r[COL_NAME])}</h1>
+                                <div class="meta">
+                                    <strong>Herkunft:</strong> ${S(r[find(['region_norm', 'herkunft'])])}<br>
+                                    <strong>Sensorik:</strong> ${S(r[find(['sensorik_multi', 'sensorik'])])}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sec">Zutaten & Mengen</div> ${ingHtml}
+                        <div class="sec">Herstellung / Zubereitung</div> 
+                        ${fmt(r[find(['herstellung_zubereitung', 'anleitung', 'herstellung'])])}
+                    </div>
+                `;
+            }).join('');
+
+            // PDF-Autostart
+            if (params.get('print') === '1') {
+                setTimeout(() => window.print(), 1000);
+            }
+
+        } catch (e) { container.innerHTML = "Fehler: " + e; }
+        
+        function S(v) { return v == null ? '' : String(v).trim(); }
+    })();
+    </script>
+</body>
+</html>
