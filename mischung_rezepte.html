@@ -8,33 +8,35 @@
         body { font-family: sans-serif; margin: 20px; background: #f4f4f4; color: #333; line-height: 1.5; }
         .page { max-width: 850px; margin: 20px auto; background: white; padding: 40px; border-radius: 8px; position: relative; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
         
-        /* ID oben rechts */
-        .rid { position: absolute; top: 25px; right: 25px; font-size: 0.85em; color: #999; font-family: monospace; font-weight: bold; }
+        /* ID oben rechts positionieren */
+        .rid { position: absolute; top: 30px; right: 30px; font-size: 0.85em; color: #999; font-family: monospace; font-weight: bold; }
         
         .header { display: flex; gap: 25px; margin-bottom: 30px; align-items: flex-start; }
+        
+        /* Bild-Box Pfad-Logik */
         .img-box { width: 180px; height: 180px; background: #eee; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 1px solid #ddd; }
         .img-box img { width: 100%; height: 100%; object-fit: cover; }
         
         .title { margin: 0; font-size: 2.2em; color: #000; padding-right: 140px; }
         .sec { border-bottom: 2px solid #eee; margin: 30px 0 15px; font-weight: bold; font-size: 1.2em; }
         
-        /* Zutaten mit "-" */
+        /* Zutaten mit Spiegelstrich "-" */
         .ing { list-style: none; padding: 0; margin: 0; }
         .ing li { padding: 4px 0; border-bottom: 1px solid #f9f9f9; }
         
-        /* Textblöcke mit Zeilenumbrüchen */
+        /* Textblöcke mit Zeilenumbrüchen statt Pipes */
         .txt { white-space: pre-wrap; background: #f9f9f9; padding: 15px; border-left: 4px solid #ccc; border-radius: 4px; margin-top: 5px; }
 
         @media print { .no-print { display: none; } .page { box-shadow: none; width: 100%; page-break-after: always; margin: 0; } }
     </style>
 </head>
 <body>
-    <div id="recipes-container"></div>
+    <div id="recipes-wrapper"></div>
 
     <script src="./assets/js/util.js"></script>
     <script>
     (async () => {
-        const container = document.getElementById('recipes-container');
+        const container = document.getElementById('recipes-wrapper');
         try {
             const allData = await window.$util.loadRecipes();
             const params = new URLSearchParams(location.search);
@@ -43,15 +45,14 @@
             const keys = Object.keys(allData[0] || {});
             const find = (cands) => cands.find(c => keys.some(k => k.toLowerCase() === c.toLowerCase())) || keys[0];
 
-            // Priorisierung von name_deutsch
+            // Priorisierte Spalten
             const COL = {
                 id: find(['mix_id', 'id_neu', 'id']),
-                name: find(['name_deutsch', 'mix_name', 'name']),
+                name: find(['name_deutsch', 'mix_name']),
                 origin: find(['region_norm', 'herkunft']),
                 sens: find(['sensorik_multi', 'sensorik']),
                 zutaten: find(['zutaten_mengen_structured', 'zutaten_liste']),
-                anleitung: find(['herstellung_zubereitung', 'anleitung']),
-                prozess: find(['herstellungsprozess'])
+                anleitung: find(['herstellung_zubereitung', 'anleitung'])
             };
 
             const byId = new Map(allData.map(r => [String(r[COL.id]).trim(), r]));
@@ -61,11 +62,13 @@
 
             container.innerHTML = selected.map(r => {
                 const mid = String(r[COL.id]).trim();
-                const imagePath = `./assets/img/mischungen/${mid}.jpg`; // Pfad-Logik wie in image_9f24ba.png
+                const imagePath = `./assets/img/mischungen/${mid}.jpg`; // Erprobter Pfad
                 
+                // Zutaten von "|" zu "-" umwandeln
                 const ingHtml = r[COL.zutaten] ? 
                     `<ul class="ing">${String(r[COL.zutaten]).split('|').map(z => `<li>- ${z.trim()}</li>`).join('')}</ul>` : '';
                 
+                // Textblöcke von "|" zu Umbruch umwandeln
                 const fmt = (v) => v ? `<div class="txt">${String(v).replace(/\|/g, '\n')}</div>` : '';
 
                 return `
@@ -89,11 +92,11 @@
                         <div class="sec">Zutaten & Mengen</div> ${ingHtml}
                         
                         ${r[COL.anleitung] ? `<div class="sec">Herstellung / Zubereitung</div> ${fmt(r[COL.anleitung])}` : ''}
-                        ${r[COL.prozess] ? `<div class="sec">Herstellungsprozess</div> ${fmt(r[COL.prozess])}` : ''}
                     </div>
                 `;
             }).join('');
 
+            // PDF-Autostart bei Parameter &print=1
             if (params.get('print') === '1') setTimeout(() => window.print(), 1000);
 
         } catch (e) { container.innerHTML = "Fehler: " + e; }
