@@ -2,112 +2,99 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Lexikon – Rezeptansicht</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Rezeptansicht</title>
     <style>
         body { font-family: sans-serif; margin: 20px; background: #f4f4f4; color: #333; line-height: 1.5; }
-        .page { max-width: 850px; margin: auto; background: white; padding: 40px; border-radius: 8px; position: relative; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        .page { max-width: 850px; margin: 20px auto; background: white; padding: 40px; border-radius: 8px; position: relative; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
         
         /* ID oben rechts */
-        .rid { position: absolute; top: 20px; right: 20px; font-size: 0.85em; color: #999; font-family: monospace; font-weight: bold; }
+        .rid { position: absolute; top: 25px; right: 25px; font-size: 0.85em; color: #999; font-family: monospace; font-weight: bold; }
         
         .header { display: flex; gap: 25px; margin-bottom: 30px; align-items: flex-start; }
-        
-        /* Bild-Box */
         .img-box { width: 180px; height: 180px; background: #eee; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 1px solid #ddd; }
-        .img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .debug-path { font-size: 10px; color: #ccc; margin-top: 5px; word-break: break-all; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        .title { margin: 0; font-size: 2.2em; color: #000; padding-right: 120px; }
-        .sec { border-bottom: 2px solid #eee; margin: 30px 0 15px; font-weight: bold; font-size: 1.2em; color: #444; }
+        .title { margin: 0; font-size: 2.2em; color: #000; padding-right: 140px; }
+        .sec { border-bottom: 2px solid #eee; margin: 30px 0 15px; font-weight: bold; font-size: 1.2em; }
         
         /* Zutaten mit "-" */
         .ing { list-style: none; padding: 0; margin: 0; }
-        .ing li { padding: 5px 0; border-bottom: 1px solid #f0f0f0; }
+        .ing li { padding: 4px 0; border-bottom: 1px solid #f9f9f9; }
         
         /* Textblöcke mit Zeilenumbrüchen */
         .txt { white-space: pre-wrap; background: #f9f9f9; padding: 15px; border-left: 4px solid #ccc; border-radius: 4px; margin-top: 5px; }
 
-        @media print { .no-print { display: none; } .page { box-shadow: none; width: 100%; page-break-after: always; } }
+        @media print { .no-print { display: none; } .page { box-shadow: none; width: 100%; page-break-after: always; margin: 0; } }
     </style>
 </head>
 <body>
-    <div class="page">
-        <div id="rid-display" class="rid"></div>
-        <a href="./mischungen.html" class="no-print" style="color:#007bff; text-decoration:none; font-weight:bold;">&larr; Zurück zur Suche</a>
-        <div id="content-area">Daten werden geladen...</div>
-    </div>
+    <div id="recipes-container"></div>
 
     <script src="./assets/js/util.js"></script>
     <script>
     (async () => {
-        const container = document.getElementById('content-area');
-        const ridDisplay = document.getElementById('rid-display');
-        
+        const container = document.getElementById('recipes-container');
         try {
             const allData = await window.$util.loadRecipes();
             const params = new URLSearchParams(location.search);
             const ids = (params.get('ids') || params.get('id') || "").split(',').filter(Boolean);
             
-            if (!allData.length) throw "CSV-Datei leer oder nicht geladen.";
+            const keys = Object.keys(allData[0] || {});
+            const find = (cands) => cands.find(c => keys.some(k => k.toLowerCase() === c.toLowerCase())) || keys[0];
 
-            // Spalten finden
-            const keys = Object.keys(allData[0]);
-            const getK = (str) => keys.find(k => k.toLowerCase().includes(str.toLowerCase())) || keys[0];
-            
-            const COL_ID = getK('id'); // Sucht mix_id, id_neu, ID etc.
-            const COL_NAME = getK('name');
-            const COL_ING = getK('zutaten');
-            const COL_INST = getK('herstellung');
+            // Priorisierung von name_deutsch
+            const COL = {
+                id: find(['mix_id', 'id_neu', 'id']),
+                name: find(['name_deutsch', 'mix_name', 'name']),
+                origin: find(['region_norm', 'herkunft']),
+                sens: find(['sensorik_multi', 'sensorik']),
+                zutaten: find(['zutaten_mengen_structured', 'zutaten_liste']),
+                anleitung: find(['herstellung_zubereitung', 'anleitung']),
+                prozess: find(['herstellungsprozess'])
+            };
 
-            const byId = new Map(allData.map(r => [String(r[COL_ID] || '').trim(), r]));
+            const byId = new Map(allData.map(r => [String(r[COL.id]).trim(), r]));
             const selected = ids.map(id => byId.get(id.trim())).filter(Boolean);
 
-            if (!selected.length) { 
-                container.innerHTML = `<p>ID ${ids.join(',')} nicht in der Liste gefunden.</p>`; 
-                return; 
-            }
+            if (!selected.length) { container.innerHTML = "<div class='page'>Rezept nicht gefunden.</div>"; return; }
 
-            container.innerHTML = selected.map((r, i) => {
-                const id = String(r[COL_ID] || '').trim();
-                if (i === 0) ridDisplay.textContent = "ID: " + id; 
+            container.innerHTML = selected.map(r => {
+                const mid = String(r[COL.id]).trim();
+                const imagePath = `./assets/img/mischungen/${mid}.jpg`; // Pfad-Logik wie in image_9f24ba.png
                 
-                // Pfad-Logik (Absolut sichergestellt)
-                const imgName = id + ".jpg";
-                const imagePath = `./assets/img/mischungen/${imgName}`;
+                const ingHtml = r[COL.zutaten] ? 
+                    `<ul class="ing">${String(r[COL.zutaten]).split('|').map(z => `<li>- ${z.trim()}</li>`).join('')}</ul>` : '';
                 
-                const ingredients = r[COL_ING] ? String(r[COL_ING]).split('|').map(z => `<li>- ${z.trim()}</li>`).join('') : '';
-                const format = (val) => val ? `<div class="txt">${String(val).replace(/\|/g, '\n')}</div>` : '';
+                const fmt = (v) => v ? `<div class="txt">${String(v).replace(/\|/g, '\n')}</div>` : '';
 
                 return `
-                    <div style="margin-bottom: 60px;">
-                        <div class="header">
-                            <div>
-                                <div class="img-box">
-                                    <img src="${imagePath}" onerror="this.onerror=null; this.src='https://via.placeholder.com/180?text=Kein+Bild';">
-                                </div>
-                                <div class="debug-path no-print">Suche: ${imgName}</div>
+                    <div class="page">
+                        <div class="rid">ID: ${mid}</div>
+                        <a href="./mischungen.html" class="no-print" style="color:#007bff; text-decoration:none;">&larr; Zur Suche</a>
+                        
+                        <div class="header" style="margin-top:20px;">
+                            <div class="img-box">
+                                <img src="${imagePath}" onerror="this.src='https://via.placeholder.com/180?text=Bild+fehlt';">
                             </div>
                             <div>
-                                <h1 class="title">${r[COL_NAME] || 'Ohne Name'}</h1>
+                                <h1 class="title">${r[COL.name] || 'Unbenannt'}</h1>
                                 <div style="color:#666; margin-top:10px;">
-                                    <strong>Herkunft:</strong> ${r[getK('herkunft')] || '-'}<br>
-                                    <strong>Sensorik:</strong> ${r[getK('sensorik')] || '-'}
+                                    <strong>Herkunft:</strong> ${r[COL.origin] || '-'}<br>
+                                    <strong>Sensorik:</strong> ${r[COL.sens] || '-'}
                                 </div>
                             </div>
                         </div>
-                        <div class="sec">Zutaten & Mengen</div>
-                        <ul class="ing">${ingredients}</ul>
+
+                        <div class="sec">Zutaten & Mengen</div> ${ingHtml}
                         
-                        <div class="sec">Herstellung & Zubereitung</div>
-                        ${format(r[COL_INST])}
+                        ${r[COL.anleitung] ? `<div class="sec">Herstellung / Zubereitung</div> ${fmt(r[COL.anleitung])}` : ''}
+                        ${r[COL.prozess] ? `<div class="sec">Herstellungsprozess</div> ${fmt(r[COL.prozess])}` : ''}
                     </div>
                 `;
             }).join('');
 
-            if (params.get('print') === '1') {
-                setTimeout(() => window.print(), 1500);
-            }
+            if (params.get('print') === '1') setTimeout(() => window.print(), 1000);
 
         } catch (e) { container.innerHTML = "Fehler: " + e; }
     })();
