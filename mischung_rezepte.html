@@ -2,84 +2,58 @@
 <script src="./assets/js/bg_loader.js"></script>
 <script>
 (async () => {
-    // Fängt sowohl 'id' (Einzelklick) als auch 'ids' (Multi-Auswahl von Checkboxen)
-    const params = new URLSearchParams(location.search);
-    const idsParam = params.get('ids') || params.get('id') || ''; 
-    const idList = idsParam.split(',').map(s => s.trim()).filter(Boolean);
-
-    const printMode = params.get('print') === '1';
+    let allData = [];
+    let currentData = []; // Die aktuell gefilterten Daten (für die Navigation)
+    let currentIndex = -1; // Index des aktuell angezeigten Rezepts
+    
+    // Globale DOM-Elemente
     const container = document.getElementById('recipes');
+    const navContainer = document.getElementById('recipe-navigation'); // Wird im HTML-Body benötigt
+    const S = window.$util.safe;
+    let COL = {}; // Spalten-Mapping
 
-    // Sicherheit 1: Keine ID gefunden
-    if (!idList.length) {
-        container.innerHTML = '<p>Keine Mischungen zur Anzeige ausgewählt (Fehler: Leere ID-Liste).<br>Bitte wähle eine Mischung in der Suchtabelle aus.</p>';
-        return;
-    }
+    // --- DATENLADUNG UND INITIALISIERUNG ---
 
-    let data = [];
     try {
-        data = await $util.loadRecipes(); 
-    } catch (e) {
-        container.innerHTML = `<p>FEHLER: Daten konnten nicht geladen werden. Bitte prüfe die Konsolen-Logs. (${e})</p>`;
-        return;
-    }
+        allData = await $util.loadRecipes(); 
+        if (!allData.length) {
+            container.innerHTML = '<p>Keine Rezepte in der Datenquelle gefunden.</p>';
+            return;
+        }
 
-    // Sicherheit 2: Keine Daten in der CSV
-    if (!data.length) {
-        container.innerHTML = '<p>Keine Rezepte in der Datenquelle gefunden.</p>';
-        return;
-    }
+        const sample = allData[0] || {};
+        const KEYS = Object.keys(sample);
+        const findCol = (candidates) =>
+            candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
 
-    // $util.safe (S) ist der Schlüssel für die Null-Prüfung im Rendering
-    const S = window.$util.safe; 
-    const sample = data[0] || {};
-    const KEYS = Object.keys(sample);
-    
-    const findCol = (candidates) =>
-        candidates.find(c => KEYS.includes(c.toLowerCase())) || null;
-
-    // --- PRÄZISIERTE SPALTEN-MAPPING (Lowercase-optimiert) ---
-    const COL = {
-        // IDs & Metadaten
-        id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
-        name: findCol(['name_deutsch', 'original_name', 'mix_name']),
-        category: findCol(['kategorie_multi', 'anwendungsbereich_multi', 'mix_typ']),
-        sensorik: findCol(['sensorik', 'sensorik_multi']),
-        origin: findCol(['region_norm', 'herkunft', 'original_region']),
-        illu: findCol(['plh_illu', 'illu', 'bildname']),
+        // --- SPALTEN-MAPPING (wie zuletzt vereinbart) ---
+        COL = {
+            id: findCol(['mix_id', 'mix_id', 'id_neu', 'recipe_id']),
+            name: findCol(['name_deutsch', 'original_name', 'mix_name']),
+            category: findCol(['kategorie_multi', 'anwendungsbereich_multi', 'mix_typ']),
+            sensorik: findCol(['sensorik', 'sensorik_multi']),
+            origin: findCol(['region_norm', 'herkunft', 'original_region']),
+            illu: findCol(['plh_illu', 'illu', 'bildname']),
+            zutaten: findCol(['zutaten_mengen_structured', 'zutaten_liste']),
+            anleitung: findCol(['herstellung_zubereitung']), 
+            prozess: findCol(['herstellungsprozess']),
+            temperatur: findCol(['temperaturfuehrung']),
+            reifezeit: findCol(['reifezeit_lagerzeit']),
+            anwendung: findCol(['anwendung'])
+        };
         
-        // --- REZEPTUR-DETAIL-SPALTEN (WICHTIG!) ---
-        zutaten: findCol(['zutaten_mengen_structured', 'zutaten_liste']),
-        anleitung: findCol(['herstellung_zubereitung']), 
-        prozess: findCol(['herstellungsprozess']),
-        temperatur: findCol(['temperaturfuehrung']),
-        reifezeit: findCol(['reifezeit_lagerzeit']),
-        anwendung: findCol(['anwendung'])
-    };
-    
-    // Sicherheit 3: MIX_ID Spalte muss gefunden werden!
-    if (!COL.id) {
-        container.innerHTML = `<p>FEHLER: Die Spalte für die Mischungs-ID (MIX_ID) wurde in der Datei nicht gefunden. Gefundene Schlüssel: ${KEYS.join(', ')}</p>`;
-        return;
-    }
+        if (!COL.id) {
+            container.innerHTML = `<p>FEHLER: Die Spalte für die Mischungs-ID (MIX_ID) wurde in der Datei nicht gefunden.</p>`;
+            return;
+        }
 
-    function getId(r) {
-        return (COL.id && r[COL.id]) || '';
-    }
-
-    // Erstellt die Map für schnellen Zugriff auf die Datensätze
-    const byId = new Map(data.map(r => [getId(r), r]));
-    
-    // Filtert die ausgewählten Datensätze
-    const selected = idList.map(id => byId.get(id)).filter(Boolean);
-
-    // Sicherheit 4: ID konnte nicht gematcht werden
-    if (selected.length === 0) {
-        container.innerHTML = `<p>Die ausgewählte Mischung (ID: ${idList.join(', ')}) konnte in den geladenen Rezepten nicht gefunden werden. Bitte prüfe, ob die ID in der CSV-Datei korrekt ist.</p>`;
+    } catch (e) {
+        container.innerHTML = `<p>FEHLER: Daten konnten nicht geladen werden. (${e})</p>`;
         return;
     }
     
-    // Hilfsfunktion zur Darstellung der Zutaten (nimmt Pipe | oder Semikolon ;)
+    // --- HILFSFUNKTIONEN ---
+
     function ingredientList(txt) {
         if (!txt) return '';
         const items = (txt + '').split(/\||;/).map(s => s.trim()).filter(Boolean); 
@@ -89,17 +63,33 @@
             '</ul>';
     }
 
-    // --- RENDERING ---
-    container.innerHTML = selected.map(r => {
-        // Metadaten-Mapping
+    // --- NAVIGATION UND RENDERING LOGIK ---
+
+    function updateNavigation() {
+        if (!navContainer) return;
+
+        const prevButton = `<button id="prev-recipe" ${currentIndex <= 0 ? 'disabled' : ''}>&larr; Vorheriges Rezept</button>`;
+        const nextButton = `<button id="next-recipe" ${currentIndex >= currentData.length - 1 ? 'disabled' : ''}>Nächstes Rezept &rarr;</button>`;
+        const status = `<span>${currentIndex + 1} von ${currentData.length}</span>`;
+
+        navContainer.innerHTML = `${prevButton} ${status} ${nextButton}`;
+
+        if (currentIndex > 0) {
+            document.getElementById('prev-recipe').onclick = () => loadSelectedRecipe(currentIndex - 1);
+        }
+        if (currentIndex < currentData.length - 1) {
+            document.getElementById('next-recipe').onclick = () => loadSelectedRecipe(currentIndex + 1);
+        }
+    }
+
+    function renderRecipe(r) {
         const name = S(r[COL.name] || 'Unbekannte Mischung');
         const cat = COL.category ? S(r[COL.category] || '') : '';
         const origin = COL.origin ? S(r[COL.origin] || '') : '';
         const sens = COL.sensorik ? S(r[COL.sensorik] || '') : '';
-        const id = getId(r);
-
+        const id = S(r[COL.id] || '');
+        
         // Rezeptur-Details
-        // FIX: Doppelte Absicherung der Feldwerte mit S()
         const zutaten = COL.zutaten ? ingredientList(S(r[COL.zutaten])) : '';
         const herst = COL.anleitung && S(r[COL.anleitung]) ? '<div class="block-text">' + S(r[COL.anleitung]) + '</div>' : '';
         const proc = COL.prozess && S(r[COL.prozess]) ? '<div class="block-text">' + S(r[COL.prozess]) + '</div>' : '';
@@ -118,7 +108,7 @@
                </div>`
             : '';
 
-        return `
+        container.innerHTML = `
             <article class="recipe" data-id="${id}">
                 <header class="recipe-header">
                     ${imgHtml}
@@ -142,10 +132,44 @@
                 ${anw ? '<h3 class="section-title">Anwendung</h3>' + anw : ''}
             </article>
         `;
-    }).join('');
+    }
 
-    if (printMode) {
-        setTimeout(() => window.print(), 500);
+    function loadSelectedRecipe(index) {
+        if (index < 0 || index >= currentData.length) return;
+        currentIndex = index;
+        const recipe = currentData[currentIndex];
+        renderRecipe(recipe);
+        updateNavigation();
+        
+        // Optional: URL-Update, um den aktuellen Zustand zu speichern
+        history.replaceState(null, '', `?id=${S(recipe[COL.id])}`);
+    }
+
+    // --- STARTPUNKT ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const idsParam = urlParams.get('ids') || urlParams.get('id') || ''; 
+    const initialIdList = idsParam.split(',').map(s => s.trim()).filter(Boolean);
+
+    if (initialIdList.length > 0) {
+        // Multi-Auswahl oder Einzelklick (filtert die gesamte allData)
+        const byId = new Map(allData.map(r => [S(r[COL.id]), r]));
+        currentData = initialIdList.map(id => byId.get(id)).filter(Boolean);
+
+        if (currentData.length === 0) {
+            container.innerHTML = `<p>Die ausgewählte Mischung (ID: ${initialIdList.join(', ')}) konnte nicht gefunden werden.</p>`;
+            return;
+        }
+
+        // Finde den Index des ersten ausgewählten Rezepts
+        currentIndex = 0; 
+        loadSelectedRecipe(currentIndex);
+
+    } else {
+        // KEINE ID in der URL: Lade das ALLERERSTE Rezept als Fallback
+        currentData = allData;
+        currentIndex = 0; 
+        loadSelectedRecipe(currentIndex); 
+        container.innerHTML += `<p style="font-size: 0.8em; color: #999;">(Zeigt das erste Rezept der Master-Liste, da keine ID in der URL gefunden wurde.)</p>`;
     }
 })();
 </script>
