@@ -1,90 +1,50 @@
 (async () => {
     let allData = []; 
-    const thead = document.querySelector('#t thead');
     const tbody = document.querySelector('#t tbody');
-    const q = document.getElementById('q');
-    const btnGo = document.getElementById('go');
+    const btnPdf = document.getElementById('toPdf');
     const btnHtml = document.getElementById('toHtml');
-    const btnPdf = document.getElementById('toPdf'); // Verknüpfung zum Button
-    const cbAll = document.getElementById('all');
 
     try {
         allData = await window.$util.loadRecipes();
-    } catch (e) {
-        window.$util.err('Fehler beim Laden: ' + e);
-        return;
-    }
-
-    const S = window.$util.safe;
-    const keys = Object.keys(allData[0] || {});
-    const findCol = (candidates) => candidates.find(c => keys.includes(c.toLowerCase())) || null;
-
-    const COL = {
-        id: findCol(['mix_id', 'id_neu']),
-        name: findCol(['name_deutsch', 'mix_name']),
-        origin: findCol(['region_norm', 'herkunft']),
-        category: findCol(['kategorie_multi', 'anwendungsbereich_multi']),
-        sensorik: findCol(['sensorik', 'sensorik_multi'])
-    };
+        renderTable(allData);
+    } catch (e) { console.error("Ladefehler:", e); }
 
     function renderTable(data) {
+        if (!tbody) return;
         tbody.innerHTML = '';
-        data.forEach((row) => {
+        data.forEach(row => {
             const tr = document.createElement('tr');
-            const mixId = row[COL.id]; 
+            const mixId = row.mix_id || row.id_neu || '';
             
+            // Checkbox mit Label-Ersatz für Edge
             const tdCb = document.createElement('td');
-            const cb = document.createElement('input');
-            cb.type = 'checkbox';
-            cb.className = 'mix-checkbox';
-            cb.value = mixId;
-            cb.title = "Diese Mischung auswählen"; // Accessibility Fix
-            tdCb.appendChild(cb);
+            tdCb.innerHTML = `<input type="checkbox" class="mix-checkbox" value="${mixId}" title="Auswählen">`;
             tr.appendChild(tdCb);
 
-            const visibleCols = ['name', 'origin', 'category', 'sensorik'];
-            visibleCols.forEach(key => {
+            ['name_deutsch', 'herkunft', 'kategorie_multi', 'sensorik_multi'].forEach(key => {
                 const td = document.createElement('td');
-                td.textContent = row[COL[key]] || '';
+                // Falls die Spalte nicht exakt so heißt, suchen wir den passenden Header
+                const actualKey = Object.keys(row).find(k => k.toLowerCase() === key.toLowerCase()) || key;
+                td.textContent = row[actualKey] || '';
                 tr.appendChild(td);
             });
 
-            tr.addEventListener('click', (e) => {
-                if (e.target.type !== 'checkbox') {
-                    window.open(`./mischung_rezepte.html?id=${mixId}`, '_blank');
-                }
-            });
+            tr.onclick = (e) => {
+                if (e.target.type !== 'checkbox') window.open(`./mischung_rezepte.html?id=${mixId}`, '_blank');
+            };
             tbody.appendChild(tr);
         });
     }
 
-    // --- PDF & HTML LOGIK ---
-    
-    function getSelectedIds() {
-        const checked = document.querySelectorAll('.mix-checkbox:checked');
-        return Array.from(checked).map(cb => cb.value);
-    }
-
-    function openRecipes(isPdf) {
-        const ids = getSelectedIds();
-        if (ids.length === 0) {
-            alert("Bitte wählen Sie zuerst mindestens ein Rezept über die Checkboxen aus.");
-            return;
-        }
+    function startExport(isPdf) {
+        const checked = Array.from(document.querySelectorAll('.mix-checkbox:checked')).map(cb => cb.value);
+        if (checked.length === 0) return alert("Bitte markiere zuerst mindestens ein Rezept.");
         
-        // Erzeugt die URL: ids=1,2,3 und optional &print=1 für den Auto-Druck
-        const url = `./mischung_rezepte.html?ids=${ids.join(',')}${isPdf ? '&print=1' : ''}`;
+        // Öffnet die Rezeptseite mit den IDs und dem Print-Befehl
+        const url = `./mischung_rezepte.html?ids=${checked.join(',')}${isPdf ? '&print=1' : ''}`;
         window.open(url, '_blank');
     }
 
-    // Event-Listener zuweisen
-    if (btnHtml) btnHtml.onclick = () => openRecipes(false);
-    if (btnPdf) btnPdf.onclick = () => openRecipes(true); // Hier wird die PDF-Funktion aktiviert
-
-    if (btnGo) btnGo.onclick = () => {
-        const term = q.value.toLowerCase();
-        renderTable(allData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(term))));
-    };
-
-    renderTable(allData);
+    if (btnPdf) btnPdf.onclick = () => startExport(true);
+    if (btnHtml) btnHtml.onclick = () => startExport(false);
 })();
