@@ -1,0 +1,23 @@
+/* assets/css/bands_viewer.css */
+
+body {
+    padding: 20px;
+    background-color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Der wichtigste Teil: Bilder automatisch anpassen */
+img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block;
+    margin: 15px auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Texte schöner formatieren */
+p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}

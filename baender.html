@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Bände – Bibliothek</title>
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    <style>
+        /* Layout-Struktur */
+        .library-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            height: calc(100vh - 150px); /* Nutzt fast die gesamte Höhe */
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            overflow-y: auto;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        .band-link {
+            display: block;
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #333;
+            font-size: 0.9em;
+            transition: 0.2s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .band-link:hover { background: #f0fdf4; }
+
+        /* Hervorhebung des aktiven Bandes */
+        .band-link.active {
+            background: #065f46;
+            color: white;
+            border-left-color: #fbbf24;
+            font-weight: bold;
+        }
+
+        /* Hauptbereich (Viewer) */
+        .main-viewer {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Button-Leiste über dem Band */
+        .viewer-toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .iframe-wrapper {
+            flex-grow: 1;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        #band-viewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @media print {
+            .sidebar, .viewer-toolbar, .no-print { display: none !important; }
+            .library-container { display: block; height: auto; }
+        }
+    </style>
+</head>
+<body class="BG2">
+
+<div class="page" style="max-width: 100%; margin: 0 20px;">
+    <div class="header no-print">
+        <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
+        <div class="brand">📖 Bibliothek der Bände</div>
+        <nav class="nav">
+            <a href="./stoffe.html">Stoffe</a>
+            <a href="./mischungen.html">Mischungen</a>
+            <a href="./baender.html" class="active">Bände</a>
+        </nav>
+    </div>
+
+    <div class="library-container">
+        <aside class="sidebar" id="band-list">
+            </aside>
+
+        <main class="main-viewer">
+            <div class="viewer-toolbar" id="controls" style="display: none;">
+                <button class="btn" onclick="changeBand(-1)">← Vorheriges Band</button>
+                <button class="btn" id="pdf-open-btn">📄 Öffne PDF</button>
+                <button class="btn" onclick="changeBand(1)">Nächstes Band →</button>
+            </div>
+
+            <div class="iframe-wrapper">
+                <iframe id="band-viewer" src=""></iframe>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    const BANDS = [
+        { id: 'band00', label: 'Band 0 – Ein Lexikon der Aromen & Düfte der Welt' },
+        { id: 'band01', label: 'Band 1 – Geschichte & Kultur der Aromen' },
+        { id: 'band02', label: 'Band 2 – Techniken, Verarbeitung & Zubereitung' },
+        { id: 'band03', label: 'Band 3 – Sensorik & Wahrnehmung der Aromen' },
+        { id: 'band04', label: 'Band 4 – Pfeffer & Verwandte' },
+        { id: 'band05', label: 'Band 5 – Zimt, Nelken & Vanille' },
+        { id: 'band06', label: 'Band 6 – Safran – Das rote Gold' },
+        { id: 'band07', label: 'Band 7 – Ingwer & Rhizome I' },
+        { id: 'band08', label: 'Band 8 – Wurzeln & Rhizome II' },
+        { id: 'band09', label: 'Band 9 – Chili & Paprika' },
+        { id: 'band10', label: 'Band 10 – Mittelmeerkräuter I' },
+        { id: 'band11', label: 'Band 11 – Mittelmeerkräuter II' },
+        { id: 'band12', label: 'Band 12 – Kräuter & Samen' },
+        { id: 'band13', label: 'Band 13 – Grundlagen der Salzgewinnung' },
+        { id: 'band14', label: 'Band 14 – Salze der Welt' },
+        { id: 'band15', label: 'Band 15 – Salztraditionen & Spezialitäten' },
+        { id: 'band16', label: 'Band 16 – Ätherische Öle & Destillate' },
+        { id: 'band17', label: 'Band 17 – Balsame & Harze' },
+        { id: 'band18', label: 'Band 18 – Tee (Camellia sinensis)' },
+        { id: 'band19', label: 'Band 19 – Kräutertees & Infusionen' },
+        { id: 'band20', label: 'Band 20 – Kaffee, Kakao & Pflanzengetränke' },
+        { id: 'band21', label: 'Band 21 – Räucherkultur der Welt' },
+        { id: 'band22', label: 'Band 22 – Harze & Hölzer' },
+        { id: 'band23', label: 'Band 23 – Kräuter & Mischungen fürs Räuchern' },
+        { id: 'band24', label: 'Band 24 – Welt der Gewürzmischungen' },
+        { id: 'band25', label: 'Band 25 – Kräuter- & Salz-Mischungen' },
+        { id: 'band26', label: 'Band 26 – Psychoaktive Pflanzen & Harze' },
+        { id: 'band27', label: 'Band 27 – Stoffelexikon (Datasheets)' },
+        { id: 'band28', label: 'Band 28 – Systeme der Aromen & Düfte' },
+        { id: 'band29', label: 'Band 29 – Geruch & Geschmack – Wissenschaft' },
+        { id: 'band30', label: 'Band 30 – Zukunft der Aromen & Düfte' }
+    ];
+
+    let currentIndex = -1;
+    const bandList = document.getElementById('band-list');
+    const bandViewer = document.getElementById('band-viewer');
+    const controls = document.getElementById('controls');
+    const pdfBtn = document.getElementById('pdf-open-btn');
+
+    // Sidebar generieren
+    BANDS.forEach((band, index) => {
+        const a = document.createElement('a');
+        a.className = 'band-link';
+        a.textContent = band.label;
+        a.onclick = () => loadBand(index);
+        a.id = 'link-' + index;
+        bandList.appendChild(a);
+    });
+
+    function loadBand(index) {
+        if (index < 0 || index >= BANDS.length) return;
+        
+        currentIndex = index;
+        const band = BANDS[index];
+
+        // UI aktualisieren
+        document.querySelectorAll('.band-link').forEach(l => l.classList.remove('active'));
+        document.getElementById('link-' + index).classList.add('active');
+        
+        // Viewer laden
+        bandViewer.src = `./bands/${band.id}.html`;
+        controls.style.display = 'flex';
+        
+        // PDF Link aktualisieren
+        pdfBtn.onclick = () => window.open(`./data/pdfs/${band.id}.pdf`, '_blank');
+    }
+
+    function changeBand(step) {
+        loadBand(currentIndex + step);
+    }
+</script>
+
+</body>
+</html>

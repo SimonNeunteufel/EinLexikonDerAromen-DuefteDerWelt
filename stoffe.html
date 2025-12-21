@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Stoffe – Suche</title>
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        /* Lokale Ergänzungen für die Tabellen-Ansicht */
+        .table-wrap { max-height: calc(100vh - 350px); overflow: auto; border: 1px solid #eee; border-radius: 8px; }
+        .table-wrap thead th { position: sticky; top: 0; background: #fff; z-index: 2; border-bottom: 2px solid #eee; padding: 12px; text-align: left; color: #555; }
+        #t { width: 100%; border-collapse: collapse; background: white; }
+        #t td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; color: #333; }
+        #t tr:hover { background-color: #f0fdf4; } 
+        
+        .col-id { font-family: monospace; color: #888; font-size: 0.85em; }
+        .badge { display: inline-block; padding: 4px 8px; background: #d1fae5; color: #065f46; border-radius: 4px; margin: 0 4px 4px 0; }
+        
+        /* Unterstützung für die Bild-Vorschau in der Tabelle */
+        .thumb { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; cursor: zoom-in; border: 1px solid #ddd; }
+    </style>
+</head>
+<body class="BG7">
+    <script src="./assets/js/bg_loader.js" defer></script>
+
+    <div class="page">
+        <div class="header">
+            <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
+            <div class="brand">Stoffe – Datenbank</div>
+            <nav class="nav">
+                <a href="./stoffe.html" class="active">Stoffe</a>
+                <a href="./mischungen.html">Mischungen</a>
+                <a href="./baender.html">Bände</a>
+            </nav>
+        </div>
+
+        <p class="sub">Einzelgewürze, Kräuter, Harze, Salze (Quelle: <code>MasterStoffe.csv</code>).</p>
+
+        <div class="filter-section">
+            <div style="font-weight: bold; font-size: 0.9em;">Kategorien vorfiltern:</div>
+            <div class="filter-group" id="catFilters">
+                <label class="chip"><input type="checkbox" value="SPC"> 🧂 Gewürze</label>
+                <label class="chip"><input type="checkbox" value="HRB"> 🌿 Kräuter</label>
+                <label class="chip"><input type="checkbox" value="OIL"> 💧 Öle & Fette</label>
+		<label class="chip"><input type="checkbox" value="TEA"> 🍵 Tee & Infusionen</label>
+                <label class="chip"><input type="checkbox" value="SAL"> 💎 Salze</label>
+                <label class="chip"><input type="checkbox" value="RES"> 🪵 Harze</label>
+                <label class="chip"><input type="checkbox" value="WOD"> 🌲 Hölzer</label>
+                <label class="chip"><input type="checkbox" value="CRY"> ❄️ Kristalle</label>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div style="display:flex; gap:8px;">
+                <input id="q" placeholder="Suche..." type="search" style="width:250px;">
+                <button class="btn" id="go">Suchen</button>
+                <button class="btn" id="toHtml">Datenblatt</button>
+            </div>
+            <label style="user-select:none; cursor:pointer;">
+                <input type="checkbox" id="all"> Alle wählen
+            </label>
+        </div>
+
+        <div class="badges" id="info" style="margin-top:10px; min-height: 30px;"></div>
+
+        <div class="table-wrap">
+            <table id="t">
+                <thead>
+                    <tr>
+                        <th style="width:40px">✓</th>
+                        <th>ID</th>
+                        <th>Name (DE / EN)</th>
+                        <th>Botanisch / INCI</th>
+                        <th>Typ</th>
+                        <th>Herkunft</th>
+                        <th>Sensorik</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="footer-note">© Lexikon der Aromen</div>
+    </div>
+
+    <div id="lb" class="lightbox" onclick="this.style.display='none'">
+        <img id="lb-img" src="" alt="Vergrößerung">
+    </div>
+
+    <script src="./assets/js/util.js"></script>
+    <script>
+    // Lightbox Logik
+    function openLightbox(src) {
+        const lb = document.getElementById('lb');
+        const img = document.getElementById('lb-img');
+        img.src = src;
+        lb.style.display = 'flex';
+    }
+
+    (async () => {
+        const S = $util.safe;
+        const T = $util.formatTags;
+
+        let data = [];
+        try {
+            data = await $util.loadCsv('./assets/data/MasterStoffe.csv'); 
+        } catch (e) {
+            document.querySelector('tbody').innerHTML = `<tr><td colspan="7" style="padding:20px;color:red">Fehler: ${e}</td></tr>`;
+            return;
+        }
+
+        const tbody = document.querySelector('tbody');
+        const info = document.getElementById('info');
+
+        const render = (list) => {
+            if (!list.length) { 
+                tbody.innerHTML = `<tr><td colspan="7" style="padding:20px;text-align:center">Keine Treffer für diese Auswahl.</td></tr>`; 
+                return; 
+            }
+            
+            tbody.innerHTML = list.map(r => `
+                <tr>
+                    <td><input type="checkbox" class="sel" data-id="${S(r.STOFF_ID)}" data-name="${S(r.Name_DE)}"></td>
+                    <td class="col-id">${S(r.STOFF_ID)}</td>
+                    <td><b>${S(r.Name_DE)}</b><br><small style="color:#666">${S(r.Name_EN)}</small></td>
+                    <td style="font-style:italic">${S(r.Name_Botanisch_INCI)}</td>
+                    <td>${S(r.Stoff_Typ)}</td>
+                    <td>${S(r.Herkunft_Region)}</td>
+                    <td>${T(r.Sensorik_Tags)}</td>
+                </tr>
+            `).join('');
+            upd();
+        };
+
+        const search = () => {
+            const query = document.getElementById('q').value.trim().toLowerCase();
+            const activeCodes = Array.from(document.querySelectorAll('#catFilters input:checked'))
+                                     .map(cb => cb.value.toUpperCase());
+
+            const hits = data.filter(r => {
+                // Filter 1: Checkbox Logik (SPC, HRB etc.)
+                const idParts = (r.STOFF_ID || "").split('-');
+                const currentCode = idParts.length > 1 ? idParts[1].toUpperCase() : "";
+                const matchesCat = activeCodes.length === 0 || activeCodes.includes(currentCode);
+                
+                // Filter 2: Textsuche
+                const matchesText = !query || Object.values(r).join(' ').toLowerCase().includes(query);
+                
+                return matchesCat && matchesText;
+            });
+
+            render(hits);
+        };
+
+        const chosen = () => Array.from(document.querySelectorAll('input.sel:checked')).map(x => ({id: x.dataset.id, name: x.dataset.name}));
+        const upd = () => { info.innerHTML = chosen().map(x => `<span class="badge">${x.name}</span>`).join(''); };
+
+        // Event-Listener
+        document.getElementById('go').onclick = search;
+        document.getElementById('q').addEventListener('input', search); 
+        
+        document.querySelectorAll('#catFilters input').forEach(cb => {
+            cb.addEventListener('change', search);
+        });
+
+        document.addEventListener('change', e => { if(e.target.classList.contains('sel')) upd() });
+        
+        document.getElementById('all').addEventListener('change', e => {
+            document.querySelectorAll('input.sel').forEach(x => x.checked = e.target.checked);
+            upd();
+        });
+
+        document.getElementById('toHtml').onclick = () => {
+            const ids = chosen().map(x => x.id);
+            if (!ids.length) return alert('Bitte Stoff wählen.');
+            window.open(`./stoff_datasheet.html?ids=${encodeURIComponent(ids.join(','))}`, '_blank');
+        };
+
+        render(data);
+    })();
+    </script>
+</body>
+</html>

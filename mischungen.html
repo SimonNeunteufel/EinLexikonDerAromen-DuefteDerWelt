@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Mischungen – Suche</title>
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        .table-wrap { max-height: calc(100vh - 350px); overflow: auto; border: 1px solid #eee; border-radius: 8px; }
+        .table-wrap thead th { position: sticky; top: 0; background: #fff; z-index: 2; border-bottom: 2px solid #eee; padding: 12px; text-align: left; color: #555; cursor: pointer; user-select: none; }
+        .table-wrap thead th:hover { background-color: #f0f4f8; }
+        
+        .table-wrap thead th::after { content: ' ↕'; opacity: 0.3; font-size: 0.8em; }
+        .table-wrap thead th.sort-asc::after { content: ' ↑'; opacity: 1; color: #007bff; }
+        .table-wrap thead th.sort-desc::after { content: ' ↓'; opacity: 1; color: #007bff; }
+
+        #t { width: 100%; border-collapse: collapse; background: white; }
+        #t td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; color: #333; }
+        #t tr:hover { background-color: #f8faff; }
+        .col-id { font-family: monospace; color: #888; font-size: 0.85em; }
+        .badge { display: inline-block; padding: 4px 8px; background: #e0e7ff; color: #3730a3; border-radius: 4px; margin: 0 4px 4px 0; }
+        
+        #countrySelect:focus { height: auto; min-height: 100px; }
+    </style>
+</head>
+<body class="BG3">
+    <div class="page">
+        <div class="header">
+            <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
+            <div class="brand">Mischungen – Übersicht</div>
+            <nav class="nav">
+                <a href="./stoffe.html">Stoffe</a>
+                <a href="./mischungen.html" class="active">Mischungen</a>
+                <a href="./baender.html">Bände</a>
+            </nav>
+        </div>
+
+        <div class="filter-section" style="justify-content: flex-start; flex-direction: column; align-items: flex-start;">
+            <div style="font-weight: bold; font-size: 0.9em; margin-bottom: 8px;">Herkunft Vorfilter:</div>
+            <div style="display: flex; gap: 15px; width: 100%; align-items: center;">
+                <div class="filter-group" id="continentFilters">
+                    <label class="chip continent"><input type="checkbox" value="Asien"> Asien</label>
+                    <label class="chip continent"><input type="checkbox" value="Europa"> Europa</label>
+                    <label class="chip continent"><input type="checkbox" value="Amerika"> Amerika</label>
+                    <label class="chip continent"><input type="checkbox" value="Afrika"> Afrika</label>
+                </div>
+                
+                <select id="countrySelect" multiple size="1" onfocus="this.size=5;" onblur="this.size=1; applyOriginFilter();" style="margin-left: auto;">
+                    <option value="" disabled selected>Land wählen...</option>
+                </select>
+            </div>
+            <small style="color: #666; font-style: italic; margin-top: 5px;">Mehrfachauswahl mit STRG möglich. Filter greift beim Zuklappen.</small>
+        </div>
+
+        <div class="toolbar">
+            <div style="display:flex; gap:8px;">
+                <input id="q" placeholder="Suche..." type="search" style="width:250px;">
+                <button class="btn" id="go">Suchen</button>
+                <button class="btn" id="toHtml">Datenblatt</button> 
+                <button class="btn" id="toPdf">PDF Export</button>
+            </div>
+            <label style="margin-left:auto; cursor:pointer;"><input type="checkbox" id="all"> Alle wählen</label>
+        </div>
+
+        <div class="badges" id="info" style="margin-top:10px;"></div>
+
+        <div class="table-wrap">
+            <table id="t">
+                <thead>
+                    <tr>
+                        <th style="width:40px">✓</th>
+                        <th data-sort="MIX_ID">ID</th>
+                        <th data-sort="Name_DE">Name (DE / Original)</th>
+                        <th data-sort="Art">Art</th>
+                        <th data-sort="Passt_zu">Passt zu</th>
+                        <th data-sort="Tags">Tags</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="./assets/js/util.js"></script>
+    <script>
+    const geoData = {
+        "Asien": ["Indien", "Vietnam", "Indonesien", "China", "Japan", "Sri Lanka", "Thailand"],
+        "Europa": ["Frankreich", "Italien", "Spanien", "Deutschland", "Bulgarien", "Ungarn", "Griechenland"],
+        "Afrika": ["Madagaskar", "Ägypten", "Marokko", "Äthiopien", "Tunesien"],
+        "Amerika": ["Brasilien", "Mexiko", "USA", "Peru", "Venezuela", "Paraguay"]
+    };
+
+    (async () => {
+        const S = $util.safe;
+        const T = $util.formatTags;
+        let data = [], currentList = [];
+        let sortConfig = { key: null, direction: 'asc' };
+
+        try {
+            data = await $util.loadCsv('./assets/data/MasterRecipes.csv'); 
+            currentList = [...data];
+        } catch (e) {
+            document.querySelector('tbody').innerHTML = `<tr><td colspan="6">Fehler: ${e}</td></tr>`;
+            return;
+        }
+
+        const tbody = document.querySelector('tbody');
+        const info = document.getElementById('info');
+        const countrySelect = document.getElementById('countrySelect');
+        const selectAllCb = document.getElementById('all');
+
+        const upd = () => {
+            const selected = Array.from(document.querySelectorAll('input.sel:checked')).map(x => x.dataset.name);
+            info.innerHTML = selected.map(n => `<span class="badge">${n}</span>`).join('');
+        };
+
+        const render = (list) => {
+            tbody.innerHTML = list.map(r => `
+                <tr>
+                    <td><input type="checkbox" class="sel" data-id="${S(r.MIX_ID)}" data-name="${S(r.Name_DE)}"></td>
+                    <td class="col-id">${S(r.MIX_ID)}</td>
+                    <td><b>${S(r.Name_DE)}</b><div style="color:#666;font-style:italic">${S(r.Name_Original)}</div></td>
+                    <td>${S(r.Art)}</td>
+                    <td>${T(r.Passt_zu)}</td>
+                    <td>${T(r.Tags)}</td>
+                </tr>
+            `).join('');
+            
+            selectAllCb.checked = false;
+            upd();
+        };
+
+        const updateCountryDropdown = () => {
+            const selectedConts = Array.from(document.querySelectorAll('#continentFilters input:checked')).map(cb => cb.value);
+            const currentSelection = Array.from(countrySelect.selectedOptions).map(o => o.value);
+            countrySelect.innerHTML = '<option value="" disabled>Land wählen...</option>';
+            let countries = selectedConts.length === 0 ? Object.values(geoData).flat() : [];
+            selectedConts.forEach(c => countries.push(...(geoData[c] || [])));
+            [...new Set(countries)].sort().forEach(land => {
+                const opt = document.createElement('option');
+                opt.value = land; opt.textContent = land;
+                if (currentSelection.includes(land)) opt.selected = true;
+                countrySelect.appendChild(opt);
+            });
+        };
+
+        window.applyOriginFilter = () => {
+            const query = document.getElementById('q').value.toLowerCase();
+            const selectedCountries = Array.from(countrySelect.selectedOptions).map(o => o.value);
+            currentList = data.filter(r => {
+                const matchesText = Object.values(r).join(' ').toLowerCase().includes(query);
+                const matchesCountry = selectedCountries.length === 0 || selectedCountries.some(c => (r.Herkunft_Hierarchie || "").includes(c));
+                return matchesText && matchesCountry;
+            });
+            // Falls bereits eine Sortierung aktiv war, diese beibehalten
+            if(sortConfig.key) sortData(sortConfig.key, true);
+            else render(currentList);
+        };
+
+        const sortData = (key, keepDirection = false) => {
+            if (!keepDirection) {
+                if (sortConfig.key === key) {
+                    sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortConfig.key = key;
+                    sortConfig.direction = 'asc';
+                }
+            }
+
+            currentList.sort((a, b) => {
+                let valA = (a[key] || "").toString().toLowerCase();
+                let valB = (b[key] || "").toString().toLowerCase();
+                return sortConfig.direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            });
+
+            // UI Header aktualisieren
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.sort === key) th.classList.add('sort-' + sortConfig.direction);
+            });
+
+            render(currentList);
+        };
+
+        // EVENT LISTENER
+        document.getElementById('go').onclick = applyOriginFilter;
+        document.getElementById('q').oninput = applyOriginFilter;
+        document.querySelectorAll('#continentFilters input').forEach(cb => {
+            cb.onchange = () => { updateCountryDropdown(); applyOriginFilter(); };
+        });
+
+        selectAllCb.onchange = (e) => {
+            const isChecked = e.target.checked;
+            document.querySelectorAll('input.sel').forEach(cb => { cb.checked = isChecked; });
+            upd();
+        };
+
+        tbody.onchange = (e) => {
+            if (e.target.classList.contains('sel')) upd();
+        };
+
+        document.querySelectorAll('th[data-sort]').forEach(th => {
+            th.onclick = () => sortData(th.dataset.sort);
+        });
+
+        document.getElementById('toHtml').onclick = () => {
+            const ids = Array.from(document.querySelectorAll('input.sel:checked')).map(x => x.dataset.id);
+            if (!ids.length) return alert('Bitte wählen Sie mindestens eine Mischung aus.');
+            window.open(`./mischung_rezepte.html?ids=${ids.join(',')}`, '_blank');
+        };
+
+        updateCountryDropdown();
+        render(data);
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+/* Container für die Filter-Sektion */
+.filter-section { 
+    background: rgba(255, 255, 255, 0.85); 
+    padding: 18px; 
+    border-radius: 12px; 
+    margin-bottom: 20px; 
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Gruppe der einzelnen Filter-Buttons */
+.filter-group { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+    margin-top: 10px; 
+}
+
+/* Die "Chips" (Checkbox-Buttons) */
+.chip { 
+    display: flex; 
+    align-items: center; 
+    background: #ffffff; /* Weißer Hintergrund für maximale Lesbarkeit */
+    color: #333333;      /* Dunkle Schrift */
+    border: 2px solid #e0e0e0; 
+    padding: 6px 14px; 
+    border-radius: 25px; 
+    cursor: pointer; 
+    font-size: 0.9em; 
+    font-weight: 500;
+    transition: all 0.2s ease; 
+    user-select: none;
+}
+
+/* Hover-Effekt */
+.chip:hover { 
+    border-color: #065f46; 
+    background: #f0fdf4; 
+}
+
+/* Versteckt die Standard-Checkbox, aber behält sie funktional */
+.chip input { 
+    margin-right: 8px; 
+    cursor: pointer; 
+    width: 16px;
+    height: 16px;
+}
+
+/* ZUSTAND: Wenn die Checkbox angehakt ist */
+/* Das !important stellt sicher, dass andere Styles überschrieben werden */
+.chip:has(input:checked) { 
+    background: #065f46 !important; 
+    color: #ffffff !important; 
+    border-color: #054a37; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Tabelle & Wrapper Design */
+.table-wrap { 
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#t thead th {
+    background: #f8f9fa;
+    color: #444;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+/* Badge-Design für ausgewählte Stoffe */
+.badge { 
+    display: inline-block; 
+    padding: 5px 10px; 
+    background: #065f46; 
+    color: white; 
+    border-radius: 6px; 
+    margin: 0 5px 5px 0; 
+    font-size: 0.85em;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

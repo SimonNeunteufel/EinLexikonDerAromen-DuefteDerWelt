@@ -1,0 +1,133 @@
+/* --- Basis-Layout & Header-Struktur --- */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+/* --- Toolbar: Suche links, Auswahl rechts --- */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+/* --- Filter-Sektion (Pillen & Dropdown) --- */
+.filter-section {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: flex-end; /* Standardmäßig rechtsbündig für Kategorien */
+    align-items: center;
+    gap: 15px;
+}
+
+.filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* --- Modernes Chip/Pillen-Design --- */
+.chip { 
+    display: flex; 
+    align-items: center; 
+    background: #fff; 
+    border: 1px solid #ccc; 
+    padding: 6px 14px; 
+    border-radius: 20px; 
+    cursor: pointer; 
+    font-size: 0.85em; 
+    transition: 0.2s; 
+    user-select: none;
+}
+
+.chip input { display: none; } /* Checkbox unsichtbar machen */
+
+.chip:hover { border-color: #065f46; background: #f0fdf4;}
+
+/* Aktiver Zustand (Stoffe = Grün) */
+.chip:has(input:checked) { 
+    background: #065f46 !important; 
+    color: #ffffff !important; 
+    border-color: #065f46;
+}
+
+/* Aktiver Zustand (Kontinente = Blau) */
+.chip.continent:has(input:checked) {
+    background: #3730a3 !important;
+    border-color: #3730a3;
+}
+
+/* --- Spezifische Sektionen für Mischungen --- */
+.origin-filter-area {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+#countrySelect {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    min-width: 200px;
+    transition: box-shadow 0.2s;
+}
+
+#countrySelect:focus {
+    outline: none;
+    border-color: #3730a3;
+    box-shadow: 0 0 5px rgba(55, 48, 163, 0.3);
+}
+
+/* --- Bild-Vergrößerung (Lightbox) --- */
+.lightbox {
+    display: none; /* Standardmäßig ausgeblendet */
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+}
+
+.lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    border: 2px solid #fff;
+}
+
+/* --- Mobile Optimierung --- */
+@media (max-width: 768px) {
+    .header, .toolbar, .filter-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .filter-group {
+        justify-content: flex-start;
+    }
+    #countrySelect {
+        width: 100%;
+    }
+}
+
+/* --- Druck-Optimierung --- */
+@media print {
+    .no-print, .lightbox, #nav-container {
+        display: none !important;
+    }
+    body { background: white; }
+    .page, .sheet { box-shadow: none; margin: 0; border: none; padding: 20px; }
+}
