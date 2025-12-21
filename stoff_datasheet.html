@@ -9,55 +9,61 @@
     
     <link rel="stylesheet" href="./assets/css/styles.css">
     <style>
-        body { background: #f0fdf4; color: #333; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f0fdf4; color: #333; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; line-height: 1.6; }
+        .page-container { max-width: 900px; margin: 30px auto; padding-bottom: 60px; }
         .sheet { 
-            background: white; max-width: 900px; margin: 40px auto; padding: 50px; 
-            box-shadow: 0 5px 25px rgba(0,0,0,0.06); border-radius: 8px; 
-            page-break-after: always; position: relative; 
+            background: white; padding: 50px; border-radius: 8px; position: relative; 
+            box-shadow: 0 5px 25px rgba(0,0,0,0.06); margin-bottom: 40px; page-break-after: always; 
         }
         
-        /* Header Styling */
         .header { display: flex; justify-content: space-between; border-bottom: 3px solid #059669; padding-bottom: 20px; margin-bottom: 40px; align-items: flex-end; }
         .h-left h1 { margin: 0; font-size: 2.2em; color: #064e3b; letter-spacing: -0.5px; }
         .h-left h2 { margin: 5px 0 0 0; font-size: 1.2em; color: #059669; font-style: italic; font-weight: 400; }
         .id-badge { background: #065f46; color: white; padding: 4px 10px; font-family: monospace; border-radius: 4px; }
         
-        /* Gitter-Layout für den Inhalt */
         .main-grid { display: grid; grid-template-columns: 2fr 1.2fr; gap: 40px; }
         
         .img-container { 
             height: 250px; background: #f9f9f9; border: 1px solid #e5e7eb; border-radius: 8px;
             display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 10px;
-            cursor: zoom-in; /* Zeigt an, dass das Bild klickbar ist */
+            cursor: zoom-in;
         }
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
         
         .section h3 { border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-bottom: 10px; color: #059669; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
         .data-row { display: flex; border-bottom: 1px dotted #e5e7eb; padding: 6px 0; font-size: 0.95em; }
         .data-label { width: 130px; font-weight: 600; color: #4b5563; flex-shrink: 0; }
-        
         .tag { background: #ecfdf5; color: #065f46; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; margin-right: 4px; display: inline-block; border: 1px solid #d1fae5; }
         
-        /* Info-Boxen */
         .chem-box { background: #fffbeb; padding: 12px; border-left: 4px solid #fbbf24; margin-top: 15px; font-size: 0.9em; }
         .erp-box { background: #f0f9ff; padding: 15px; border-radius: 6px; font-size: 0.9em; border: 1px solid #e0f2fe; margin-top: 20px; }
         .warning { background: #fef2f2; color: #991b1b; padding: 10px; border-radius: 6px; margin-top: 20px; font-weight: bold; font-size: 0.9em; border: 1px solid #fecaca; }
 
+        /* Navigation Style vereinheitlicht */
+        #nav-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 10px 25px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; gap: 20px; z-index: 100; align-items: center; }
+        #nav-container button { padding: 8px 16px; cursor: pointer; border: none; background: #065f46; color: white; border-radius: 20px; font-weight: 500; }
+        #nav-container button:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* Lightbox fix */
+        .lightbox { display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; }
+        .lightbox img { max-width:90%; max-height:90%; box-shadow:0 0 30px rgba(0,0,0,0.5); border: 3px solid white; }
+
         @media print {
             body { background: white; }
             .sheet { box-shadow: none; margin: 0; border: none; padding: 20px; }
-            .no-print { display: none !important; }
+            .no-print, #nav-container, .lightbox { display: none !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="no-print" style="max-width:900px; margin:20px auto; display: flex; justify-content: space-between;">
-    <button class="btn" style="padding: 10px 20px; cursor:pointer;" onclick="location.href='./stoffe.html'">← Zurück zur Liste</button>
-    <button class="btn" style="padding: 10px 20px; cursor:pointer;" onclick="window.print()">Drucken / PDF</button>
+    <button class="btn" onclick="location.href='./stoffe.html'">← Zurück zur Liste</button>
+    <button class="btn" onclick="window.print()">Drucken / PDF</button>
 </div>
 
-<div id="container"></div>
+<div id="nav-container" class="no-print" style="display:none"></div>
+<div id="container" class="page-container">Lade Daten...</div>
 
 <div id="lb" class="lightbox" onclick="this.style.display='none'">
     <img id="lb-img" src="" alt="Vergrößerung">
@@ -65,7 +71,6 @@
 
 <script src="./assets/js/util.js"></script>
 <script>
-// Zentrale Funktion zum Öffnen der Lightbox
 function openLightbox(src) {
     const lb = document.getElementById('lb');
     const img = document.getElementById('lb-img');
@@ -73,11 +78,10 @@ function openLightbox(src) {
     lb.style.display = 'flex';
 }
 
+let currentIndex = 0;
+let currentData = [];
+
 (async () => {
-    const S = (t) => t ? String(t) : ""; // Hilfsfunktion für sicheren Text
-    const T = (s) => s ? s.split('|').map(x => `<span class="tag">${S(x.trim())}</span>`).join('') : ''; // Hilfsfunktion für Tags
-    
-    // IDs aus der URL laden
     const params = new URLSearchParams(window.location.search);
     const ids = (params.get('ids') || '').split(',').map(i => i.trim()).filter(Boolean);
     
@@ -87,98 +91,105 @@ function openLightbox(src) {
     }
 
     try {
-        // Master-Daten laden
         const allData = await window.$util.loadCsv('./assets/data/MasterStoffe.csv');
-        const records = allData.filter(r => ids.includes(r.STOFF_ID));
+        currentData = ids.map(id => allData.find(r => r.STOFF_ID === id)).filter(Boolean);
 
-        if (!records.length) {
+        if (!currentData.length) {
             document.getElementById('container').innerHTML = '<p style="text-align:center;padding:50px">IDs nicht in Datenbank gefunden.</p>';
             return;
         }
 
-        // HTML für jedes gewählte Stoff-Datenblatt generieren
-        const html = records.map(r => {
-            // Bildpfad ermitteln (Platzhalter oder ID-basiert)
-            let imgFile = r.STOFF_ID + '.jpg';
-            if (r.Platzhalter_Illu && (r.Platzhalter_Illu.includes('.jpg') || r.Platzhalter_Illu.includes('.png'))) {
-                imgFile = r.Platzhalter_Illu;
-            }
-            const imgPath = `./assets/img/stoffe/${imgFile}`;
-
-            // Zusatzinfos bereinigen
-            let infoText = "";
-            if (r.Gemini_Comment2) {
-                infoText = r.Gemini_Comment2.replace(/\[Image.*?\]/g, '').replace(/^\|/, '').trim();
-            }
-
-            return `
-            <div class="sheet">
-                <div class="header">
-                    <div class="h-left">
-                        <h1>${S(r.Name_DE)}</h1>
-                        <h2>${S(r.Name_Botanisch_INCI)} <small>(${S(r.Name_EN)})</small></h2>
-                    </div>
-                    <div class="h-right" style="text-align: right;">
-                        <span class="id-badge">${S(r.STOFF_ID)}</span><br>
-                        <small style="color: #666;">${S(r.Stoff_Typ)}</small>
-                    </div>
-                </div>
-
-                <div class="main-grid">
-                    <div class="left">
-                        <div class="section">
-                            <h3>Herkunft & Wissen</h3>
-                            <p><strong>Region:</strong> ${S(r.Herkunft_Region)}</p>
-                            <p>${S(r.Wissen_Tradition)}</p>
-                        </div>
-
-                        <div class="section">
-                            <h3>Profil</h3>
-                            <div class="data-row"><div class="data-label">Familie</div><div>${S(r.Familie_Botanisch_Tags)}</div></div>
-                            <div class="data-row"><div class="data-label">Pflanzenteil</div><div>${S(r.Pflanzenteil_Tags)}</div></div>
-                            <div class="data-row"><div class="data-label">Gewinnung</div><div>${S(r.Gewinnung_Tags)}</div></div>
-                            <div class="data-row"><div class="data-label">Sensorik</div><div>${T(r.Sensorik_Tags)}</div></div>
-                            ${r.Chemie_Leitsubstanzen ? `<div class="chem-box"><strong>Leitsubstanzen:</strong> ${S(r.Chemie_Leitsubstanzen)}</div>` : ''}
-                        </div>
-
-                        <div class="section">
-                            <h3>Anwendung</h3>
-                            <p>${S(r.Anwendung_Dosierung)}</p>
-                            ${r.Harmoniert_Mit_Tags ? `<p><strong>Passt zu:</strong> ${S(r.Harmoniert_Mit_Tags).replace(/\|/g, ', ')}</p>` : ''}
-                            ${r.Tipps_Substitution ? `<p><i>Substitut: ${S(r.Tipps_Substitution)}</i></p>` : ''}
-                        </div>
-                    </div>
-
-                    <div class="right">
-                        <div class="img-container" onclick="openLightbox('${imgPath}')">
-                            <img src="${imgPath}" 
-                                 title="Klicken zum Vergrößern"
-                                 onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-                            <div style="display:none;color:#aaa;font-size:0.8em;text-align:center;">Kein Bild verfügbar<br><small>${imgFile}</small></div>
-                        </div>
-
-                        ${infoText ? `<div style="background:#fefce8;padding:12px;border-radius:4px;font-size:0.9em;color:#854d0e;border:1px solid #fef08a;">💡 ${infoText}</div>` : ''}
-
-                        <div class="erp-box">
-                            <div class="data-row"><div class="data-label">Lieferant</div><div>${S(r.Lieferant_Haupt)}</div></div>
-                            <div class="data-row"><div class="data-label">Art.Nr.</div><div>${S(r.Lieferant_ArtNr)}</div></div>
-                            <div class="data-row"><div class="data-label">Haltbarkeit</div><div>${S(r.Haltbarkeit_Monate)} Monate</div></div>
-                            <div class="data-row"><div class="data-label">Lagerung</div><div>${S(r.Lagerung)}</div></div>
-                        </div>
-
-                        ${r.Sicherheit_Kontraindikation ? `<div class="warning">⚠️ ${S(r.Sicherheit_Kontraindikation)}</div>` : ''}
-                    </div>
-                </div>
-            </div>`;
-        }).join('');
-
-        document.getElementById('container').innerHTML = html;
+        renderSheet(0);
 
     } catch (e) {
         document.getElementById('container').innerHTML = `<p style="color:red;padding:20px;text-align:center;">Fehler beim Laden: ${e.message}</p>`;
     }
 })();
-</script>
 
+function renderSheet(index) {
+    if (index < 0 || index >= currentData.length) return;
+    currentIndex = index;
+    const r = currentData[index];
+    const S = (t) => t ? String(t) : "";
+    const T = (s) => s ? s.split('|').map(x => `<span class="tag">${S(x.trim())}</span>`).join('') : '';
+
+    let imgFile = r.STOFF_ID + '.jpg';
+    if (r.Platzhalter_Illu && (r.Platzhalter_Illu.includes('.jpg') || r.Platzhalter_Illu.includes('.png'))) {
+        imgFile = r.Platzhalter_Illu;
+    }
+    const imgPath = `./assets/img/stoffe/${imgFile}`;
+
+    let infoText = "";
+    if (r.Gemini_Comment2) {
+        infoText = r.Gemini_Comment2.replace(/\[Image.*?\]/g, '').replace(/^\|/, '').trim();
+    }
+
+    const html = `
+    <div class="sheet">
+        <div class="header">
+            <div class="h-left">
+                <h1>${S(r.Name_DE)}</h1>
+                <h2>${S(r.Name_Botanisch_INCI)} <small>(${S(r.Name_EN)})</small></h2>
+            </div>
+            <div class="h-right" style="text-align: right;">
+                <span class="id-badge">${S(r.STOFF_ID)}</span><br>
+                <small style="color: #666;">${S(r.Stoff_Typ)}</small>
+            </div>
+        </div>
+        <div class="main-grid">
+            <div class="left">
+                <div class="section">
+                    <h3>Herkunft & Wissen</h3>
+                    <p><strong>Region:</strong> ${S(r.Herkunft_Region)}</p>
+                    <p>${S(r.Wissen_Tradition)}</p>
+                </div>
+                <div class="section">
+                    <h3>Profil</h3>
+                    <div class="data-row"><div class="data-label">Familie</div><div>${S(r.Familie_Botanisch_Tags)}</div></div>
+                    <div class="data-row"><div class="data-label">Pflanzenteil</div><div>${S(r.Pflanzenteil_Tags)}</div></div>
+                    <div class="data-row"><div class="data-label">Gewinnung</div><div>${S(r.Gewinnung_Tags)}</div></div>
+                    <div class="data-row"><div class="data-label">Sensorik</div><div>${T(r.Sensorik_Tags)}</div></div>
+                    ${r.Chemie_Leitsubstanzen ? `<div class="chem-box"><strong>Leitsubstanzen:</strong> ${S(r.Chemie_Leitsubstanzen)}</div>` : ''}
+                </div>
+                <div class="section">
+                    <h3>Anwendung</h3>
+                    <p>${S(r.Anwendung_Dosierung)}</p>
+                    ${r.Harmoniert_Mit_Tags ? `<p><strong>Passt zu:</strong> ${S(r.Harmoniert_Mit_Tags).replace(/\|/g, ', ')}</p>` : ''}
+                    ${r.Tipps_Substitution ? `<p><i>Substitut: ${S(r.Tipps_Substitution)}</i></p>` : ''}
+                </div>
+            </div>
+            <div class="right">
+                <div class="img-container" onclick="openLightbox('${imgPath}')">
+                    <img src="${imgPath}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                    <div style="display:none;color:#aaa;font-size:0.8em;text-align:center;">Kein Bild verfügbar<br><small>${imgFile}</small></div>
+                </div>
+                ${infoText ? `<div style="background:#fefce8;padding:12px;border-radius:4px;font-size:0.9em;color:#854d0e;border:1px solid #fef08a;">💡 ${infoText}</div>` : ''}
+                <div class="erp-box">
+                    <div class="data-row"><div class="data-label">Lieferant</div><div>${S(r.Lieferant_Haupt)}</div></div>
+                    <div class="data-row"><div class="data-label">Art.Nr.</div><div>${S(r.Lieferant_ArtNr)}</div></div>
+                    <div class="data-row"><div class="data-label">Haltbarkeit</div><div>${S(r.Haltbarkeit_Monate)} Monate</div></div>
+                    <div class="data-row"><div class="data-label">Lagerung</div><div>${S(r.Lagerung)}</div></div>
+                </div>
+                ${r.Sicherheit_Kontraindikation ? `<div class="warning">⚠️ ${S(r.Sicherheit_Kontraindikation)}</div>` : ''}
+            </div>
+        </div>
+    </div>`;
+
+    document.getElementById('container').innerHTML = html;
+    window.scrollTo(0, 0);
+
+    const nav = document.getElementById('nav-container');
+    if (currentData.length > 1) {
+        nav.style.display = 'flex';
+        nav.innerHTML = `
+            <button onclick="window.changePage(-1)" ${currentIndex === 0 ? 'disabled' : ''}>← Vorheriger</button>
+            <span style="font-weight:bold; color:#333">${currentIndex + 1} / ${currentData.length}</span>
+            <button onclick="window.changePage(1)" ${currentIndex === currentData.length - 1 ? 'disabled' : ''}>Nächster →</button>
+        `;
+    }
+}
+
+window.changePage = (dir) => { renderSheet(currentIndex + dir); };
+</script>
 </body>
 </html>
