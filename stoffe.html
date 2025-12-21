@@ -173,11 +173,11 @@
         });
 
         document.getElementById('toHtml').onclick = () => {
-    const ids = Array.from(document.querySelectorAll('input.sel:checked')).map(x => x.dataset.id);
-    if (!ids.length) return alert('Bitte wählen Sie mindestens eine Mischung aus.');
+        const ids = Array.from(document.querySelectorAll('input.sel:checked')).map(x => x.dataset.id);
+        if (!ids.length) return alert('Bitte wählen Sie mindestens eine Mischung aus.');
     
-    // ÄNDERUNG: Statt window.open(..., '_blank') nutzen wir location.href
-    location.href = `./mischung_rezepte.html?ids=${ids.join(',')}`;
+        // ÄNDERUNG: Statt window.open(..., '_blank') nutzen wir location.href
+		location.href = `./mischung_rezepte.html?ids=${ids.join(',')}`;
 };
 
 
