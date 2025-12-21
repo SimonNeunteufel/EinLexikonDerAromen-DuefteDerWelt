@@ -173,10 +173,13 @@
         });
 
         document.getElementById('toHtml').onclick = () => {
-            const ids = chosen().map(x => x.id);
-            if (!ids.length) return alert('Bitte Stoff wählen.');
-            window.open(`./stoff_datasheet.html?ids=${encodeURIComponent(ids.join(','))}`, '_blank');
-        };
+    const ids = Array.from(document.querySelectorAll('input.sel:checked')).map(x => x.dataset.id);
+    if (!ids.length) return alert('Bitte wählen Sie mindestens eine Mischung aus.');
+    
+    // ÄNDERUNG: Statt window.open(..., '_blank') nutzen wir location.href
+    location.href = `./mischung_rezepte.html?ids=${ids.join(',')}`;
+};
+
 
         render(data);
     })();
