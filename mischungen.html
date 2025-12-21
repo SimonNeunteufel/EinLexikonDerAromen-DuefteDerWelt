@@ -84,12 +84,14 @@
     </div>
 
     <script src="./assets/js/util.js"></script>
-    <script>
+<script>
+    // 1. Erweiterte Geo-Daten (Ozeanien, Schweiz, Kolumbien hinzugefügt)
     const geoData = {
-        "Asien": ["Indien", "Vietnam", "Indonesien", "China", "Japan", "Sri Lanka", "Thailand"],
-        "Europa": ["Frankreich", "Italien", "Spanien", "Deutschland", "Bulgarien", "Ungarn", "Griechenland"],
-        "Afrika": ["Madagaskar", "Ägypten", "Marokko", "Äthiopien", "Tunesien"],
-        "Amerika": ["Brasilien", "Mexiko", "USA", "Peru", "Venezuela", "Paraguay"]
+        "Asien": ["China", "Indien", "Indonesien", "Japan", "Sri Lanka", "Thailand", "Vietnam"],
+        "Europa": ["Bulgarien", "Deutschland", "Frankreich", "Griechenland", "Italien", "Schweiz", "Spanien", "Ungarn"],
+        "Afrika": ["Ägypten", "Äthiopien", "Madagaskar", "Marokko", "Tunesien"],
+        "Amerika": ["Brasilien", "Kolumbien", "Mexiko", "Paraguay", "Peru", "USA", "Venezuela"],
+        "Ozeanien": ["Australien", "Neuseeland"]
     };
 
     (async () => {
@@ -98,18 +100,29 @@
         let data = [], currentList = [];
         let sortConfig = { key: null, direction: 'asc' };
 
-        try {
-            data = await $util.loadCsv('./assets/data/MasterRecipes.csv'); 
-            currentList = [...data];
-        } catch (e) {
-            document.querySelector('tbody').innerHTML = `<tr><td colspan="6">Fehler: ${e}</td></tr>`;
-            return;
-        }
-
+        // DOM Elemente
         const tbody = document.querySelector('tbody');
         const info = document.getElementById('info');
         const countrySelect = document.getElementById('countrySelect');
         const selectAllCb = document.getElementById('all');
+        const searchInput = document.getElementById('q');
+        const continentFilters = document.getElementById('continentFilters');
+
+        // Initialisierung: Kontinent-Chips dynamisch erstellen (für Ozeanien)
+        const initContinentChips = () => {
+            continentFilters.innerHTML = Object.keys(geoData).map(c => `
+                <label class="chip continent"><input type="checkbox" value="${c}"> ${c}</label>
+            `).join('');
+        };
+        initContinentChips();
+
+        try {
+            data = await $util.loadCsv('./assets/data/MasterRecipes.csv'); 
+            currentList = [...data];
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="6">Fehler: ${e}</td></tr>`;
+            return;
+        }
 
         const upd = () => {
             const selected = Array.from(document.querySelectorAll('input.sel:checked')).map(x => x.dataset.name);
@@ -127,7 +140,6 @@
                     <td>${T(r.Tags)}</td>
                 </tr>
             `).join('');
-            
             selectAllCb.checked = false;
             upd();
         };
@@ -135,9 +147,12 @@
         const updateCountryDropdown = () => {
             const selectedConts = Array.from(document.querySelectorAll('#continentFilters input:checked')).map(cb => cb.value);
             const currentSelection = Array.from(countrySelect.selectedOptions).map(o => o.value);
+            
             countrySelect.innerHTML = '<option value="" disabled>Land wählen...</option>';
+            
             let countries = selectedConts.length === 0 ? Object.values(geoData).flat() : [];
             selectedConts.forEach(c => countries.push(...(geoData[c] || [])));
+            
             [...new Set(countries)].sort().forEach(land => {
                 const opt = document.createElement('option');
                 opt.value = land; opt.textContent = land;
@@ -146,15 +161,31 @@
             });
         };
 
+        // KORRIGIERTE FILTER-LOGIK (Strikte UND-Verknüpfung)
         window.applyOriginFilter = () => {
-            const query = document.getElementById('q').value.toLowerCase();
+            const query = searchInput.value.toLowerCase().trim();
+            const selectedContinents = Array.from(document.querySelectorAll('#continentFilters input:checked')).map(cb => cb.value);
             const selectedCountries = Array.from(countrySelect.selectedOptions).map(o => o.value);
+
             currentList = data.filter(r => {
-                const matchesText = Object.values(r).join(' ').toLowerCase().includes(query);
-                const matchesCountry = selectedCountries.length === 0 || selectedCountries.some(c => (r.Herkunft_Hierarchie || "").includes(c));
-                return matchesText && matchesCountry;
+                const rowString = Object.values(r).join(' ').toLowerCase();
+                const herkunft = (r.Herkunft_Hierarchie || "");
+
+                // 1. Text-Suche
+                const matchesText = query === "" || rowString.includes(query);
+
+                // 2. Kontinent-Filter (Falls gewählt, muss einer der Kontinente im Herkunft-String vorkommen)
+                const matchesContinent = selectedContinents.length === 0 || 
+                                       selectedContinents.some(cont => herkunft.includes(cont));
+
+                // 3. Länder-Filter (Falls gewählt, muss eines der Länder im Herkunft-String vorkommen)
+                const matchesCountry = selectedCountries.length === 0 || 
+                                     selectedCountries.some(c => herkunft.includes(c));
+
+                // UND-Verknüpfung: Alle aktiven Filter müssen wahr sein
+                return matchesText && matchesContinent && matchesCountry;
             });
-            // Falls bereits eine Sortierung aktiv war, diese beibehalten
+
             if(sortConfig.key) sortData(sortConfig.key, true);
             else render(currentList);
         };
@@ -168,28 +199,32 @@
                     sortConfig.direction = 'asc';
                 }
             }
-
             currentList.sort((a, b) => {
                 let valA = (a[key] || "").toString().toLowerCase();
                 let valB = (b[key] || "").toString().toLowerCase();
                 return sortConfig.direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
             });
-
-            // UI Header aktualisieren
             document.querySelectorAll('th[data-sort]').forEach(th => {
                 th.classList.remove('sort-asc', 'sort-desc');
                 if (th.dataset.sort === key) th.classList.add('sort-' + sortConfig.direction);
             });
-
             render(currentList);
         };
 
         // EVENT LISTENER
         document.getElementById('go').onclick = applyOriginFilter;
-        document.getElementById('q').oninput = applyOriginFilter;
-        document.querySelectorAll('#continentFilters input').forEach(cb => {
-            cb.onchange = () => { updateCountryDropdown(); applyOriginFilter(); };
+        searchInput.oninput = applyOriginFilter;
+        
+        // Listener für Kontinent-Checkboxen (Chips)
+        continentFilters.addEventListener('change', (e) => {
+            if (e.target.tagName === 'INPUT') {
+                updateCountryDropdown();
+                applyOriginFilter();
+            }
         });
+
+        // WICHTIG: Sofortiges Filtern bei Länderauswahl
+        countrySelect.onchange = applyOriginFilter;
 
         selectAllCb.onchange = (e) => {
             const isChecked = e.target.checked;
@@ -214,6 +249,6 @@
         updateCountryDropdown();
         render(data);
     })();
-    </script>
+</script>
 </body>
 </html>

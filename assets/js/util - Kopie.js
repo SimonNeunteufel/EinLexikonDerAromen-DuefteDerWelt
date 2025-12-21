@@ -1,35 +1,28 @@
 /* assets/js/util.js */
 window.$util = {
-    // CSV Laden mit PapaParse
+    // Universelle CSV-Ladefunktion
     loadCsv: async (url) => {
         return new Promise((resolve, reject) => {
-            // Prüfen, ob PapaParse geladen ist
             if (typeof Papa === 'undefined') {
-                console.error("PapaParse ist nicht geladen!");
-                reject("Fehler: Bibliothek 'PapaParse' fehlt im HTML head!");
+                console.error("PapaParse fehlt! Bitte im HTML Head einbinden.");
+                reject("PapaParse fehlt"); 
                 return;
             }
-
+            
             Papa.parse(url, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
-                delimiter: ";", // WICHTIG: Wir nutzen Semikolon in den CSVs
-                complete: (results) => {
-                    console.log("CSV geladen:", url, results.data.length, "Zeilen");
-                    resolve(results.data);
-                },
-                error: (err) => {
-                    console.error("CSV Fehler:", err);
-                    reject(err.message);
-                }
+                delimiter: ";", // Semikolon für deine Dateien
+                complete: (results) => resolve(results.data),
+                error: (err) => reject(err.message)
             });
         });
     },
 
-    // HTML-Injection sicher machen (Sicherheitsfunktion)
+    // Sicherheitsfunktion für Textausgabe
     safe: (t) => {
-        if (!t) return "";
+        if (t === null || t === undefined) return "";
         return String(t)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -37,7 +30,7 @@ window.$util = {
             .replace(/"/g, "&quot;");
     },
 
-    // Tags formatieren (Pipe | zu HTML Badges)
+    // Tags formatieren (A|B|C -> HTML Badges)
     formatTags: (str) => {
         if (!str) return "";
         return str.split('|')
