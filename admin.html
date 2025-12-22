@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mischungen Admin V5 (Multi-Paste)</title>
+    <title>Mischungen Admin V6 (Clean Export)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         :root { --primary: #2563eb; --bg: #f1f5f9; --white: #ffffff; --border: #cbd5e1; --text: #1e293b; 
@@ -21,7 +21,7 @@
         
         /* Inputs & Buttons */
         .filter-select, .search-input { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9em; background: #f8fafc; }
-        .search-input { width: 200px; }
+        .search-input { width: 220px; }
         
         .btn { padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .btn:hover { filter: brightness(0.95); }
@@ -73,7 +73,7 @@
 <body>
 
     <div class="sidebar">
-        <h2 style="margin: 0;">🧪 Admin V5</h2>
+        <h2 style="margin: 0;">🧪 Admin V6</h2>
         
         <div class="sb-title">Daten</div>
         <button class="btn btn-outline" style="justify-content: flex-start;" onclick="document.getElementById('csvInput').click()">📂 CSV laden</button>
@@ -86,7 +86,8 @@
         <button class="btn btn-primary" onclick="openNewEntryModal()">+ Neuer Eintrag (Multi)</button>
         
         <div style="margin-top:auto">
-            <button class="btn btn-success" style="width:100%" onclick="exportCsv()">💾 CSV Exportieren</button>
+            <button class="btn btn-success" style="width:100%; margin-bottom:5px;" onclick="exportCsv(false)">💾 Speichern (Original)</button>
+            <button class="btn btn-outline" style="width:100%" onclick="exportCsv(true)">💾 Speichern (Sortiert)</button>
             <div style="margin-top:10px; font-size:0.8em; color:#94a3b8; text-align:center" id="stats">Keine Daten</div>
         </div>
     </div>
@@ -269,13 +270,11 @@
             return matchesText && matchesStatus && matchesImg;
         });
 
-        // SORTING LOGIC (Erweitert)
+        // SORTING LOGIC
         if (sortCol) {
             currentFilterResult.sort((a, b) => {
                 let vA, vB;
-
                 if (sortCol === 'IMG') {
-                    // Sonderlogik für Bildstatus
                     const getImgStatus = (r) => {
                         let n = (r.MIX_ID || "") + ".jpg";
                         if(r.Platzhalter_Illu && r.Platzhalter_Illu.includes('.')) n = r.Platzhalter_Illu;
@@ -284,11 +283,9 @@
                     vA = getImgStatus(a.row);
                     vB = getImgStatus(b.row);
                 } else {
-                    // Standard Text Sortierung
                     vA = (a.row[sortCol] || "").toLowerCase();
                     vB = (b.row[sortCol] || "").toLowerCase();
                 }
-
                 if (vA < vB) return sortAsc ? -1 : 1;
                 if (vA > vB) return sortAsc ? 1 : -1;
                 return 0;
@@ -388,10 +385,7 @@
         const data = db[dbIndex];
         const form = document.getElementById('editForm');
         document.getElementById('editorInfo').innerText = `${data.MIX_ID || 'NEU'} (${batchPointer+1}/${batchQueue.length})`;
-        
-        Array.from(form.elements).forEach(el => {
-            if (el.name) el.value = data[el.name] || "";
-        });
+        Array.from(form.elements).forEach(el => { if (el.name) el.value = data[el.name] || ""; });
         setFormState('clean');
         updateNavButtons();
     }
@@ -402,13 +396,8 @@
         const newData = {};
         Array.from(form.elements).forEach(el => { if (el.name) newData[el.name] = el.value; });
 
-        if (dbIndex === -1) {
-            // Sollte im neuen Flow nicht passieren, da wir beim Paste bereits pushen
-            db.push(newData);
-        } else {
-            db[dbIndex] = { ...db[dbIndex], ...newData };
-            modifiedIndices.add(dbIndex);
-        }
+        if (dbIndex === -1) { db.push(newData); } 
+        else { db[dbIndex] = { ...db[dbIndex], ...newData }; modifiedIndices.add(dbIndex); }
 
         setFormState('saved');
         setTimeout(() => setFormState('clean'), 800);
@@ -436,7 +425,7 @@
 
     function createNewEmpty() {
         document.getElementById('pasteModal').style.display = 'none';
-        db.push({}); // Leeres Objekt anlegen
+        db.push({}); 
         const newIdx = db.length - 1;
         batchQueue = [newIdx];
         batchPointer = 0;
@@ -447,42 +436,24 @@
     function processPaste() {
         const text = document.getElementById('pasteArea').value.trim();
         if(!text) return;
-
-        // Parse Text ohne Header
-        const parsed = Papa.parse(text, { header: false, delimiter: ";", skipEmptyLines: true });
+        const p = Papa.parse(text, { header: false, delimiter: ";", skipEmptyLines: true });
         
-        if (parsed.data && parsed.data.length > 0) {
+        if (p.data.length > 0) {
             const newIndices = [];
-            
-            // Loop durch ALLE Zeilen
-            parsed.data.forEach(values => {
+            p.data.forEach(values => {
                 const newObj = {};
-                // Mapping auf Spalten
-                columns.forEach((colName, idx) => {
-                    newObj[colName] = values[idx] || "";
-                });
-                
+                columns.forEach((colName, idx) => { newObj[colName] = values[idx] || ""; });
                 db.push(newObj);
                 newIndices.push(db.length - 1);
             });
 
-            // Modal schließen & Batch Edit starten
             document.getElementById('pasteModal').style.display = 'none';
-            
-            // Setze Queue auf die NEUEN Einträge
             batchQueue = newIndices;
             batchPointer = 0;
-            
-            // Öffne Editor beim ersten neuen Eintrag
             openEditor();
             markDirty();
-            
-            // Setze Selection auf die neuen, damit man sie auch in der Tabelle wiederfindet
             selectedIndices = new Set(newIndices);
-            
-        } else {
-            alert("Konnte Daten nicht lesen.");
-        }
+        } else { alert("Keine Daten erkannt."); }
     }
 
     // --- UTILS ---
@@ -507,13 +478,25 @@
         sel.innerHTML = '<option value="all">Status: Alle</option>' + stats.map(s => `<option>${s}</option>`).join('');
     }
 
-    function exportCsv() {
-        const csv = Papa.unparse(db, { delimiter: ";", quotes: true });
+    // --- EXPORT LOGIC UPDATED ---
+    function exportCsv(useCurrentSort) {
+        let dataToExport = db;
+
+        if (useCurrentSort) {
+            // Nimm die Zeilen aus dem aktuellen Filter-Result
+            dataToExport = currentFilterResult.map(item => item.row);
+        }
+
+        const csv = Papa.unparse(dataToExport, { 
+            delimiter: ";", 
+            quotes: false // Erzwungene "no-quotes" (außer bei Bedarf)
+        });
+        
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = "MasterRecipes_Updated.csv";
+        link.download = useCurrentSort ? "MasterRecipes_Sorted.csv" : "MasterRecipes_Updated.csv";
         link.click();
     }
 
