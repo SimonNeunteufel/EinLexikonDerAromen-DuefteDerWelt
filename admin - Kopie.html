@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mischungen Admin V8 (Relative Links)</title>
+    <title>Mischungen Admin V6 (Clean Export)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         :root { --primary: #2563eb; --bg: #f1f5f9; --white: #ffffff; --border: #cbd5e1; --text: #1e293b; 
@@ -73,21 +73,22 @@
 <body>
 
     <div class="sidebar">
-        <h2 style="margin: 0;">🧪 Admin V8</h2>
+        <h2 style="margin: 0;">🧪 Admin V6</h2>
         
         <div class="sb-title">Daten</div>
-        <button class="btn btn-outline" style="justify-content: flex-start;" onclick="handleCsvLoad()">📂 CSV laden</button>
-        <input type="file" id="csvInput" class="hidden" accept=".csv" onchange="loadCsvLegacy(this)">
+        <button class="btn btn-outline" style="justify-content: flex-start;" onclick="document.getElementById('csvInput').click()">📂 CSV laden</button>
+        <input type="file" id="csvInput" class="hidden" accept=".csv" onchange="loadCsv(this)">
         
-        <button class="btn btn-outline" style="justify-content: flex-start;" onclick="handleImgFolder()">📷 Bilder Ordner</button>
-        <input type="file" id="imgFolderInput" class="hidden" webkitdirectory directory multiple onchange="checkImagesLegacy(this)">
+        <button class="btn btn-outline" style="justify-content: flex-start;" onclick="document.getElementById('imgFolderInput').click()">📷 Bilder Ordner</button>
+        <input type="file" id="imgFolderInput" class="hidden" webkitdirectory directory multiple onchange="checkImages(this)">
 
         <div class="sb-title">Aktionen</div>
         <button class="btn btn-primary" onclick="openNewEntryModal()">+ Neuer Eintrag (Multi)</button>
         
         <div style="margin-top:auto">
-            <button class="btn btn-success" style="width:100%; margin-bottom:5px;" onclick="handleSaveLogic()">💾 Speichern</button>
-            <div style="margin-top:10px; font-size:0.8em; color:#94a3b8; text-align:center" id="stats">Warte auf Daten...</div>
+            <button class="btn btn-success" style="width:100%; margin-bottom:5px;" onclick="exportCsv(false)">💾 Speichern (Original)</button>
+            <button class="btn btn-outline" style="width:100%" onclick="exportCsv(true)">💾 Speichern (Sortiert)</button>
+            <div style="margin-top:10px; font-size:0.8em; color:#94a3b8; text-align:center" id="stats">Keine Daten</div>
         </div>
     </div>
 
@@ -126,7 +127,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="7" style="text-align:center; padding:40px; color:#94a3b8;">Lade Daten... oder klicke "CSV laden"</td></tr>
+                    <tr><td colspan="7" style="text-align:center; padding:40px; color:#94a3b8;">Bitte CSV laden</td></tr>
                 </tbody>
             </table>
         </div>
@@ -176,12 +177,7 @@
     </div>
 
 <script>
-    // --- KONFIGURATION & PFADE (RELATIV) ---
-    // Hinweis: Relatives Laden funktioniert nur, wenn ein lokaler Server läuft.
-    // Bei Doppelklick auf die Datei (file://) blockiert der Browser das automatische Laden.
-    const REL_PATH_CSV = "./assets/data/MasterRecipes.csv";
-    const REL_PATH_IMG = "./assets/img/mischungen";
-
+    // --- KONFIGURATION ---
     const columns = [
         "MIX_ID", "Art", "Name_Original", "Name_DE", "Status", "Herkunft_Hierarchie", 
         "Tradition_Story", "Kategorie_Tags", "Passt_zu", "Anwendung_Funktion_Tags", 
@@ -205,8 +201,6 @@
     let modifiedIndices = new Set();
     let selectedIndices = new Set();
     
-    let fileHandleCSV = null; // Für das direkte Überschreiben
-    
     let batchQueue = [];
     let batchPointer = 0;
 
@@ -216,11 +210,6 @@
     let lastScrollTop = 0;
 
     // --- INIT ---
-    window.onload = function() {
-        initForm();
-        tryAutoLoadCsv();
-    };
-
     function initForm() {
         const form = document.getElementById('editForm');
         form.innerHTML = columns.map(col => {
@@ -234,93 +223,12 @@
             </div>`;
         }).join('');
     }
+    initForm();
 
-    // --- AUTO LOAD (RELATIVE) ---
-    function tryAutoLoadCsv() {
-        fetch(REL_PATH_CSV)
-            .then(response => {
-                if (!response.ok) throw new Error("Nicht gefunden");
-                return response.text();
-            })
-            .then(text => {
-                console.log("CSV automatisch geladen.");
-                parseCsvData(text);
-                // Hinweis: Wir haben hier kein FileHandle, also ist Speichern = Download.
-            })
-            .catch(err => {
-                console.warn("Auto-Load fehlgeschlagen (normal bei file://):", err);
-                document.getElementById('dataTable').querySelector('tbody').innerHTML = 
-                    '<tr><td colspan="7" style="text-align:center; padding:40px; color:#94a3b8;">Konnte CSV nicht automatisch laden (Browser-Sicherheit).<br>Bitte nutze den Button "📂 CSV laden".</td></tr>';
-            });
-    }
-
-    // --- SMART CSV HANDLING ---
-    async function handleCsvLoad() {
-        // Hinweis Text
-        const confirmMsg = `Zielpfad (Relativ): ${REL_PATH_CSV}\n\n[OK] klicken, um die Datei manuell auszuwählen.\n(Browser benötigen Bestätigung für Festplattenzugriff).`;
-        
-        if(!confirm(confirmMsg)) return;
-
-        if ('showOpenFilePicker' in window) {
-            try {
-                const [handle] = await window.showOpenFilePicker({
-                    types: [{ description: 'CSV Datei', accept: { 'text/csv': ['.csv'] } }],
-                    multiple: false
-                });
-                
-                fileHandleCSV = handle; 
-                const file = await handle.getFile();
-                const text = await file.text();
-                parseCsvData(text);
-                
-            } catch (err) {
-                console.log("Abbruch: " + err);
-            }
-        } else {
-            // Fallback
-            document.getElementById('csvInput').click();
-        }
-    }
-
-    // --- SMART IMAGE HANDLING ---
-    async function handleImgFolder() {
-        // Hinweis: Man kann Verzeichnisse nicht per relativem Link scannen.
-        const confirmMsg = `Zielpfad (Relativ): ${REL_PATH_IMG}\n\nBitte wähle diesen Ordner im folgenden Fenster aus, damit ich prüfen kann, welche Bilder existieren.`;
-        
-        if(!confirm(confirmMsg)) return;
-
-        if ('showDirectoryPicker' in window) {
-            try {
-                const dirHandle = await window.showDirectoryPicker();
-                imageSet.clear();
-                
-                for await (const entry of dirHandle.values()) {
-                    if (entry.kind === 'file') {
-                        imageSet.add(entry.name);
-                    }
-                }
-                
-                applyFilters();
-                updateStats();
-                
-            } catch (err) {
-                console.log("Abbruch: " + err);
-            }
-        } else {
-            document.getElementById('imgFolderInput').click();
-        }
-    }
-
-    // --- DATA PARSING ---
-    function loadCsvLegacy(input) {
+    // --- DATA HANDLING ---
+    function loadCsv(input) {
         if(!input.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = function(e) { parseCsvData(e.target.result); };
-        reader.readAsText(input.files[0]);
-    }
-
-    function parseCsvData(csvText) {
-        Papa.parse(csvText, {
+        Papa.parse(input.files[0], {
             header: true, delimiter: ";", skipEmptyLines: true,
             complete: (res) => {
                 db = res.data;
@@ -333,69 +241,11 @@
         });
     }
 
-    function checkImagesLegacy(input) {
+    function checkImages(input) {
         imageSet.clear();
         for (let file of input.files) imageSet.add(file.name);
         applyFilters(); 
         updateStats();
-    }
-
-    // --- SAVE LOGIC ---
-    async function handleSaveLogic() {
-        if (db.length === 0) { alert("Keine Daten."); return; }
-
-        let promptText = `Speichern für: ${REL_PATH_CSV}\n\n`;
-        
-        if (fileHandleCSV) {
-            promptText += `[1] Datei überschreiben (via Handle)\n[2] Als Kopie (Download)`;
-        } else {
-            promptText += `ACHTUNG: Datei wurde automatisch oder via Fallback geladen.\nDirektes Überschreiben nicht möglich.\n\n[1] Als 'MasterRecipes.csv' herunterladen (zum manuellen Ersetzen)\n[2] Als Kopie (sorted) herunterladen`;
-        }
-        
-        const choice = prompt(promptText, "1");
-        if (choice === null) return;
-
-        const csvContent = createCsvContent(false);
-
-        // FALL A: Wir haben ein File Handle (User hat Datei manuell gewählt)
-        if (fileHandleCSV) {
-            if (choice === "1") {
-                try {
-                    const writable = await fileHandleCSV.createWritable();
-                    await writable.write(csvContent);
-                    await writable.close();
-                    alert("Gespeichert!");
-                } catch (e) { alert("Fehler: " + e); }
-            } else {
-                downloadString(csvContent, "MasterRecipes_Copy.csv");
-            }
-        } 
-        // FALL B: Kein Handle (Auto-Load oder Legacy)
-        else {
-            if (choice === "1") {
-                downloadString(csvContent, "MasterRecipes.csv");
-            } else {
-                // Option für sortierten Download
-                const sortedCsv = createCsvContent(true);
-                downloadString(sortedCsv, "MasterRecipes_Sorted.csv");
-            }
-        }
-    }
-
-    function createCsvContent(sorted) {
-        let dataToExport = db;
-        if (sorted) dataToExport = currentFilterResult.map(item => item.row);
-        
-        return Papa.unparse(dataToExport, { delimiter: ";", quotes: false });
-    }
-
-    function downloadString(text, filename) {
-        const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = filename;
-        link.click();
     }
 
     // --- FILTER & RENDER ---
@@ -420,6 +270,7 @@
             return matchesText && matchesStatus && matchesImg;
         });
 
+        // SORTING LOGIC
         if (sortCol) {
             currentFilterResult.sort((a, b) => {
                 let vA, vB;
@@ -440,6 +291,7 @@
                 return 0;
             });
         }
+
         renderTable();
     }
 
@@ -475,6 +327,7 @@
                 </tr>
             `;
         }).join('');
+        
         updateSelectionUI();
     }
 
@@ -564,7 +417,7 @@
         document.getElementById('btnNext').disabled = batchPointer === batchQueue.length - 1;
     }
 
-    // --- NEW ENTRY / PASTE ---
+    // --- NEW ENTRY / PASTE LOGIC ---
     function openNewEntryModal() {
         document.getElementById('pasteArea').value = "";
         document.getElementById('pasteModal').style.display = 'flex';
@@ -593,6 +446,7 @@
                 db.push(newObj);
                 newIndices.push(db.length - 1);
             });
+
             document.getElementById('pasteModal').style.display = 'none';
             batchQueue = newIndices;
             batchPointer = 0;
@@ -622,6 +476,28 @@
         const sel = document.getElementById('filterStatus');
         const stats = [...new Set(db.map(r => r.Status).filter(Boolean))].sort();
         sel.innerHTML = '<option value="all">Status: Alle</option>' + stats.map(s => `<option>${s}</option>`).join('');
+    }
+
+    // --- EXPORT LOGIC UPDATED ---
+    function exportCsv(useCurrentSort) {
+        let dataToExport = db;
+
+        if (useCurrentSort) {
+            // Nimm die Zeilen aus dem aktuellen Filter-Result
+            dataToExport = currentFilterResult.map(item => item.row);
+        }
+
+        const csv = Papa.unparse(dataToExport, { 
+            delimiter: ";", 
+            quotes: false // Erzwungene "no-quotes" (außer bei Bedarf)
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = useCurrentSort ? "MasterRecipes_Sorted.csv" : "MasterRecipes_Updated.csv";
+        link.click();
     }
 
     function updateStats() {
