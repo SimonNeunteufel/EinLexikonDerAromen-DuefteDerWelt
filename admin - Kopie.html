@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mischungen Admin V9 (Correct Paths)</title>
+    <title>Mischungen Admin V6 (Clean Export)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         :root { --primary: #2563eb; --bg: #f1f5f9; --white: #ffffff; --border: #cbd5e1; --text: #1e293b; 
@@ -73,18 +73,13 @@
 <body>
 
     <div class="sidebar">
-        <h2 style="margin: 0;">🧪 Admin V9</h2>
+        <h2 style="margin: 0;">🧪 Admin V6</h2>
         
         <div class="sb-title">Daten</div>
-        
-        <button class="btn btn-outline" style="justify-content: flex-start; text-align:left;" onclick="openLoader('csv')">
-            📂 CSV laden<br><span style="font-size:0.7em; font-weight:normal; opacity:0.7">Pfad kopieren & Öffnen</span>
-        </button>
+        <button class="btn btn-outline" style="justify-content: flex-start;" onclick="document.getElementById('csvInput').click()">📂 CSV laden</button>
         <input type="file" id="csvInput" class="hidden" accept=".csv" onchange="loadCsv(this)">
         
-        <button class="btn btn-outline" style="justify-content: flex-start; text-align:left;" onclick="openLoader('img')">
-            📷 Bilder Ordner<br><span style="font-size:0.7em; font-weight:normal; opacity:0.7">Pfad kopieren & Öffnen</span>
-        </button>
+        <button class="btn btn-outline" style="justify-content: flex-start;" onclick="document.getElementById('imgFolderInput').click()">📷 Bilder Ordner</button>
         <input type="file" id="imgFolderInput" class="hidden" webkitdirectory directory multiple onchange="checkImages(this)">
 
         <div class="sb-title">Aktionen</div>
@@ -182,48 +177,7 @@
     </div>
 
 <script>
-    // --- PFAD-KONFIGURATION ---
-    // Diese Pfade werden in die Zwischenablage kopiert.
-    const TARGET_DATA = String.raw`C:\Users\sneun\Documents\GitHub\EinLexikonDerAromen-DuefteDerWelt\assets\data`;
-    const TARGET_IMG  = String.raw`C:\Users\sneun\Documents\GitHub\EinLexikonDerAromen-DuefteDerWelt\assets\img\mischungen`;
-
-    // --- HELPER FÜR PFAD-COPY ---
-    function copyToClipboard(text) {
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-            document.execCommand('copy');
-        } catch (err) {
-            console.error('Konnte Pfad nicht kopieren', err);
-        }
-        document.body.removeChild(textArea);
-    }
-
-    function openLoader(type) {
-        let path = "";
-        let inputId = "";
-
-        if (type === 'csv') {
-            path = TARGET_DATA;
-            inputId = 'csvInput';
-        } else if (type === 'img') {
-            path = TARGET_IMG;
-            inputId = 'imgFolderInput';
-        }
-
-        // Pfad kopieren und Nutzer informieren
-        copyToClipboard(path);
-        
-        const go = confirm(`Der Pfad wurde in die Zwischenablage kopiert:\n${path}\n\nDrücke OK, um den Dialog zu öffnen.\nDort kannst du den Pfad einfach mit Strg+V einfügen.`);
-        
-        if (go) {
-            document.getElementById(inputId).click();
-        }
-    }
-
-    // --- CONFIG ---
+    // --- KONFIGURATION ---
     const columns = [
         "MIX_ID", "Art", "Name_Original", "Name_DE", "Status", "Herkunft_Hierarchie", 
         "Tradition_Story", "Kategorie_Tags", "Passt_zu", "Anwendung_Funktion_Tags", 
@@ -529,23 +483,20 @@
         let dataToExport = db;
 
         if (useCurrentSort) {
+            // Nimm die Zeilen aus dem aktuellen Filter-Result
             dataToExport = currentFilterResult.map(item => item.row);
         }
 
         const csv = Papa.unparse(dataToExport, { 
             delimiter: ";", 
-            quotes: false 
+            quotes: false // Erzwungene "no-quotes" (außer bei Bedarf)
         });
         
-        // Target Path für Info kopieren (CSV Zielordner)
-        copyToClipboard(TARGET_DATA);
-        alert(`Pfad kopiert:\n${TARGET_DATA}\n\nBitte im folgenden 'Speichern unter' Fenster einfügen (Strg+V).`);
-
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = useCurrentSort ? "MasterRecipes_Sorted.csv" : "MasterRecipes.csv";
+        link.download = useCurrentSort ? "MasterRecipes_Sorted.csv" : "MasterRecipes_Updated.csv";
         link.click();
     }
 
