@@ -3,64 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Rezeptansicht</title>
+    <title>Rezept-Bibliothek</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #eef2f6; color: #333; line-height: 1.6; }
-        .page-container { max-width: 900px; margin: 30px auto; padding-bottom: 60px; }
-        .page { 
-            background: white; padding: 50px; border-radius: 8px; position: relative; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 40px; page-break-after: always; 
+        /* Grundlayout für Split-Screen */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            background: #eef2f6; 
+            color: #333; 
+            height: 100vh; /* Volle Höhe */
+            display: flex; 
+            overflow: hidden; /* Kein Scrollen am Body, nur in den Bereichen */
         }
 
-        .rid { position: absolute; top: 30px; right: 30px; font-size: 0.85em; color: #bbb; font-family: monospace; }
-        .header { display: flex; gap: 30px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #f0f0f0; }
+        /* --- SIDEBAR (LINKS) --- */
+        .sidebar {
+            width: 320px;
+            background: #fff;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 10;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.03);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #f8fafc;
+        }
+
+        .btn-back {
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none; color: #475569; font-weight: 600;
+            font-size: 0.95em; padding: 8px 12px; border-radius: 6px;
+            transition: background 0.2s; cursor: pointer; border: 1px solid #e2e8f0; background: white;
+        }
+        .btn-back:hover { background: #f1f5f9; color: #0f172a; }
+
+        .recipe-list {
+            list-style: none; padding: 0; margin: 0;
+            overflow-y: auto; flex-grow: 1;
+        }
+
+        .list-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .list-item:hover { background: #f8fafc; padding-left: 25px; }
+        
+        .list-item.active {
+            background: #eff6ff; 
+            border-left: 4px solid #3b82f6;
+            padding-left: 16px; /* Ausgleich für Border */
+        }
+        .list-item strong { color: #334155; font-size: 0.95em; display: block; }
+        .list-item span { color: #94a3b8; font-size: 0.85em; font-style: italic; }
+
+        /* --- MAIN CONTENT (RECHTS) --- */
+        .main-view {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 40px;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+
+        .top-bar {
+            display: flex; justify-content: flex-end; margin-bottom: 20px; max-width: 900px; margin-left: auto; margin-right: auto;
+        }
+        .btn-print {
+            background: #3b82f6; color: white; border: none; padding: 8px 16px;
+            border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+        }
+        .btn-print:hover { background: #2563eb; }
+
+        .page { 
+            background: white; padding: 50px; border-radius: 12px; position: relative; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin: 0 auto 60px auto; 
+            max-width: 900px; min-height: 600px; /* Mindesthöhe für Optik */
+        }
+
+        /* --- STYLING VOM DATENBLATT (Übernommen) --- */
+        .rid { position: absolute; top: 30px; right: 30px; font-size: 0.85em; color: #cbd5e1; font-family: monospace; }
+        .header { display: flex; gap: 30px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #f1f5f9; }
+        
         .img-box { 
-            width: 220px; height: 220px; background: #f8f9fa; border-radius: 12px; 
-            overflow: hidden; flex-shrink: 0; border: 1px solid #e5e7eb; box-shadow: inset 0 0 10px rgba(0,0,0,0.03);
+            width: 200px; height: 200px; background: #f8fafc; border-radius: 12px; 
+            overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;
             display: flex; align-items: center; justify-content: center; cursor: zoom-in;
         }
         .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .img-placeholder { color: #94a3b8; text-align: center; padding: 10px; font-size: 0.85em; }
+
         .title-box { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-        .badge { display: inline-block; align-self: flex-start; background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
-        h1 { margin: 0; font-size: 2.4em; color: #111827; line-height: 1.2; letter-spacing: -0.5px; }
-        h2 { margin: 5px 0 15px 0; font-size: 1.3em; font-weight: 400; color: #6b7280; font-style: italic; }
-        .origin { font-size: 0.95em; color: #4b5563; display: flex; align-items: center; gap: 6px; }
+        .badge { display: inline-block; align-self: flex-start; background: #eff6ff; color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        h1 { margin: 0; font-size: 2.2em; color: #1e293b; line-height: 1.2; letter-spacing: -0.5px; }
+        h2 { margin: 4px 0 12px 0; font-size: 1.1em; font-weight: 400; color: #64748b; font-style: italic; }
+        .origin { font-size: 0.9em; color: #475569; display: flex; align-items: center; gap: 6px; font-weight: 500; }
         
-        .content-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; }
-        h3 { font-size: 0.95em; text-transform: uppercase; letter-spacing: 1.5px; color: #9ca3af; border-bottom: 1px solid #eee; padding-bottom: 5px; margin: 0 0 15px 0; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 40px; }
+        h3 { font-size: 0.9em; text-transform: uppercase; letter-spacing: 1.2px; color: #94a3b8; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin: 0 0 15px 0; font-weight: 700; }
+
         ul.ing-list { list-style: none; padding: 0; margin: 0; }
-        ul.ing-list li { padding: 8px 0; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; font-size: 0.95em; }
-        .step { position: relative; padding-left: 40px; margin-bottom: 15px; color: #374151; }
-        .step::before { content: "•"; position: absolute; left: 0; top: 0; width: 28px; height: 28px; background: #f3f4f6; color: #374151; border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; }
+        ul.ing-list li { padding: 8px 0; border-bottom: 1px dashed #e2e8f0; display: flex; justify-content: space-between; font-size: 0.95em; color: #334155; }
+        ul.ing-list li:last-child { border-bottom: none; }
 
-        /* Lightbox Fix (Overlay auf ganzer Seite) */
-        .lightbox { display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; }
-        .lightbox img { max-width:90%; max-height:90%; box-shadow:0 0 30px rgba(0,0,0,0.5); border: 3px solid white; }
+        .step { position: relative; padding-left: 35px; margin-bottom: 15px; color: #334155; font-size: 0.95em; line-height: 1.6; }
+        .step::before {
+            content: "•"; position: absolute; left: 0; top: 0; width: 24px; height: 24px; 
+            background: #f1f5f9; color: #64748b; border-radius: 50%; text-align: center; 
+            line-height: 24px; font-size: 1.2em; font-weight: bold;
+        }
 
-        #nav-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 10px 25px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; gap: 20px; z-index: 100; align-items: center; }
-        #nav-container button { padding: 8px 16px; cursor: pointer; border: none; background: #1f2937; color: white; border-radius: 20px; font-weight: 500; }
-        #nav-container button:disabled { background: #ccc; cursor: not-allowed; }
+        .special-note { margin-top: 25px; padding: 15px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; display: flex; gap: 12px; color: #92400e; font-size: 0.9em; }
+        .app-note { margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #3b82f6; font-size: 0.95em; color: #334155; }
 
+        .footer-info { margin-top: 50px; padding-top: 25px; border-top: 1px solid #f1f5f9; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 0.85em; color: #64748b; text-align: center; }
+        .f-item strong { display: block; color: #1e293b; margin-bottom: 2px; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
+
+        /* Navigation unten schwebend */
+        #nav-float { 
+            position: fixed; bottom: 20px; left: calc(50% + 160px); /* Mitte des Content-Bereichs */
+            transform: translateX(-50%); 
+            background: white; padding: 8px 20px; border-radius: 50px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
+            display: flex; gap: 15px; z-index: 50; align-items: center; 
+        }
+        #nav-float button { 
+            padding: 6px 14px; cursor: pointer; border: none; background: #1e293b; color: white; 
+            border-radius: 20px; font-size: 0.9em; font-weight: 500; transition: background 0.2s;
+        }
+        #nav-float button:hover { background: #0f172a; }
+        #nav-float button:disabled { background: #cbd5e1; cursor: default; }
+
+        /* Lightbox */
+        .lightbox { display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; }
+        .lightbox img { max-width: 90%; max-height: 90%; box-shadow: 0 0 30px rgba(0,0,0,0.5); border: 3px solid white; cursor: zoom-out; }
+
+        /* --- DRUCKANSICHT --- */
         @media print {
-            body { background: white; }
-            .page { box-shadow: none; margin: 0; border: none; padding: 20px; }
-            .no-print, #nav-container, .lightbox { display: none !important; }
+            body { height: auto; overflow: visible; display: block; background: white; }
+            .sidebar, .top-bar, #nav-float, .lightbox, .no-print { display: none !important; }
+            .main-view { padding: 0; overflow: visible; }
+            .page { box-shadow: none; margin: 0; border: none; padding: 0; max-width: 100%; }
+            .page-container { margin: 0; padding: 0; }
         }
     </style>
-    <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
 
-<div class="no-print" style="max-width:900px; margin:20px auto; display:flex; justify-content:space-between;">
-    <button class="btn" onclick="location.href='./mischungen.html'">← Zurück</button>
-    <button class="btn" onclick="window.print()">Drucken / PDF</button>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <button class="btn-back" onclick="location.href='./mischungen.html'">
+            <span>← Zurück zur Liste</span>
+        </button>
+    </div>
+    <ul class="recipe-list" id="sidebarList">
+        <li style="padding:20px; color:#aaa; text-align:center;">Lade...</li>
+    </ul>
 </div>
 
-<div id="nav-container" class="no-print" style="display:none"></div>
-<div id="container" class="page-container">Lade Daten...</div>
+<div class="main-view">
+    <div class="top-bar">
+        <button class="btn-print" onclick="window.print()">
+            <span>🖨️ Drucken / PDF</span>
+        </button>
+    </div>
+
+    <div id="recipeContainer">
+        </div>
+</div>
+
+<div id="nav-float" style="display:none">
+    <button id="btnPrev">← Vorheriges</button>
+    <span id="pageCount" style="font-weight:600; color:#334155; font-variant-numeric: tabular-nums;">1 / 1</span>
+    <button id="btnNext">Nächstes →</button>
+</div>
 
 <div id="lb" class="lightbox" onclick="this.style.display='none'">
     <img id="lb-img" src="" alt="Vergrößerung">
@@ -68,6 +195,10 @@
 
 <script src="./assets/js/util.js"></script>
 <script>
+// --- LOGIK ---
+let currentData = [];
+let currentIndex = 0;
+
 function openLightbox(src) {
     const lb = document.getElementById('lb');
     const img = document.getElementById('lb-img');
@@ -75,33 +206,56 @@ function openLightbox(src) {
     lb.style.display = 'flex';
 }
 
-let currentIndex = 0;
-let currentData = [];
-
 (async () => {
     const params = new URLSearchParams(window.location.search);
-    const ids = (params.get('ids') || params.get('id') || "").split(',').map(i => i.trim()).filter(Boolean);
+    const rawIds = params.get('ids') || params.get('id') || "";
+    const ids = rawIds.split(',').map(i => i.trim()).filter(Boolean);
 
     if (!ids.length) {
-        document.getElementById('container').innerHTML = '<p style="text-align:center;padding:50px">Keine Rezepte ausgewählt.</p>';
+        document.getElementById('recipeContainer').innerHTML = '<p style="text-align:center;padding:50px;color:#aaa">Keine Rezepte ausgewählt.</p>';
+        document.getElementById('sidebarList').innerHTML = '';
         return;
     }
 
     try {
         const allData = await window.$util.loadCsv('./assets/data/MasterRecipes.csv');
+        // Sortierung wie in der ursprünglichen Liste beibehalten (nach ID im URL Parameter)
         currentData = ids.map(id => allData.find(r => r.MIX_ID === id)).filter(Boolean);
-        if (!currentData.length) return;
-        renderRecipe(0);
-    } catch (e) { console.error(e); }
+        
+        if (!currentData.length) {
+            document.getElementById('recipeContainer').innerHTML = '<p style="text-align:center;padding:50px;color:red">Keine Daten gefunden.</p>';
+            document.getElementById('sidebarList').innerHTML = '';
+            return;
+        }
+
+        renderSidebar();
+        loadRecipe(0); // Erstes Rezept laden
+
+    } catch (e) {
+        console.error(e);
+        document.getElementById('recipeContainer').innerHTML = `<p style="color:red;padding:20px;">Fehler: ${e.message}</p>`;
+    }
 })();
 
-function renderRecipe(index) {
+function renderSidebar() {
+    const list = document.getElementById('sidebarList');
+    list.innerHTML = currentData.map((r, index) => `
+        <li class="list-item" onclick="loadRecipe(${index})" id="item-${index}">
+            <strong>${r.Name_DE}</strong>
+            <span>${r.MIX_ID}</span>
+        </li>
+    `).join('');
+}
+
+function loadRecipe(index) {
     if (index < 0 || index >= currentData.length) return;
     currentIndex = index;
+
     const r = currentData[index];
     const S = (t) => t ? String(t) : "";
     const L = (t) => t ? String(t).split('|').map(x => x.trim()).filter(Boolean) : [];
 
+    // Bild-Logik
     let imgFile = r.MIX_ID + '.jpg';
     if (r.Platzhalter_Illu && (r.Platzhalter_Illu.includes('.jpg') || r.Platzhalter_Illu.includes('.png'))) {
         imgFile = r.Platzhalter_Illu;
@@ -111,6 +265,7 @@ function renderRecipe(index) {
     let noteText = "";
     if (r.Gemini_Comment2) noteText = r.Gemini_Comment2.replace(/\[Image.*?\]/g, '').replace(/^\|/, '').trim();
 
+    // HTML Generierung
     const html = `
         <div class="page">
             <div class="rid">${r.MIX_ID}</div>
@@ -126,18 +281,29 @@ function renderRecipe(index) {
                     <div class="origin">📍 ${S(r.Herkunft_Hierarchie).replace('>', '›')}</div>
                 </div>
             </div>
+
             <div class="content-grid">
                 <div class="left">
                     <h3>Zutaten</h3>
-                    <ul class="ing-list">${L(r.Zutaten_Tags).map(z => `<li>${z}</li>`).join('') || '<li>Keine Angaben</li>'}</ul>
+                    <ul class="ing-list">
+                        ${L(r.Zutaten_Tags).map(z => `<li>${z}</li>`).join('') || '<li>Keine Angaben</li>'}
+                    </ul>
+                    <div style="margin-top:30px;font-size:0.9em;color:#64748b">
+                        <p><b>Form:</b> ${S(r.Form)}</p>
+                        <p><b>Passt zu:</b> ${S(r.Passt_zu).replace(/\|/g, ', ')}</p>
+                    </div>
                 </div>
+
                 <div class="right">
                     <h3>Zubereitung</h3>
-                    <div>${L(r.Herstellung_Zubereitung_Schritte).map(s => `<div class="step">${s}</div>`).join('') || '<div>Keine Anleitung verfügbar.</div>'}</div>
+                    <div>
+                        ${L(r.Herstellung_Zubereitung_Schritte).map(s => `<div class="step">${s}</div>`).join('') || '<div style="color:#999">Keine Anleitung.</div>'}
+                    </div>
                     ${r.Anwendungstext ? `<div class="app-note"><strong>Anwendung:</strong> ${S(r.Anwendungstext)}</div>` : ''}
                     ${noteText ? `<div class="special-note">💡 ${noteText}</div>` : ''}
                 </div>
             </div>
+
             <div class="footer-info">
                 <div class="f-item"><strong>Haltbarkeit</strong><br>${S(r.Haltbarkeit_Monate)} Mon.</div>
                 <div class="f-item"><strong>Lagerung</strong><br>${S(r.Aufbewahrung)}</div>
@@ -146,20 +312,38 @@ function renderRecipe(index) {
         </div>
     `;
 
-    document.getElementById('container').innerHTML = html;
-    window.scrollTo(0, 0);
+    document.getElementById('recipeContainer').innerHTML = html;
+    
+    // Sidebar Status aktualisieren
+    document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
+    const activeItem = document.getElementById(`item-${index}`);
+    if (activeItem) {
+        activeItem.classList.add('active');
+        activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
-    const nav = document.getElementById('nav-container');
+    // Navigation aktualisieren
+    const nav = document.getElementById('nav-float');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const pageCount = document.getElementById('pageCount');
+
     if (currentData.length > 1) {
         nav.style.display = 'flex';
-        nav.innerHTML = `
-            <button onclick="window.changePage(-1)" ${currentIndex === 0 ? 'disabled' : ''}>← Vorheriges</button>
-            <span style="font-weight:bold; color:#333">${currentIndex + 1} / ${currentData.length}</span>
-            <button onclick="window.changePage(1)" ${currentIndex === currentData.length - 1 ? 'disabled' : ''}>Nächstes →</button>
-        `;
+        pageCount.textContent = `${currentIndex + 1} / ${currentData.length}`;
+        
+        btnPrev.disabled = currentIndex === 0;
+        btnNext.disabled = currentIndex === currentData.length - 1;
+
+        btnPrev.onclick = () => loadRecipe(currentIndex - 1);
+        btnNext.onclick = () => loadRecipe(currentIndex + 1);
+    } else {
+        nav.style.display = 'none';
     }
+
+    // Mobile/Desktop Scroll zurücksetzen
+    document.querySelector('.main-view').scrollTop = 0;
 }
-window.changePage = (dir) => { renderRecipe(currentIndex + dir); };
 </script>
 </body>
 </html>
