@@ -3,19 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Stoff-Datenblatt</title>
+    <title>Stoff-Bibliothek</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    
-    <link rel="stylesheet" href="./assets/css/styles.css">
+
     <style>
-        body { background: #f0fdf4; color: #333; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; line-height: 1.6; }
-        .page-container { max-width: 900px; margin: 30px auto; padding-bottom: 60px; }
-        .sheet { 
-            background: white; padding: 50px; border-radius: 8px; position: relative; 
-            box-shadow: 0 5px 25px rgba(0,0,0,0.06); margin-bottom: 40px; page-break-after: always; 
+        /* Grundlayout für Split-Screen */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            background: #f0fdf4; /* Leichtes Grün für Stoffe */
+            color: #333; 
+            height: 100vh; 
+            display: flex; 
+            overflow: hidden; 
         }
+
+        /* --- SIDEBAR (LINKS) --- */
+        .sidebar {
+            width: 320px;
+            background: #fff;
+            border-right: 1px solid #d1fae5;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 10;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.03);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f0fdf4;
+        }
+
+        .btn-back {
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none; color: #065f46; font-weight: 600;
+            font-size: 0.95em; padding: 8px 12px; border-radius: 6px;
+            transition: background 0.2s; cursor: pointer; border: 1px solid #a7f3d0; background: white;
+        }
+        .btn-back:hover { background: #d1fae5; }
+
+        .recipe-list {
+            list-style: none; padding: 0; margin: 0;
+            overflow-y: auto; flex-grow: 1;
+        }
+
+        .list-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0fdf4;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .list-item:hover { background: #ecfdf5; padding-left: 25px; }
         
+        .list-item.active {
+            background: #d1fae5; 
+            border-left: 4px solid #059669;
+            padding-left: 16px;
+        }
+        .list-item strong { color: #064e3b; font-size: 0.95em; display: block; }
+        .list-item span { color: #6b7280; font-size: 0.85em; font-family: monospace; }
+
+        /* --- MAIN CONTENT (RECHTS) --- */
+        .main-view {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 40px;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+
+        .top-bar {
+            display: flex; justify-content: flex-end; margin-bottom: 20px; max-width: 900px; margin-left: auto; margin-right: auto;
+        }
+        .btn-print {
+            background: #059669; color: white; border: none; padding: 8px 16px;
+            border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 2px 5px rgba(5, 150, 105, 0.3);
+        }
+        .btn-print:hover { background: #047857; }
+
+        .sheet { 
+            background: white; padding: 50px; border-radius: 12px; position: relative; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin: 0 auto 60px auto; 
+            max-width: 900px; min-height: 600px;
+        }
+
+        /* --- STOFF-SPEZIFISCHES DESIGN --- */
         .header { display: flex; justify-content: space-between; border-bottom: 3px solid #059669; padding-bottom: 20px; margin-bottom: 40px; align-items: flex-end; }
         .h-left h1 { margin: 0; font-size: 2.2em; color: #064e3b; letter-spacing: -0.5px; }
         .h-left h2 { margin: 5px 0 0 0; font-size: 1.2em; color: #059669; font-style: italic; font-weight: 400; }
@@ -30,41 +107,74 @@
         }
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
         
-        .section h3 { border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-bottom: 10px; color: #059669; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
+        .section h3 { border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-bottom: 10px; color: #059669; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; font-weight: 700; }
         .data-row { display: flex; border-bottom: 1px dotted #e5e7eb; padding: 6px 0; font-size: 0.95em; }
         .data-label { width: 130px; font-weight: 600; color: #4b5563; flex-shrink: 0; }
+        
         .tag { background: #ecfdf5; color: #065f46; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; margin-right: 4px; display: inline-block; border: 1px solid #d1fae5; }
         
-        .chem-box { background: #fffbeb; padding: 12px; border-left: 4px solid #fbbf24; margin-top: 15px; font-size: 0.9em; }
+        /* Info-Boxen */
+        .chem-box { background: #fffbeb; padding: 12px; border-left: 4px solid #fbbf24; margin-top: 15px; font-size: 0.9em; color: #92400e; }
         .erp-box { background: #f0f9ff; padding: 15px; border-radius: 6px; font-size: 0.9em; border: 1px solid #e0f2fe; margin-top: 20px; }
         .warning { background: #fef2f2; color: #991b1b; padding: 10px; border-radius: 6px; margin-top: 20px; font-weight: bold; font-size: 0.9em; border: 1px solid #fecaca; }
 
-        /* Navigation Style vereinheitlicht */
-        #nav-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 10px 25px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; gap: 20px; z-index: 100; align-items: center; }
-        #nav-container button { padding: 8px 16px; cursor: pointer; border: none; background: #065f46; color: white; border-radius: 20px; font-weight: 500; }
-        #nav-container button:disabled { background: #ccc; cursor: not-allowed; }
+        /* Navigation unten schwebend */
+        #nav-float { 
+            position: fixed; bottom: 20px; left: calc(50% + 160px); 
+            transform: translateX(-50%); 
+            background: white; padding: 8px 20px; border-radius: 50px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
+            display: flex; gap: 15px; z-index: 50; align-items: center; 
+        }
+        #nav-float button { 
+            padding: 6px 14px; cursor: pointer; border: none; background: #064e3b; color: white; 
+            border-radius: 20px; font-size: 0.9em; font-weight: 500; transition: background 0.2s;
+        }
+        #nav-float button:hover { background: #022c22; }
+        #nav-float button:disabled { background: #cbd5e1; cursor: default; }
 
-        /* Lightbox fix */
-        .lightbox { display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; }
-        .lightbox img { max-width:90%; max-height:90%; box-shadow:0 0 30px rgba(0,0,0,0.5); border: 3px solid white; }
+        /* Lightbox */
+        .lightbox { display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; }
+        .lightbox img { max-width: 90%; max-height: 90%; box-shadow: 0 0 30px rgba(0,0,0,0.5); border: 3px solid white; cursor: zoom-out; }
 
+        /* --- DRUCKANSICHT --- */
         @media print {
-            body { background: white; }
-            .sheet { box-shadow: none; margin: 0; border: none; padding: 20px; }
-            .no-print, #nav-container, .lightbox { display: none !important; }
+            body { height: auto; overflow: visible; display: block; background: white; }
+            .sidebar, .top-bar, #nav-float, .lightbox, .no-print { display: none !important; }
+            .main-view { padding: 0; overflow: visible; }
+            .sheet { box-shadow: none; margin: 0; border: none; padding: 0; max-width: 100%; }
         }
     </style>
-    <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
 
-<div class="no-print" style="max-width:900px; margin:20px auto; display: flex; justify-content: space-between;">
-    <button class="btn" onclick="location.href='./stoffe.html'">← Zurück zur Liste</button>
-    <button class="btn" onclick="window.print()">Drucken / PDF</button>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <button class="btn-back" onclick="location.href='./stoffe.html'">
+            <span>← Zurück zur Liste</span>
+        </button>
+    </div>
+    <ul class="recipe-list" id="sidebarList">
+        <li style="padding:20px; color:#aaa; text-align:center;">Lade...</li>
+    </ul>
 </div>
 
-<div id="nav-container" class="no-print" style="display:none"></div>
-<div id="container" class="page-container">Lade Daten...</div>
+<div class="main-view">
+    <div class="top-bar">
+        <button class="btn-print" onclick="window.print()">
+            <span>🖨️ Drucken / PDF</span>
+        </button>
+    </div>
+
+    <div id="sheetContainer">
+        </div>
+</div>
+
+<div id="nav-float" style="display:none">
+    <button id="btnPrev">← Vorheriges</button>
+    <span id="pageCount" style="font-weight:600; color:#334155; font-variant-numeric: tabular-nums;">1 / 1</span>
+    <button id="btnNext">Nächstes →</button>
+</div>
 
 <div id="lb" class="lightbox" onclick="this.style.display='none'">
     <img id="lb-img" src="" alt="Vergrößerung">
@@ -72,6 +182,10 @@
 
 <script src="./assets/js/util.js"></script>
 <script>
+// --- LOGIK ---
+let currentData = [];
+let currentIndex = 0;
+
 function openLightbox(src) {
     const lb = document.getElementById('lb');
     const img = document.getElementById('lb-img');
@@ -79,41 +193,56 @@ function openLightbox(src) {
     lb.style.display = 'flex';
 }
 
-let currentIndex = 0;
-let currentData = [];
-
 (async () => {
     const params = new URLSearchParams(window.location.search);
-    const ids = (params.get('ids') || '').split(',').map(i => i.trim()).filter(Boolean);
-    
+    const rawIds = params.get('ids') || params.get('id') || "";
+    const ids = rawIds.split(',').map(i => i.trim()).filter(Boolean);
+
     if (!ids.length) {
-        document.getElementById('container').innerHTML = '<p style="text-align:center;padding:50px">Keine Stoffe ausgewählt.</p>';
+        document.getElementById('sheetContainer').innerHTML = '<p style="text-align:center;padding:50px;color:#aaa">Keine Stoffe ausgewählt.</p>';
+        document.getElementById('sidebarList').innerHTML = '';
         return;
     }
 
     try {
         const allData = await window.$util.loadCsv('./assets/data/MasterStoffe.csv');
+        // Daten filtern und Sortierung beibehalten
         currentData = ids.map(id => allData.find(r => r.STOFF_ID === id)).filter(Boolean);
-
+        
         if (!currentData.length) {
-            document.getElementById('container').innerHTML = '<p style="text-align:center;padding:50px">IDs nicht in Datenbank gefunden.</p>';
+            document.getElementById('sheetContainer').innerHTML = '<p style="text-align:center;padding:50px;color:red">Keine Daten gefunden.</p>';
+            document.getElementById('sidebarList').innerHTML = '';
             return;
         }
 
-        renderSheet(0);
+        renderSidebar();
+        loadSheet(0); // Erstes Blatt laden
 
     } catch (e) {
-        document.getElementById('container').innerHTML = `<p style="color:red;padding:20px;text-align:center;">Fehler beim Laden: ${e.message}</p>`;
+        console.error(e);
+        document.getElementById('sheetContainer').innerHTML = `<p style="color:red;padding:20px;">Fehler: ${e.message}</p>`;
     }
 })();
 
-function renderSheet(index) {
+function renderSidebar() {
+    const list = document.getElementById('sidebarList');
+    list.innerHTML = currentData.map((r, index) => `
+        <li class="list-item" onclick="loadSheet(${index})" id="item-${index}">
+            <strong>${r.Name_DE}</strong>
+            <span>${r.STOFF_ID}</span>
+        </li>
+    `).join('');
+}
+
+function loadSheet(index) {
     if (index < 0 || index >= currentData.length) return;
     currentIndex = index;
+
     const r = currentData[index];
     const S = (t) => t ? String(t) : "";
     const T = (s) => s ? s.split('|').map(x => `<span class="tag">${S(x.trim())}</span>`).join('') : '';
 
+    // Bild-Logik
     let imgFile = r.STOFF_ID + '.jpg';
     if (r.Platzhalter_Illu && (r.Platzhalter_Illu.includes('.jpg') || r.Platzhalter_Illu.includes('.png'))) {
         imgFile = r.Platzhalter_Illu;
@@ -125,6 +254,7 @@ function renderSheet(index) {
         infoText = r.Gemini_Comment2.replace(/\[Image.*?\]/g, '').replace(/^\|/, '').trim();
     }
 
+    // HTML Generierung
     const html = `
     <div class="sheet">
         <div class="header">
@@ -137,6 +267,7 @@ function renderSheet(index) {
                 <small style="color: #666;">${S(r.Stoff_Typ)}</small>
             </div>
         </div>
+
         <div class="main-grid">
             <div class="left">
                 <div class="section">
@@ -144,6 +275,7 @@ function renderSheet(index) {
                     <p><strong>Region:</strong> ${S(r.Herkunft_Region)}</p>
                     <p>${S(r.Wissen_Tradition)}</p>
                 </div>
+
                 <div class="section">
                     <h3>Profil</h3>
                     <div class="data-row"><div class="data-label">Familie</div><div>${S(r.Familie_Botanisch_Tags)}</div></div>
@@ -152,6 +284,7 @@ function renderSheet(index) {
                     <div class="data-row"><div class="data-label">Sensorik</div><div>${T(r.Sensorik_Tags)}</div></div>
                     ${r.Chemie_Leitsubstanzen ? `<div class="chem-box"><strong>Leitsubstanzen:</strong> ${S(r.Chemie_Leitsubstanzen)}</div>` : ''}
                 </div>
+
                 <div class="section">
                     <h3>Anwendung</h3>
                     <p>${S(r.Anwendung_Dosierung)}</p>
@@ -159,38 +292,61 @@ function renderSheet(index) {
                     ${r.Tipps_Substitution ? `<p><i>Substitut: ${S(r.Tipps_Substitution)}</i></p>` : ''}
                 </div>
             </div>
+
             <div class="right">
                 <div class="img-container" onclick="openLightbox('${imgPath}')">
-                    <img src="${imgPath}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                    <img src="${imgPath}" 
+                         title="Klicken zum Vergrößern"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
                     <div style="display:none;color:#aaa;font-size:0.8em;text-align:center;">Kein Bild verfügbar<br><small>${imgFile}</small></div>
                 </div>
+
                 ${infoText ? `<div style="background:#fefce8;padding:12px;border-radius:4px;font-size:0.9em;color:#854d0e;border:1px solid #fef08a;">💡 ${infoText}</div>` : ''}
+
                 <div class="erp-box">
                     <div class="data-row"><div class="data-label">Lieferant</div><div>${S(r.Lieferant_Haupt)}</div></div>
                     <div class="data-row"><div class="data-label">Art.Nr.</div><div>${S(r.Lieferant_ArtNr)}</div></div>
                     <div class="data-row"><div class="data-label">Haltbarkeit</div><div>${S(r.Haltbarkeit_Monate)} Monate</div></div>
                     <div class="data-row"><div class="data-label">Lagerung</div><div>${S(r.Lagerung)}</div></div>
                 </div>
+
                 ${r.Sicherheit_Kontraindikation ? `<div class="warning">⚠️ ${S(r.Sicherheit_Kontraindikation)}</div>` : ''}
             </div>
         </div>
     </div>`;
 
-    document.getElementById('container').innerHTML = html;
-    window.scrollTo(0, 0);
+    document.getElementById('sheetContainer').innerHTML = html;
+    
+    // Sidebar Status aktualisieren
+    document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
+    const activeItem = document.getElementById(`item-${index}`);
+    if (activeItem) {
+        activeItem.classList.add('active');
+        activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
-    const nav = document.getElementById('nav-container');
+    // Navigation aktualisieren
+    const nav = document.getElementById('nav-float');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const pageCount = document.getElementById('pageCount');
+
     if (currentData.length > 1) {
         nav.style.display = 'flex';
-        nav.innerHTML = `
-            <button onclick="window.changePage(-1)" ${currentIndex === 0 ? 'disabled' : ''}>← Vorheriger</button>
-            <span style="font-weight:bold; color:#333">${currentIndex + 1} / ${currentData.length}</span>
-            <button onclick="window.changePage(1)" ${currentIndex === currentData.length - 1 ? 'disabled' : ''}>Nächster →</button>
-        `;
-    }
-}
+        pageCount.textContent = `${currentIndex + 1} / ${currentData.length}`;
+        
+        btnPrev.disabled = currentIndex === 0;
+        btnNext.disabled = currentIndex === currentData.length - 1;
 
-window.changePage = (dir) => { renderSheet(currentIndex + dir); };
+        btnPrev.onclick = () => loadSheet(currentIndex - 1);
+        btnNext.onclick = () => loadSheet(currentIndex + 1);
+    } else {
+        nav.style.display = 'none';
+    }
+
+    // Scroll zurücksetzen
+    document.querySelector('.main-view').scrollTop = 0;
+}
 </script>
 </body>
 </html>
