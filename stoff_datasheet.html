@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Stoff-Bibliothek</title>
+    <title>Stoff-Datenblatt</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
@@ -194,8 +194,10 @@ function openLightbox(src) {
 }
 
 (async () => {
+    // IDs aus URL holen
     const params = new URLSearchParams(window.location.search);
     const rawIds = params.get('ids') || params.get('id') || "";
+    // IDs säubern
     const ids = rawIds.split(',').map(i => i.trim()).filter(Boolean);
 
     if (!ids.length) {
@@ -205,18 +207,30 @@ function openLightbox(src) {
     }
 
     try {
+        // Daten laden (Pfad sicherstellen!)
         const allData = await window.$util.loadCsv('./assets/data/MasterStoffe.csv');
-        // Daten filtern und Sortierung beibehalten
-        currentData = ids.map(id => allData.find(r => r.STOFF_ID === id)).filter(Boolean);
+        
+        // --- WICHTIGE ÄNDERUNG HIER ---
+        // Wir vergleichen String mit String, um Typfehler (Zahl vs Text) zu vermeiden.
+        currentData = ids.map(id => {
+            return allData.find(r => String(r.STOFF_ID) === String(id));
+        }).filter(Boolean); // Entfernt leere Einträge, falls ID nicht gefunden
         
         if (!currentData.length) {
-            document.getElementById('sheetContainer').innerHTML = '<p style="text-align:center;padding:50px;color:red">Keine Daten gefunden.</p>';
+            // Debugging-Hilfe, falls immer noch nichts kommt
+            console.warn("Gesuchte IDs:", ids);
+            console.warn("Erste 3 Zeilen CSV:", allData.slice(0,3));
+            document.getElementById('sheetContainer').innerHTML = `
+                <p style="text-align:center;padding:50px;color:red">
+                    Keine Daten für die gewählten IDs gefunden.<br>
+                    <small>Gesucht: ${ids.join(', ')}</small>
+                </p>`;
             document.getElementById('sidebarList').innerHTML = '';
             return;
         }
 
         renderSidebar();
-        loadSheet(0); // Erstes Blatt laden
+        loadSheet(0); // Erstes Blatt anzeigen
 
     } catch (e) {
         console.error(e);
@@ -228,7 +242,7 @@ function renderSidebar() {
     const list = document.getElementById('sidebarList');
     list.innerHTML = currentData.map((r, index) => `
         <li class="list-item" onclick="loadSheet(${index})" id="item-${index}">
-            <strong>${r.Name_DE}</strong>
+            <strong>${r.Name_DE || 'Unbenannt'}</strong>
             <span>${r.STOFF_ID}</span>
         </li>
     `).join('');
@@ -239,6 +253,8 @@ function loadSheet(index) {
     currentIndex = index;
 
     const r = currentData[index];
+    
+    // Hilfsfunktionen direkt hier definieren
     const S = (t) => t ? String(t) : "";
     const T = (s) => s ? s.split('|').map(x => `<span class="tag">${S(x.trim())}</span>`).join('') : '';
 
@@ -325,7 +341,7 @@ function loadSheet(index) {
         activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    // Navigation aktualisieren
+    // Navigation Buttons aktualisieren
     const nav = document.getElementById('nav-float');
     const btnPrev = document.getElementById('btnPrev');
     const btnNext = document.getElementById('btnNext');
