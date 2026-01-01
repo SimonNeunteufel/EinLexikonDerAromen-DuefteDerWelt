@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Mischungen – Suche</title>
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        .table-wrap { max-height: calc(100vh - 350px); overflow: auto; border: 1px solid #eee; border-radius: 8px; }
+        .table-wrap thead th { position: sticky; top: 0; background: #fff; z-index: 2; border-bottom: 2px solid #eee; padding: 12px; text-align: left; color: #555; cursor: pointer; user-select: none; }
+        .table-wrap thead th:hover { background-color: #f0f4f8; }
+        
+        /* Sortier-Pfeile */
+        .table-wrap thead th::after { content: ' ↕'; opacity: 0.3; font-size: 0.8em; }
+        .table-wrap thead th.sort-asc::after { content: ' ↑'; opacity: 1; color: #007bff; }
+        .table-wrap thead th.sort-desc::after { content: ' ↓'; opacity: 1; color: #007bff; }
+
+        #t { width: 100%; border-collapse: collapse; background: white; }
+        #t td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; color: #333; }
+        #t tr:hover { background-color: #f8faff; cursor: pointer; }
+        .col-id { font-family: monospace; color: #888; font-size: 0.85em; }
+        .badge { display: inline-block; padding: 4px 8px; background: #e0e7ff; color: #3730a3; border-radius: 4px; margin: 0 4px 4px 0; }
+        
+        #countrySelect:focus { height: auto; min-height: 100px; }
+
+        /* --- NEUE Styles für die Auswahl (Analog Brotrezepte) --- */
+        .col-check { width: 40px; text-align: center; }
+        .sel-check { transform: scale(1.2); cursor: pointer; }
+        
+        /* Die Leiste unten */
+        #selectionBar {
+            position: fixed; bottom: -100px; left: 0; right: 0;
+            background: #4e342e; color: white;
+            padding: 15px 30px; display: flex; justify-content: center; align-items: center; gap: 20px;
+            transition: bottom 0.3s ease-in-out; box-shadow: 0 -4px 15px rgba(0,0,0,0.2); z-index: 100;
+        }
+        #selectionBar.visible { bottom: 0; }
+        .btn-action { 
+            background: white; color: #4e342e; border: none; padding: 10px 25px; 
+            border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="BG3">
+    <div class="page">
+        <div class="header">
+            <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
+            <div class="brand">Mischungen – Übersicht</div>
+            <nav class="nav">
+                <a href="./stoffe.html">Stoffe</a>
+                <a href="./mischungen.html" class="active">Mischungen</a>
+                <a href="./baender.html">Bände</a>
+            </nav>
+        </div>
+
+        <div class="filter-section" style="justify-content: flex-start; flex-direction: column; align-items: flex-start;">
+            <div style="font-weight: bold; font-size: 0.9em; margin-bottom: 8px;">Herkunft Vorfilter:</div>
+            <div style="display: flex; gap: 15px; width: 100%; align-items: center;">
+                <div class="filter-group" id="continentFilters">
+                    </div>
+                
+                <select id="countrySelect" multiple size="1" onfocus="this.size=5;" onblur="this.size=1; applyOriginFilter();" style="margin-left: auto;">
+                    <option value="" disabled selected>Land wählen...</option>
+                </select>
+            </div>
+            <small style="color: #666; font-style: italic; margin-top: 5px;">Mehrfachauswahl mit STRG möglich. Filter greift beim Zuklappen.</small>
+        </div>
+
+        <div class="toolbar">
+            <div style="display:flex; gap:8px;">
+                <input id="q" placeholder="Suche..." type="search" style="width:250px;">
+                <button class="btn" id="go">Suchen</button>
+                </div>
+            </div>
+
+        <div class="table-wrap">
+            <table id="t">
+                <thead>
+                    <tr>
+                        <th class="col-check"><input type="checkbox" id="selectAll" style="transform: scale(1.2); cursor: pointer;"></th>
+                        <th data-sort="MIX_ID">ID</th>
+                        <th data-sort="Name_DE">Name (DE / Original)</th>
+                        <th data-sort="Art">Art</th>
+                        <th data-sort="Passt_zu">Passt zu</th>
+                        <th data-sort="Tags">Tags</th>
+                        <th>Aktion</th> </tr>
+                </thead>
+                <tbody id="mixBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="selectionBar">
+        <div style="font-size: 1.1em;"><span id="countDisplay" style="font-weight: bold;">0</span> ausgewählt</div>
+        <button class="btn-action" onclick="viewSelected()">Auswahl anzeigen</button>
+    </div>
+
+    <script src="./assets/js/util.js"></script>
+<script>
+    // Geo-Daten
+    const geoData = {
+        "Asien": ["China", "Indien", "Indonesien", "Japan", "Sri Lanka", "Thailand", "Vietnam"],
+        "Europa": ["Bulgarien", "Deutschland", "Frankreich", "Griechenland", "Italien", "Schweiz", "Spanien", "Ungarn"],
+        "Afrika": ["Ägypten", "Äthiopien", "Madagaskar", "Marokko", "Tunesien"],
+        "Amerika": ["Brasilien", "Kolumbien", "Mexiko", "Paraguay", "Peru", "USA", "Venezuela"],
+        "Ozeanien": ["Australien", "Neuseeland"]
+    };
+
+    (async () => {
+        const S = $util.safe;
+        const T = $util.formatTags;
+        let data = [], currentList = [];
+        let sortConfig = { key: null, direction: 'asc' };
+
+        // DOM Elemente
+        const tbody = document.getElementById('mixBody');
+        const countrySelect = document.getElementById('countrySelect');
+        const selectAllBox = document.getElementById('selectAll');
+        const searchInput = document.getElementById('q');
+        const continentFilters = document.getElementById('continentFilters');
+        const selectionBar = document.getElementById('selectionBar');
+        const countDisplay = document.getElementById('countDisplay');
+
+        // Initialisierung: Kontinent-Chips dynamisch erstellen
+        const initContinentChips = () => {
+            continentFilters.innerHTML = Object.keys(geoData).map(c => `
+                <label class="chip continent"><input type="checkbox" value="${c}"> ${c}</label>
+            `).join('');
+        };
+        initContinentChips();
+
+        try {
+            data = await $util.loadCsv('./assets/data/MasterRecipes.csv'); 
+            currentList = [...data];
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="7">Fehler: ${e}</td></tr>`;
+            return;
+        }
+
+        // --- RENDER FUNKTION (Neu mit Checkboxen und Button) ---
+        const render = (list) => {
+            tbody.innerHTML = list.map(r => `
+                <tr onclick="toggleRowSelection('${r.MIX_ID}')">
+                    <td class="col-check" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="sel-check" value="${r.MIX_ID}" data-name="${S(r.Name_DE)}">
+                    </td>
+                    <td class="col-id">${S(r.MIX_ID)}</td>
+                    <td><b>${S(r.Name_DE)}</b><div style="color:#666;font-style:italic">${S(r.Name_Original)}</div></td>
+                    <td>${S(r.Art)}</td>
+                    <td>${T(r.Passt_zu)}</td>
+                    <td>${T(r.Tags)}</td>
+                    <td onclick="event.stopPropagation()">
+                        <button class="btn-sm" onclick="location.href='./mischung_rezepte.html?ids=${r.MIX_ID}'">Ansehen</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Event Listener auf die neuen Checkboxen setzen
+            document.querySelectorAll('.sel-check').forEach(cb => {
+                cb.addEventListener('change', updateSelectionUI);
+            });
+            updateSelectionUI();
+        };
+
+        // --- AUSWAHL LOGIK ---
+        
+        // UI Aktualisieren
+        window.updateSelectionUI = () => {
+            const checkedBoxes = document.querySelectorAll('.sel-check:checked');
+            const visibleBoxes = document.querySelectorAll('.sel-check');
+            const count = checkedBoxes.length;
+            
+            countDisplay.innerText = count;
+
+            // Leiste einblenden
+            if (count > 0) {
+                selectionBar.classList.add('visible');
+            } else {
+                selectionBar.classList.remove('visible');
+            }
+
+            // Status der "Alle auswählen" Checkbox
+            if (visibleBoxes.length > 0 && checkedBoxes.length === visibleBoxes.length) {
+                selectAllBox.checked = true; selectAllBox.indeterminate = false;
+            } else if (count > 0) {
+                selectAllBox.checked = false; selectAllBox.indeterminate = true; 
+            } else {
+                selectAllBox.checked = false; selectAllBox.indeterminate = false;
+            }
+        };
+
+        // Klick auf Zeile selektiert Checkbox
+        window.toggleRowSelection = (id) => {
+            const cb = document.querySelector(`.sel-check[value="${id}"]`);
+            if(cb) {
+                cb.checked = !cb.checked;
+                updateSelectionUI();
+            }
+        };
+
+        // Button "Auswahl anzeigen"
+        window.viewSelected = () => {
+            const checkedBoxes = document.querySelectorAll('.sel-check:checked');
+            const ids = Array.from(checkedBoxes).map(cb => cb.value);
+            if (ids.length === 0) return;
+            location.href = `./mischung_rezepte.html?ids=${ids.join(',')}`;
+        };
+
+        // Klick auf "Alle auswählen" Header
+        selectAllBox.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            document.querySelectorAll('.sel-check').forEach(cb => {
+                cb.checked = isChecked;
+            });
+            updateSelectionUI();
+        });
+
+
+        // --- FILTER & SORT LOGIK (Wie gehabt) ---
+
+        const updateCountryDropdown = () => {
+            const selectedConts = Array.from(document.querySelectorAll('#continentFilters input:checked')).map(cb => cb.value);
+            const currentSelection = Array.from(countrySelect.selectedOptions).map(o => o.value);
+            
+            countrySelect.innerHTML = '<option value="" disabled>Land wählen...</option>';
+            
+            let countries = selectedConts.length === 0 ? Object.values(geoData).flat() : [];
+            selectedConts.forEach(c => countries.push(...(geoData[c] || [])));
+            
+            [...new Set(countries)].sort().forEach(land => {
+                const opt = document.createElement('option');
+                opt.value = land; opt.textContent = land;
+                if (currentSelection.includes(land)) opt.selected = true;
+                countrySelect.appendChild(opt);
+            });
+        };
+
+        window.applyOriginFilter = () => {
+            const query = searchInput.value.toLowerCase().trim();
+            const selectedContinents = Array.from(document.querySelectorAll('#continentFilters input:checked')).map(cb => cb.value);
+            const selectedCountries = Array.from(countrySelect.selectedOptions).map(o => o.value);
+
+            currentList = data.filter(r => {
+                const rowString = Object.values(r).join(' ').toLowerCase();
+                const herkunft = (r.Herkunft_Hierarchie || "");
+
+                const matchesText = query === "" || rowString.includes(query);
+                const matchesContinent = selectedContinents.length === 0 || selectedContinents.some(cont => herkunft.includes(cont));
+                const matchesCountry = selectedCountries.length === 0 || selectedCountries.some(c => herkunft.includes(c));
+
+                return matchesText && matchesContinent && matchesCountry;
+            });
+
+            if(sortConfig.key) sortData(sortConfig.key, true);
+            else render(currentList);
+        };
+
+        const sortData = (key, keepDirection = false) => {
+            if (!keepDirection) {
+                if (sortConfig.key === key) {
+                    sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortConfig.key = key;
+                    sortConfig.direction = 'asc';
+                }
+            }
+            currentList.sort((a, b) => {
+                let valA = (a[key] || "").toString().toLowerCase();
+                let valB = (b[key] || "").toString().toLowerCase();
+                return sortConfig.direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            });
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.sort === key) th.classList.add('sort-' + sortConfig.direction);
+            });
+            render(currentList);
+        };
+
+        // Event Listeners
+        document.getElementById('go').onclick = applyOriginFilter;
+        searchInput.oninput = applyOriginFilter;
+        
+        continentFilters.addEventListener('change', (e) => {
+            if (e.target.tagName === 'INPUT') {
+                updateCountryDropdown();
+                applyOriginFilter();
+            }
+        });
+        countrySelect.onchange = applyOriginFilter;
+
+        document.querySelectorAll('th[data-sort]').forEach(th => {
+            th.onclick = () => sortData(th.dataset.sort);
+        });
+
+        updateCountryDropdown();
+        render(data);
+    })();
+</script>
+</body>
+</html>

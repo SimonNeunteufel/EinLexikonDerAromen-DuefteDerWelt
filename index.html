@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Lexikon – Start</title>
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <script src="./assets/js/bg_loader.js" defer></script>
+    
+    <script src="[https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js](https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js)"></script>
+</head>
+<body class="BG1">
+    <div class="page">
+        <div class="header">
+            <div class="brand">Ein Lexikon der Aromen & Düfte der Welt</div>
+            <nav class="nav">
+                <a href="./stoffe.html">Stoffe</a>
+                <a href="./mischungen.html">Mischungen</a>
+                <a href="./baender.html">Bände</a>
+            </nav>
+        </div>
+        
+        <div class="h1">Willkommen</div>
+        <p class="sub">Wähle einen Bereich aus:</p>
+        
+        <div class="toolbar" style="justify-content:center">
+            <button class="btn" onclick="location.href='./stoffe.html'">🧂 Stoffe</button>
+            <button class="btn" onclick="location.href='./mischungen.html'">🌿 Mischungen</button>
+            <button class="btn" onclick="location.href='./baender.html'">📖 Bände</button>
+        </div>
+        
+        <div class="footer-note">
+            <div>© Lexikon</div>
+            <div id="stats">Lade Datenstatus …</div>
+        </div>
+    </div>
+
+    <script src="./assets/js/util.js"></script>
+    
+    <script>
+    (async () => {
+        try {
+            // Statistiken laden
+            const stoffe = await window.$util.loadCsv('./assets/data/MasterStoffe.csv');
+            const mischungen = await window.$util.loadCsv('./assets/data/MasterRecipes.csv');
+            
+            document.getElementById('stats').textContent = 
+                `Einträge gesamt: ${(stoffe.length + mischungen.length).toLocaleString('de-CH')} • Stoffe: ${stoffe.length} • Mischungen: ${mischungen.length}`;
+        } catch (e) {
+            console.error("Statistik-Fehler:", e);
+            document.getElementById('stats').textContent = 'Status nicht verfügbar';
+        }
+    })();
+    </script>
+</body>
+</html>

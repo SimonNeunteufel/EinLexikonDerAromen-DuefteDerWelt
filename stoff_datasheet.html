@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Stoff-Datenblatt</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        /* --- GRUNDLAYOUT --- */
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f0fdf4; color: #333; height: 100vh; overflow: hidden; }
+
+        /* --- Sidebar --- */
+        .app-layout { display: flex; height: 100%; width: 100%; }
+        .sidebar { width: 300px; background: white; border-right: 1px solid #d1fae5; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+        .sidebar-top { padding: 20px; border-bottom: 1px solid #e5e7eb; background: #f0fdf4; }
+        .sidebar-scroll { padding: 20px; overflow-y: auto; flex-grow: 1; }
+        .sidebar-header { font-weight: bold; margin-bottom: 15px; color: #065f46; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
+        .sidebar-list { list-style: none; padding: 0; margin: 0; }
+        .sidebar-list li { margin-bottom: 5px; }
+        .sidebar-link { 
+            text-decoration: none; color: #555; display: block; padding: 10px 12px; border-radius: 6px; 
+            transition: all 0.2s; font-size: 0.95em; border-left: 3px solid transparent; cursor: pointer; 
+        }
+        .sidebar-link:hover { background: #ecfdf5; color: #065f46; }
+        .sidebar-link.active { background: #d1fae5; color: #065f46; font-weight: bold; border-left-color: #059669; }
+        .btn { display: block; width: 100%; padding: 10px; background: #065f46; color: white; border: none; border-radius: 6px; text-align: center; text-decoration: none; font-weight: bold; cursor: pointer;}
+        .btn:hover { background: #047857; }
+
+        /* --- Content --- */
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 40px; position: relative; }
+        .recipe-sheet { background: white; padding: 50px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.08); margin: 0 auto 80px auto; max-width: 950px; min-height: 600px; position: relative; }
+
+        /* --- Content Details --- */
+        .header { display: flex; justify-content: space-between; border-bottom: 3px solid #059669; padding-bottom: 20px; margin-bottom: 40px; align-items: flex-end; }
+        .h-left h1 { margin: 0; font-size: 2.2em; color: #064e3b; }
+        .h-left h2 { margin: 5px 0 0 0; font-size: 1.2em; color: #059669; font-style: italic; font-weight: normal; }
+        .id-badge { background: #065f46; color: white; padding: 4px 10px; font-family: monospace; border-radius: 4px; font-size: 0.9em; }
+
+        .main-grid { display: grid; grid-template-columns: 2fr 1.2fr; gap: 40px; }
+        .img-container { height: 250px; background: #f9f9f9; border: 1px solid #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 20px; cursor: zoom-in; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        h3 { border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #065f46; font-size: 1em; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; font-weight: bold;}
+        .data-row { display: flex; border-bottom: 1px dotted #e5e7eb; padding: 8px 0; font-size: 0.95em; }
+        .data-label { width: 120px; font-weight: bold; color: #4b5563; flex-shrink: 0; }
+        .tag { background: #ecfdf5; color: #065f46; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; margin-right: 4px; border: 1px solid #d1fae5; display: inline-block; margin-bottom: 2px;}
+
+        /* Floating Nav */
+        .floating-nav { 
+            position: fixed; bottom: 30px; right: 40px; 
+            background: white; padding: 5px 15px; border-radius: 50px; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15); border: 1px solid #eee; 
+            display: flex; gap: 15px; z-index: 100; align-items: center; 
+        }
+        .nav-btn { 
+            width: 40px; height: 40px; border-radius: 50%; border: 1px solid #eee; 
+            background: #f9f9f9; color: #333; font-size: 1.2em; font-weight: bold; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            transition: all 0.2s; text-decoration: none; padding: 0;
+        }
+        .nav-btn:hover { background: #065f46; color: white; border-color: #065f46; transform: translateY(-2px); }
+        .nav-btn.disabled { opacity: 0.4; cursor: default; background: #eee; color: #aaa; pointer-events: none; transform: none; }
+        #pageCount { font-size: 0.9em; font-weight: bold; color: #555; }
+
+        /* Mobile */
+        @media (max-width: 900px) {
+            .app-layout { flex-direction: column; height: auto; overflow: visible; }
+            body { height: auto; overflow-y: auto; }
+            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #ccc; }
+            .sidebar-scroll { max-height: 200px; }
+            .main-content { padding: 20px; }
+            .recipe-sheet { padding: 25px; margin-bottom: 80px; }
+            .main-grid { grid-template-columns: 1fr; gap: 30px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .floating-nav { bottom: 20px; right: 20px; padding: 5px 10px; }
+        }
+        @media print {
+            .sidebar, .floating-nav, .no-print { display: none !important; }
+            .main-content { padding: 0; margin: 0; }
+            .recipe-sheet { box-shadow: none; margin: 0; padding: 0; border: none; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="imageOverlay" class="no-print" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; align-items:center; justify-content:center; cursor:zoom-out;" onclick="this.style.display='none'">
+    <img id="overlayImage" src="" style="max-width:95%; max-height:95%; border:3px solid white;">
+</div>
+
+<div class="app-layout">
+    <aside class="sidebar no-print">
+        <div class="sidebar-top">
+             <a href="./stoffe.html" class="btn">← Zurück zur Liste</a>
+        </div>
+        <div class="sidebar-scroll">
+            <div class="sidebar-header">Ausgewählte Stoffe</div>
+            <ul id="sidebarLinkList" class="sidebar-list">
+                <li style="padding:10px; text-align:center; color:#999">Lade...</li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" id="mainContentArea">
+        <div class="floating-nav no-print">
+            <button id="navPrev" class="nav-btn disabled" title="Vorheriges">←</button>
+            <span id="pageCount"></span>
+            <button onclick="window.print()" class="nav-btn" title="Drucken" style="font-size:1em">🖨️</button>
+            <button id="navNext" class="nav-btn disabled" title="Nächstes">→</button>
+        </div>
+        <div id="recipeContainer"></div>
+    </main>
+</div>
+
+<script src="./assets/js/util.js"></script>
+<script>
+// GLOBALE VARIABLEN UND FUNKTIONEN ZUERST
+let currentData = [];
+let currentIndex = 0;
+
+window.showSheet = function(index) {
+    if (index < 0 || index >= currentData.length) return;
+    currentIndex = index;
+    const r = currentData[index];
+
+    // Helpers
+    const S = (t) => t ? String(t) : "";
+    const T = (t) => t ? String(t).split(/[|,]/).map(x=>`<span class="tag">${x.trim()}</span>`).join('') : "";
+
+    const id = r.STOFF_ID || r.ID || "";
+    let imgFile = id + '.jpg';
+    if (r.Platzhalter_Illu && r.Platzhalter_Illu.includes('.')) imgFile = r.Platzhalter_Illu;
+    const imgSrc = `./assets/img/stoffe/${imgFile}`;
+
+    const html = `
+        <div class="recipe-sheet">
+            <div class="header">
+                <div class="h-left">
+                    <h1>${S(r.Name_DE)}</h1>
+                    <h2>${S(r.Name_Botanisch_INCI)} <small>(${S(r.Name_EN)})</small></h2>
+                </div>
+                <div class="h-right">
+                    <span class="id-badge">${id}</span>
+                    <div style="text-align:right; font-size:0.9em; color:#666; margin-top:5px;">${S(r.Stoff_Typ)}</div>
+                </div>
+            </div>
+
+            <div class="main-grid">
+                <div class="left">
+                    <div style="margin-bottom:30px;">
+                        <h3>Herkunft & Wissen</h3>
+                        <p><strong>Region:</strong> ${S(r.Herkunft_Region)}</p>
+                        <p>${S(r.Wissen_Tradition)}</p>
+                    </div>
+
+                    <div style="margin-bottom:30px;">
+                        <h3>Profil</h3>
+                        <div class="data-row"><div class="data-label">Familie</div><div>${S(r.Familie_Botanisch_Tags)}</div></div>
+                        <div class="data-row"><div class="data-label">Gewinnung</div><div>${S(r.Gewinnung_Tags)}</div></div>
+                        <div class="data-row"><div class="data-label">Sensorik</div><div>${T(r.Sensorik_Tags)}</div></div>
+                        ${r.Chemie_Leitsubstanzen ? `<div style="margin-top:10px; background:#fffbeb; padding:10px; border-left:4px solid #fbbf24; color:#92400e; font-size:0.9em;"><strong>Leitsubstanzen:</strong> ${S(r.Chemie_Leitsubstanzen)}</div>` : ''}
+                    </div>
+
+                    <div>
+                        <h3>Anwendung</h3>
+                        <p>${S(r.Anwendung_Dosierung)}</p>
+                        ${r.Harmoniert_Mit_Tags ? `<p><strong>Passt zu:</strong> ${S(r.Harmoniert_Mit_Tags).replace(/\|/g, ', ')}</p>` : ''}
+                    </div>
+                </div>
+
+                <div class="right">
+                    <div class="img-container" onclick="document.getElementById('overlayImage').src='${imgSrc}'; document.getElementById('imageOverlay').style.display='flex'">
+                        <img src="${imgSrc}" onerror="this.style.display='none'; this.parentElement.style.background='#f0f0f0'; this.parentElement.innerHTML='<span style=color:#aaa>Kein Bild</span>'">
+                    </div>
+
+                    <div style="background:#f9fafb; padding:15px; border-radius:6px; font-size:0.9em; border:1px solid #eee; margin-top:20px;">
+                        <div class="data-row"><div class="data-label">Haltbarkeit</div><div>${S(r.Haltbarkeit_Monate)} Monate</div></div>
+                        <div class="data-row"><div class="data-label">Lagerung</div><div>${S(r.Lagerung)}</div></div>
+                        <div class="data-row"><div class="data-label">Lieferant</div><div>${S(r.Lieferant_Haupt)}</div></div>
+                    </div>
+
+                    ${r.Sicherheit_Kontraindikation ? `<div style="margin-top:20px; background:#fef2f2; color:#991b1b; padding:10px; border-radius:6px; border:1px solid #fecaca; font-weight:bold; font-size:0.9em;">⚠️ ${S(r.Sicherheit_Kontraindikation)}</div>` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('recipeContainer').innerHTML = html;
+    document.getElementById('mainContentArea').scrollTop = 0;
+    
+    // UI Update
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    const activeLink = document.getElementById(`link-${currentIndex}`);
+    if(activeLink) {
+        activeLink.classList.add('active');
+        if(window.innerWidth < 900) activeLink.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+
+    document.getElementById('pageCount').innerText = `${currentIndex + 1} / ${currentData.length}`;
+
+    const btnPrev = document.getElementById('navPrev');
+    const btnNext = document.getElementById('navNext');
+
+    if(currentData.length > 1) {
+        btnPrev.classList.remove('disabled');
+        btnNext.classList.remove('disabled');
+        if(currentIndex === 0) btnPrev.classList.add('disabled');
+        if(currentIndex === currentData.length - 1) btnNext.classList.add('disabled');
+
+        btnPrev.onclick = () => showSheet(currentIndex - 1);
+        btnNext.onclick = () => showSheet(currentIndex + 1);
+    } else {
+        btnPrev.classList.add('disabled');
+        btnNext.classList.add('disabled');
+    }
+};
+
+(async () => {
+    // 1. IDs holen
+    const params = new URLSearchParams(window.location.search);
+    const rawIds = params.get('ids') || params.get('id') || "";
+    const allIds = rawIds.split(',').map(i => i.trim()).filter(Boolean);
+
+    const container = document.getElementById('recipeContainer');
+    const sidebarList = document.getElementById('sidebarLinkList');
+
+    if (!allIds.length) {
+        container.innerHTML = "<p style='text-align:center;padding:50px;color:#999'>Keine Auswahl.</p>";
+        sidebarList.innerHTML = "";
+        return;
+    }
+
+    // 2. Daten laden
+    let allData = [];
+    try {
+        allData = await window.$util.loadCsv('./assets/data/MasterStoffe.csv');
+    } catch(e) {
+        container.innerHTML = `<p style="color:red;padding:20px;">Fehler: ${e}</p>`;
+        return;
+    }
+
+    // 3. Robuste Filterung
+    currentData = allIds.map(searchId => {
+        return allData.find(r => {
+            const rowId = r.STOFF_ID || r.ID || Object.values(r)[0];
+            return String(rowId).trim() === searchId;
+        });
+    }).filter(Boolean);
+
+    if (currentData.length === 0) {
+        container.innerHTML = `<p style='text-align:center;padding:50px;color:red'>Daten nicht gefunden.</p>`;
+        sidebarList.innerHTML = "";
+        return;
+    }
+
+    // Sidebar
+    sidebarList.innerHTML = currentData.map((r, i) => `
+        <li><a class="sidebar-link" id="link-${i}" onclick="showSheet(${i})">${r.Name_DE || 'Unbenannt'}</a></li>
+    `).join('');
+
+    showSheet(0);
+})();
+</script>
+</body>
+</html>

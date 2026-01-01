@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Mischung Details</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        /* --- GRUNDLAYOUT --- */
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f4f7f6; color: #333; height: 100vh; overflow: hidden; }
+
+        /* --- SIDEBAR --- */
+        .app-layout { display: flex; height: 100%; width: 100%; }
+        .sidebar { width: 300px; background: white; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+        .sidebar-top { padding: 20px; border-bottom: 1px solid #eee; background: #fafafa; }
+        .sidebar-scroll { padding: 20px; overflow-y: auto; flex-grow: 1; }
+        .sidebar-header { font-weight: bold; margin-bottom: 15px; color: #4e342e; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
+        .sidebar-list { list-style: none; padding: 0; margin: 0; }
+        .sidebar-list li { margin-bottom: 5px; }
+        .sidebar-link { 
+            text-decoration: none; color: #555; display: block; padding: 10px 12px; border-radius: 6px; 
+            transition: all 0.2s; font-size: 0.95em; border-left: 3px solid transparent; cursor: pointer; 
+        }
+        .sidebar-link:hover { background: #f0f0f0; color: #000; }
+        .sidebar-link.active { background: #eef2f6; color: #4e342e; font-weight: bold; border-left-color: #4e342e; }
+        .btn { display: block; width: 100%; padding: 10px; background: #4e342e; color: white; border: none; border-radius: 6px; text-align: center; text-decoration: none; font-weight: bold; cursor: pointer;}
+        .btn:hover { background: #3e2723; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 40px; position: relative; background: #f4f7f6; }
+        .recipe-sheet { background: white; padding: 50px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.08); margin: 0 auto 80px auto; max-width: 950px; min-height: 600px; position: relative;}
+
+        /* --- CONTENT STYLES --- */
+        .header { display: flex; gap: 30px; margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 30px; }
+        .img-box { width: 200px; height: 200px; background: #f8fafc; border-radius: 12px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; cursor: zoom-in;}
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .title-box { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .badge { align-self: flex-start; background: #eff6ff; color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; }
+        h1 { margin: 0; font-size: 2.2em; color: #2c1810; line-height: 1.2; }
+        h2 { margin: 5px 0 15px 0; font-size: 1.1em; color: #666; font-style: italic; font-weight: normal; }
+        .origin { color: #555; font-size: 0.95em; display: flex; align-items: center; gap: 6px; }
+
+        .content-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; }
+        h3 { font-size: 1em; text-transform: uppercase; color: #4e342e; border-bottom: 1px solid #eee; padding-bottom: 8px; margin: 0 0 15px 0; font-weight: bold; letter-spacing: 1px; }
+        
+        ul.ing-list { list-style: none; padding: 0; margin: 0; }
+        ul.ing-list li { padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 0.95em; color: #333; }
+        
+        .step { position: relative; padding-left: 25px; margin-bottom: 12px; line-height: 1.6; color: #333; }
+        .step::before { content: "•"; position: absolute; left: 0; color: #4e342e; font-weight: bold; font-size: 1.2em; top: -2px; }
+        
+        .note { margin-top: 25px; padding: 15px; background: #fff8e1; border-left: 4px solid #ffca28; border-radius: 4px; color: #5d4037; font-size: 0.95em; }
+        .app-note { margin-top: 20px; padding: 15px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 4px; font-size: 0.95em; color: #1e3a8a; }
+
+        /* Floating Nav (Unten Rechts Pille) */
+        .floating-nav { 
+            position: fixed; bottom: 30px; right: 40px; 
+            background: white; padding: 5px 15px; border-radius: 50px; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15); border: 1px solid #eee; 
+            display: flex; gap: 15px; z-index: 100; align-items: center; 
+        }
+        .nav-btn { 
+            width: 40px; height: 40px; border-radius: 50%; border: 1px solid #eee; 
+            background: #f9f9f9; color: #333; font-size: 1.2em; font-weight: bold; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            transition: all 0.2s; text-decoration: none; padding: 0;
+        }
+        .nav-btn:hover { background: #4e342e; color: white; border-color: #4e342e; transform: translateY(-2px); }
+        .nav-btn.disabled { opacity: 0.4; cursor: default; pointer-events: none; background: #eee; }
+        #pageCount { font-size: 0.9em; font-weight: bold; color: #555; }
+
+        /* Lightbox */
+        .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; cursor: zoom-out;}
+        .lightbox img { max-width: 95%; max-height: 95%; border: 3px solid white; }
+
+        /* Mobile Styles - Sidebar oben */
+        @media (max-width: 900px) {
+            .app-layout { flex-direction: column; height: auto; overflow: visible; }
+            body { height: auto; overflow-y: auto; }
+            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #ccc; }
+            .sidebar-scroll { max-height: 200px; }
+            .main-content { padding: 20px; }
+            .recipe-sheet { padding: 25px; margin-bottom: 80px; }
+            .content-grid { grid-template-columns: 1fr; gap: 30px; }
+            .header { flex-direction: column; align-items: center; text-align: center; }
+            .badge { align-self: center; }
+            .floating-nav { bottom: 20px; right: 20px; padding: 5px 10px; }
+        }
+        @media print {
+            .sidebar, .floating-nav, .no-print { display: none !important; }
+            .main-content { padding: 0; margin: 0; }
+            .recipe-sheet { box-shadow: none; margin: 0; padding: 0; border: none; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="imageOverlay" class="lightbox no-print" onclick="this.style.display='none'">
+    <img id="overlayImage" src="" alt="Großansicht">
+</div>
+
+<div class="app-layout">
+    <aside class="sidebar no-print">
+        <div class="sidebar-top">
+             <a href="./mischungen.html" class="btn">← Zurück zur Liste</a>
+        </div>
+        <div class="sidebar-scroll">
+            <div class="sidebar-header">Ausgewählte Mischungen</div>
+            <ul id="sidebarLinkList" class="sidebar-list">
+                <li style="padding:10px; text-align:center; color:#999">Lade...</li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" id="mainContentArea">
+        <div class="floating-nav no-print">
+            <button id="navPrev" class="nav-btn disabled" title="Vorheriges">←</button>
+            <span id="pageCount"></span>
+            <button onclick="window.print()" class="nav-btn" title="Drucken" style="font-size:1em">🖨️</button>
+            <button id="navNext" class="nav-btn disabled" title="Nächstes">→</button>
+        </div>
+        <div id="recipeContainer"></div>
+    </main>
+</div>
+
+<script src="./assets/js/util.js"></script>
+<script>
+// GLOBALE DEFINITION VOR DEM AUFRUF
+let currentData = [];
+let currentIndex = 0;
+
+window.loadRecipe = function(index) {
+    if (index < 0 || index >= currentData.length) return;
+    currentIndex = index;
+    const r = currentData[index];
+
+    // Helpers
+    const S = (t) => t ? String(t) : "";
+    const L = (t) => t ? String(t).split(/[|,]/).map(x=>x.trim()).filter(Boolean) : [];
+
+    // Bild
+    let imgFile = (r.MIX_ID || 'dummy') + '.jpg';
+    if (r.Platzhalter_Illu && r.Platzhalter_Illu.includes('.')) imgFile = r.Platzhalter_Illu;
+    const imgSrc = `./assets/img/mischungen/${imgFile}`;
+
+    const html = `
+        <div class="recipe-sheet">
+            <div style="position:absolute; top:30px; right:30px; color:#ccc; font-family:monospace;">${S(r.MIX_ID)}</div>
+            <div class="header">
+                <div class="img-box" onclick="document.getElementById('overlayImage').src='${imgSrc}'; document.getElementById('imageOverlay').style.display='flex'">
+                    <img src="${imgSrc}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=color:#aaa>Kein Bild</span>'">
+                </div>
+                <div class="title-box">
+                    <span class="badge">${S(r.Art) || 'Mischung'}</span>
+                    <h1>${S(r.Name_DE)}</h1>
+                    <h2>${S(r.Name_Original)}</h2>
+                    <div class="origin">📍 ${S(r.Herkunft_Hierarchie).replace(/>/g, ' › ')}</div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="left">
+                    <h3>Zutaten</h3>
+                    <ul class="ing-list">
+                        ${L(r.Zutaten_Tags).length ? L(r.Zutaten_Tags).map(z => `<li>${z}</li>`).join('') : '<li>Keine Angaben</li>'}
+                    </ul>
+                    <div style="margin-top:30px; font-size:0.9em; color:#666;">
+                        <p><strong>Form:</strong> ${S(r.Form)}</p>
+                        <p><strong>Passt zu:</strong> ${S(r.Passt_zu).replace(/\|/g, ', ')}</p>
+                    </div>
+                </div>
+                <div class="right">
+                    <h3>Zubereitung</h3>
+                    <div>
+                        ${L(r.Herstellung_Zubereitung_Schritte).length ? L(r.Herstellung_Zubereitung_Schritte).map(s => `<div class="step">${s}</div>`).join('') : '<p style="color:#999">Keine Anleitung.</p>'}
+                    </div>
+                    ${r.Anwendungstext ? `<div class="app-note"><strong>Anwendung:</strong> ${S(r.Anwendungstext)}</div>` : ''}
+                    
+                    ${r.Gemini_Comment2 ? `<div class="note">💡 ${S(r.Gemini_Comment2).replace(/\[Image.*?\]/g,'').replace(/^\|/,'')}</div>` : ''}
+                </div>
+            </div>
+            
+            <div style="margin-top:50px; padding-top:20px; border-top:1px solid #eee; display:grid; grid-template-columns:1fr 1fr 1fr; text-align:center; font-size:0.9em; color:#666">
+                 <div><strong>Haltbarkeit</strong><br>${S(r.Haltbarkeit_Monate)} Monate</div>
+                 <div><strong>Lagerung</strong><br>${S(r.Aufbewahrung)}</div>
+                 <div><strong>Methode</strong><br>${S(r.Herstellungsmethode)}</div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('recipeContainer').innerHTML = html;
+    document.getElementById('mainContentArea').scrollTop = 0;
+    
+    // UI Update
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    const activeLink = document.getElementById(`link-${currentIndex}`);
+    if(activeLink) {
+        activeLink.classList.add('active');
+        if(window.innerWidth < 900) activeLink.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+
+    document.getElementById('pageCount').innerText = `${currentIndex + 1} / ${currentData.length}`;
+    
+    const btnPrev = document.getElementById('navPrev');
+    const btnNext = document.getElementById('navNext');
+
+    if(currentData.length > 1) {
+        btnPrev.classList.remove('disabled');
+        btnNext.classList.remove('disabled');
+        if(currentIndex === 0) btnPrev.classList.add('disabled');
+        if(currentIndex === currentData.length - 1) btnNext.classList.add('disabled');
+
+        btnPrev.onclick = () => loadRecipe(currentIndex - 1);
+        btnNext.onclick = () => loadRecipe(currentIndex + 1);
+    } else {
+        btnPrev.classList.add('disabled');
+        btnNext.classList.add('disabled');
+    }
+};
+
+(async () => {
+    const params = new URLSearchParams(window.location.search);
+    const rawIds = params.get('ids') || params.get('id') || "";
+    const allIds = rawIds.split(',').map(i => i.trim()).filter(Boolean);
+
+    const container = document.getElementById('recipeContainer');
+    const sidebarList = document.getElementById('sidebarLinkList');
+
+    if (!allIds.length) {
+        container.innerHTML = "<p style='text-align:center;padding:50px;color:#999'>Keine Auswahl.</p>";
+        sidebarList.innerHTML = "";
+        return;
+    }
+
+    let allData = [];
+    try {
+        allData = await window.$util.loadCsv('./assets/data/MasterRecipes.csv');
+    } catch(e) {
+        container.innerHTML = `<p style="color:red;padding:20px;">Fehler beim Laden: ${e}</p>`;
+        return;
+    }
+
+    currentData = allIds.map(searchId => {
+        return allData.find(r => {
+            const rowId = r.MIX_ID || r.ID || Object.values(r)[0];
+            return String(rowId).trim() === searchId;
+        });
+    }).filter(Boolean);
+
+    if (currentData.length === 0) {
+        container.innerHTML = `<p style='text-align:center;padding:50px;color:red'>Daten nicht gefunden.</p>`;
+        sidebarList.innerHTML = "";
+        return;
+    }
+
+    sidebarList.innerHTML = currentData.map((r, i) => `
+        <li><a class="sidebar-link" id="link-${i}" onclick="loadRecipe(${i})">${r.Name_DE || 'Unbenannt'}</a></li>
+    `).join('');
+
+    loadRecipe(0);
+})();
+</script>
+</body>
+</html>

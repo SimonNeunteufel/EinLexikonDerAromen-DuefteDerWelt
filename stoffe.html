@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Stoffe – Suche</title>
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        .table-wrap { max-height: calc(100vh - 350px); overflow: auto; border: 1px solid #eee; border-radius: 8px; }
+        .table-wrap thead th { position: sticky; top: 0; background: #fff; z-index: 2; border-bottom: 2px solid #eee; padding: 12px; text-align: left; color: #555; }
+        #t { width: 100%; border-collapse: collapse; background: white; }
+        #t td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; color: #333; }
+        #t tr:hover { background-color: #f0fdf4; cursor: pointer; } 
+        
+        .col-id { font-family: monospace; color: #888; font-size: 0.85em; }
+        .thumb { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; cursor: zoom-in; border: 1px solid #ddd; }
+
+        /* --- NEUE Styles für die Auswahl (Analog Brotrezepte & Mischungen) --- */
+        .col-check { width: 40px; text-align: center; }
+        .sel-check { transform: scale(1.2); cursor: pointer; }
+        
+        /* Die Leiste unten */
+        #selectionBar {
+            position: fixed; bottom: -100px; left: 0; right: 0;
+            background: #064e3b; color: white; /* Grüner Ton für Stoffe */
+            padding: 15px 30px; display: flex; justify-content: center; align-items: center; gap: 20px;
+            transition: bottom 0.3s ease-in-out; box-shadow: 0 -4px 15px rgba(0,0,0,0.2); z-index: 100;
+        }
+        #selectionBar.visible { bottom: 0; }
+        .btn-action { 
+            background: white; color: #064e3b; border: none; padding: 10px 25px; 
+            border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="BG7">
+    <script src="./assets/js/bg_loader.js" defer></script>
+
+    <div class="page">
+        <div class="header">
+            <button class="btn" onclick="location.href='./index.html'">← Zurück</button>
+            <div class="brand">Stoffe – Datenbank</div>
+            <nav class="nav">
+                <a href="./stoffe.html" class="active">Stoffe</a>
+                <a href="./mischungen.html">Mischungen</a>
+                <a href="./baender.html">Bände</a>
+            </nav>
+        </div>
+
+        <p class="sub">Einzelgewürze, Kräuter, Harze, Salze (Quelle: <code>MasterStoffe.csv</code>).</p>
+
+        <div class="filter-section">
+            <div style="font-weight: bold; font-size: 0.9em;">Kategorien vorfiltern:</div>
+            <div class="filter-group" id="catFilters">
+                <label class="chip"><input type="checkbox" value="SPC"> 🧂 Gewürze</label>
+                <label class="chip"><input type="checkbox" value="HRB"> 🌿 Kräuter</label>
+                <label class="chip"><input type="checkbox" value="OIL"> 💧 Öle & Fette</label>
+                <label class="chip"><input type="checkbox" value="TEA"> 🍵 Tee & Infusionen</label>
+                <label class="chip"><input type="checkbox" value="SAL"> 💎 Salze</label>
+                <label class="chip"><input type="checkbox" value="RES"> 🪵 Harze</label>
+                <label class="chip"><input type="checkbox" value="WOD"> 🌲 Hölzer</label>
+                <label class="chip"><input type="checkbox" value="CRY"> ❄️ Kristalle</label>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div style="display:flex; gap:8px;">
+                <input id="q" placeholder="Suche..." type="search" style="width:250px;">
+                <button class="btn" id="go">Suchen</button>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table id="t">
+                <thead>
+                    <tr>
+                        <th class="col-check"><input type="checkbox" id="selectAll" style="transform: scale(1.2); cursor: pointer;"></th>
+                        <th>ID</th>
+                        <th>Name (DE / EN)</th>
+                        <th>Botanisch / INCI</th>
+                        <th>Typ</th>
+                        <th>Herkunft</th>
+                        <th>Sensorik</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody id="stoffBody"></tbody>
+            </table>
+        </div>
+        <div class="footer-note">© Lexikon der Aromen</div>
+    </div>
+
+    <div id="selectionBar">
+        <div style="font-size: 1.1em;"><span id="countDisplay" style="font-weight: bold;">0</span> ausgewählt</div>
+        <button class="btn-action" onclick="viewSelected()">Auswahl anzeigen</button>
+    </div>
+
+    <div id="lb" class="lightbox" onclick="this.style.display='none'">
+        <img id="lb-img" src="" alt="Vergrößerung">
+    </div>
+
+    <script src="./assets/js/util.js"></script>
+    <script>
+    (async () => {
+        const S = $util.safe;
+        const T = $util.formatTags;
+
+        let data = [];
+        const tbody = document.getElementById('stoffBody');
+        const selectAllBox = document.getElementById('selectAll');
+        const selectionBar = document.getElementById('selectionBar');
+        const countDisplay = document.getElementById('countDisplay');
+
+        try {
+            data = await $util.loadCsv('./assets/data/MasterStoffe.csv'); 
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="8" style="padding:20px;color:red">Fehler: ${e}</td></tr>`;
+            return;
+        }
+
+        // --- RENDER FUNKTION ---
+        const render = (list) => {
+            if (!list.length) { 
+                tbody.innerHTML = `<tr><td colspan="8" style="padding:20px;text-align:center">Keine Treffer für diese Auswahl.</td></tr>`; 
+                updateSelectionUI();
+                return; 
+            }
+            
+            tbody.innerHTML = list.map(r => `
+                <tr onclick="toggleRowSelection('${r.STOFF_ID}')">
+                    <td class="col-check" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="sel-check" value="${r.STOFF_ID}">
+                    </td>
+                    <td class="col-id">${S(r.STOFF_ID)}</td>
+                    <td><b>${S(r.Name_DE)}</b><br><small style="color:#666">${S(r.Name_EN)}</small></td>
+                    <td style="font-style:italic">${S(r.Name_Botanisch_INCI)}</td>
+                    <td>${S(r.Stoff_Typ)}</td>
+                    <td>${S(r.Herkunft_Region)}</td>
+                    <td>${T(r.Sensorik_Tags)}</td>
+                    <td onclick="event.stopPropagation()">
+                        <button class="btn-sm" onclick="location.href='./stoff_datasheet.html?ids=${r.STOFF_ID}'">Ansehen</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Event Listener Checkboxen
+            document.querySelectorAll('.sel-check').forEach(cb => {
+                cb.addEventListener('change', updateSelectionUI);
+            });
+            updateSelectionUI();
+        };
+
+        // --- AUSWAHL LOGIK ---
+
+        window.updateSelectionUI = () => {
+            const checkedBoxes = document.querySelectorAll('.sel-check:checked');
+            const visibleBoxes = document.querySelectorAll('.sel-check');
+            const count = checkedBoxes.length;
+            
+            countDisplay.innerText = count;
+
+            if (count > 0) {
+                selectionBar.classList.add('visible');
+            } else {
+                selectionBar.classList.remove('visible');
+            }
+
+            if (visibleBoxes.length > 0 && checkedBoxes.length === visibleBoxes.length) {
+                selectAllBox.checked = true; selectAllBox.indeterminate = false;
+            } else if (count > 0) {
+                selectAllBox.checked = false; selectAllBox.indeterminate = true; 
+            } else {
+                selectAllBox.checked = false; selectAllBox.indeterminate = false;
+            }
+        };
+
+        window.toggleRowSelection = (id) => {
+            const cb = document.querySelector(`.sel-check[value="${id}"]`);
+            if(cb) {
+                cb.checked = !cb.checked;
+                updateSelectionUI();
+            }
+        };
+
+        window.viewSelected = () => {
+            const checkedBoxes = document.querySelectorAll('.sel-check:checked');
+            const ids = Array.from(checkedBoxes).map(cb => cb.value);
+            if (ids.length === 0) return;
+            location.href = `./stoff_datasheet.html?ids=${ids.join(',')}`;
+        };
+
+        selectAllBox.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            document.querySelectorAll('.sel-check').forEach(cb => {
+                cb.checked = isChecked;
+            });
+            updateSelectionUI();
+        });
+
+        // --- SUCHE LOGIK ---
+
+        const search = () => {
+            const query = document.getElementById('q').value.trim().toLowerCase();
+            const activeCodes = Array.from(document.querySelectorAll('#catFilters input:checked'))
+                                     .map(cb => cb.value.toUpperCase());
+
+            const hits = data.filter(r => {
+                const idParts = (r.STOFF_ID || "").split('-');
+                const currentCode = idParts.length > 1 ? idParts[1].toUpperCase() : "";
+                const matchesCat = activeCodes.length === 0 || activeCodes.includes(currentCode);
+                
+                const matchesText = !query || Object.values(r).join(' ').toLowerCase().includes(query);
+                
+                return matchesCat && matchesText;
+            });
+
+            render(hits);
+        };
+
+        // Event-Listener
+        document.getElementById('go').onclick = search;
+        document.getElementById('q').addEventListener('input', search); 
+        
+        document.querySelectorAll('#catFilters input').forEach(cb => {
+            cb.addEventListener('change', search);
+        });
+
+        render(data);
+    })();
+    </script>
+</body>
+</html>
