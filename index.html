@@ -8,11 +8,9 @@
     <link rel="icon" type="image/png" href="favicon.png">
     
     <script src="./assets/js/bg_loader.js" defer></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
-        /* --- NEU: Button zum Universum (Stil wie Admin-Button) --- */
         .univ-home-btn {
             position: absolute;
             top: 20px;
@@ -34,11 +32,37 @@
             background: rgba(255,255,255,0.3);
             transform: scale(1.05);
         }
+
+        /* --- NEU: Button-Design (Wie Bild 3) --- */
+        .btn {
+            background-color: #f5f5f5;
+            border: 1px solid #999;
+            color: #333;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background-color: #e0e0e0;
+            border-color: #666;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
     </style>
 </head>
 <body class="BG1">
     <div class="page">
-        <div class="header" style="position: relative;"> <a href="https://simonneunteufel.github.io/Kulinarisches-Universum/" class="univ-home-btn" title="Zurück zum Universum">🏠</a>
+        <div class="header" style="position: relative;">
+            <a href="https://simonneunteufel.github.io/Kulinarisches-Universum/" class="univ-home-btn" title="Zurück zum Universum">🏠</a>
 
             <div class="brand">Ein Lexikon der Aromen & Düfte der Welt</div>
             <nav class="nav">
@@ -64,14 +88,11 @@
     </div>
 
     <script src="./assets/js/util.js"></script>
-    
     <script>
     (async () => {
         try {
-            // Statistiken laden
             const stoffe = await window.$util.loadCsv('./assets/data/MasterStoffe.csv');
             const mischungen = await window.$util.loadCsv('./assets/data/MasterRecipes.csv');
-            
             document.getElementById('stats').textContent = 
                 `Einträge gesamt: ${(stoffe.length + mischungen.length).toLocaleString('de-CH')} • Stoffe: ${stoffe.length} • Mischungen: ${mischungen.length}`;
         } catch (e) {
