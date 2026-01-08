@@ -9,11 +9,37 @@
     
     <script src="./assets/js/bg_loader.js" defer></script>
     
-    <script src="[https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js](https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js)"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        /* --- NEU: Button zum Universum (Stil wie Admin-Button) --- */
+        .univ-home-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .univ-home-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body class="BG1">
     <div class="page">
-        <div class="header">
+        <div class="header" style="position: relative;"> <a href="https://simonneunteufel.github.io/Kulinarisches-Universum/" class="univ-home-btn" title="Zurück zum Universum">🏠</a>
+
             <div class="brand">Ein Lexikon der Aromen & Düfte der Welt</div>
             <nav class="nav">
                 <a href="./stoffe.html">Stoffe</a>
