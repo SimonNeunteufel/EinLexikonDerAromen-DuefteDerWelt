@@ -11,6 +11,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        /* HEADER DESIGN (Universum Style) */
+        .header-wrapper {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 3rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .header-title { margin: 0; font-size: 2.5rem; font-weight: 300; letter-spacing: 1px; }
+        .header-sub { opacity: 0.9; margin-top: 0.8rem; font-size: 1.1rem; font-weight: 300; color: #ecf0f1; }
+
+        /* BUTTON OBEN RECHTS */
         .univ-home-btn {
             position: absolute;
             top: 20px;
@@ -28,16 +45,13 @@
             align-items: center;
             justify-content: center;
         }
-        .univ-home-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.05);
-        }
+        .univ-home-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
 
-        /* --- NEU: Button-Design (Wie Bild 3) --- */
+        /* BUTTON STYLE (Grau) */
         .btn {
-            background-color: #f5f5f5;
-            border: 1px solid #999;
-            color: #333;
+            background-color: #f8f9fa;
+            border: 1px solid #bdc3c7;
+            color: #2c3e50;
             border-radius: 4px;
             padding: 10px 20px;
             font-size: 1rem;
@@ -46,36 +60,40 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             transition: all 0.2s ease;
             text-decoration: none;
+            margin: 5px;
             font-family: inherit;
         }
 
         .btn:hover {
-            background-color: #e0e0e0;
-            border-color: #666;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            background-color: #e2e6ea;
+            border-color: #95a5a6;
+            transform: translateY(-1px);
         }
+
+        .page-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .footer-note { margin-top: 40px; color: #7f8c8d; font-size: 0.9rem; }
     </style>
 </head>
 <body class="BG1">
-    <div class="page">
-        <div class="header" style="position: relative;">
-            <a href="https://simonneunteufel.github.io/Kulinarisches-Universum/" class="univ-home-btn" title="Zurück zum Universum">🏠</a>
-
-            <div class="brand">Ein Lexikon der Aromen & Düfte der Welt</div>
-            <nav class="nav">
-                <a href="./stoffe.html">Stoffe</a>
-                <a href="./mischungen.html">Mischungen</a>
-                <a href="./baender.html">Bände</a>
-            </nav>
-        </div>
+    
+    <div class="header-wrapper">
+        <a href="https://simonneunteufel.github.io/Kulinarisches-Universum/" class="univ-home-btn" title="Zurück zum Universum">🏠</a>
         
-        <div class="h1">Willkommen</div>
-        <p class="sub">Wähle einen Bereich aus:</p>
-        
-        <div class="toolbar" style="justify-content:center">
+        <h1 class="header-title">Lexikon der Aromen & Düfte</h1>
+        <p class="header-sub">Ein Kompendium der Welt</p>
+    </div>
+    
+    <div class="page-content">
+        <div class="toolbar">
             <button class="btn" onclick="location.href='./stoffe.html'">🧂 Stoffe</button>
             <button class="btn" onclick="location.href='./mischungen.html'">🌿 Mischungen</button>
             <button class="btn" onclick="location.href='./baender.html'">📖 Bände</button>
