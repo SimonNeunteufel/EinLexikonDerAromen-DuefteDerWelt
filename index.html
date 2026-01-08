@@ -11,97 +11,92 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        /* Gleiches CSS wie WdB für Konsistenz */
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* HEADER DESIGN (Universum Style) */
         .header-wrapper {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 3rem 1rem;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            position: relative;
+            color: white; padding: 3rem 1rem; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative;
         }
-
         .header-title { margin: 0; font-size: 2.5rem; font-weight: 300; letter-spacing: 1px; }
         .header-sub { opacity: 0.9; margin-top: 0.8rem; font-size: 1.1rem; font-weight: 300; color: #ecf0f1; }
 
-        /* BUTTON OBEN RECHTS */
         .univ-home-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            transition: all 0.3s;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; text-decoration: none; padding: 8px 12px; border-radius: 8px; font-size: 1.2rem; transition: all 0.3s; display: flex; align-items: center; justify-content: center;
         }
         .univ-home-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
 
-        /* BUTTON STYLE (Grau) */
-        .btn {
-            background-color: #f8f9fa;
-            border: 1px solid #bdc3c7;
-            color: #2c3e50;
-            border-radius: 4px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: all 0.2s ease;
-            text-decoration: none;
-            margin: 5px;
-            font-family: inherit;
-        }
+        .page-content { flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; max-width: 1000px; width: 100%; }
 
-        .btn:hover {
-            background-color: #e2e6ea;
-            border-color: #95a5a6;
-            transform: translateY(-1px);
+        /* Card Design */
+        .card {
+            background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 2rem; text-decoration: none; color: #333; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; border-top: 4px solid #27ae60; /* Akzent Grün */
         }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .card h2 { margin: 1rem 0 0.5rem 0; font-size: 1.3rem; color: #2c3e50; font-weight: 500; }
+        .icon { font-size: 3rem; margin-bottom: 0.5rem; }
 
-        .page-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            text-align: center;
+        .status-badge { margin-top: auto; font-size: 0.8rem; padding: 4px 10px; border-radius: 12px; font-weight: 600; }
+        .status-online { background-color: #d4edda; color: #155724; }
+        .status-soon { background-color: #f1f2f6; color: #7f8c8d; }
+
+        .card.disabled { background-color: #f9f9f9; cursor: not-allowed; opacity: 0.7; pointer-events: none; border-top-color: #bdc3c7; }
+        .card.disabled .icon, .card.disabled h2 { filter: grayscale(100%); opacity: 0.6; }
+
+        /* Footer Bar */
+        .footer-bar { background-color: #e8ecef; padding: 2rem 2rem 1rem 2rem; border-top: 1px solid #dee2e6; text-align: center; }
+        .footer-title { font-weight: bold; color: #5d4037; text-transform: uppercase; font-size: 0.85em; letter-spacing: 1px; margin-bottom: 15px; }
+
+        /* Stats Badges */
+        .stat-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 20px; }
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.9); border: 1px solid #d7ccc8; padding: 8px 15px; border-radius: 20px; font-size: 0.9em; color: #5d4037; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: inline-flex; align-items: center; gap: 6px;
         }
-        
-        .footer-note { margin-top: 40px; color: #7f8c8d; font-size: 0.9rem; }
+        .stat-num { font-weight: bold; color: #27ae60; /* Grün für Zahlen */ font-size: 1.1em; }
+
+        .copyright { text-align: left; font-size: 0.8rem; color: #888; margin-top: 20px; border-top: 1px solid #d0d0d0; padding-top: 10px; width: 100%; }
     </style>
 </head>
 <body class="BG1">
     
     <div class="header-wrapper">
         <a href="https://simonneunteufel.github.io/Kulinarisches-Universum/" class="univ-home-btn" title="Zurück zum Universum">🏠</a>
-        
         <h1 class="header-title">Lexikon der Aromen & Düfte</h1>
         <p class="header-sub">Ein Kompendium der Welt</p>
     </div>
     
     <div class="page-content">
-        <div class="toolbar">
-            <button class="btn" onclick="location.href='./stoffe.html'">🧂 Stoffe</button>
-            <button class="btn" onclick="location.href='./mischungen.html'">🌿 Mischungen</button>
-            <button class="btn" onclick="location.href='./baender.html'">📖 Bände</button>
+        <div class="grid-container">
+            <a href="./stoffe.html" class="card">
+                <div class="icon">🧂</div>
+                <h2>Stoffe</h2>
+                <span class="status-badge status-online">Online</span>
+            </a>
+
+            <a href="./mischungen.html" class="card">
+                <div class="icon">🌿</div>
+                <h2>Mischungen</h2>
+                <span class="status-badge status-online">Online</span>
+            </a>
+
+            <a href="./baender.html" class="card">
+                <div class="icon">📖</div>
+                <h2>Bände</h2>
+                <span class="status-badge status-online">Online</span>
+            </a>
+            
+            </div>
+    </div>
+
+    <div class="footer-bar">
+        <div class="footer-title">Datenbank Status</div>
+        <div id="stats" class="stat-container">
+            Lade Daten ...
         </div>
-        
-        <div class="footer-note">
-            <div>© Lexikon</div>
-            <div id="stats">Lade Datenstatus …</div>
+        <div class="copyright">
+            &copy; Simon Neunteufel
         </div>
     </div>
 
@@ -111,11 +106,19 @@
         try {
             const stoffe = await window.$util.loadCsv('./assets/data/MasterStoffe.csv');
             const mischungen = await window.$util.loadCsv('./assets/data/MasterRecipes.csv');
-            document.getElementById('stats').textContent = 
-                `Einträge gesamt: ${(stoffe.length + mischungen.length).toLocaleString('de-CH')} • Stoffe: ${stoffe.length} • Mischungen: ${mischungen.length}`;
+            
+            const statsDiv = document.getElementById('stats');
+            
+            // Stats als Badges rendern
+            statsDiv.innerHTML = `
+                <span class="stat-badge"><span class="stat-num">${(stoffe.length + mischungen.length).toLocaleString('de-CH')}</span> Einträge Gesamt</span>
+                <span class="stat-badge"><span class="stat-num">${stoffe.length}</span> Stoffe</span>
+                <span class="stat-badge"><span class="stat-num">${mischungen.length}</span> Mischungen</span>
+            `;
+
         } catch (e) {
             console.error("Statistik-Fehler:", e);
-            document.getElementById('stats').textContent = 'Status nicht verfügbar';
+            document.getElementById('stats').innerHTML = '<span style="color:red">Status nicht verfügbar</span>';
         }
     })();
     </script>
